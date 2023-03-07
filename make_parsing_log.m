@@ -29,12 +29,12 @@ message = {'Pause', 	'causeevent timeframe', 	'timespent',  'timespent_num', ...
     'correcttrials',  'correcttrials_num',  'answer',  'answer_num',  ...	
     'choice',  'choice_num',  'start_OCPR',  'start_OCPR_num', 	'end_OCPR', ...
     'end_OCPR_num',  'decision',  'decision_num', 	'period',  'period_num', ...	
-    'Others',  'Note'}
+    'Others',  'Note'};
 
 
 
 M={};
-M(1,:)=message(:)
+M(1,:)=message(:);
 % time_sec = strcat("[","%f","]");
 % error_discription = strcat(":  ","%f");
 timestamp_pat = "["+digitsPattern(4) + "." + digitsPattern(2) + "]";
