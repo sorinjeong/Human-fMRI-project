@@ -3,10 +3,15 @@ LOG = log_data(1:300,:);
 
 coordinate_pat = ["X=", "Y=", "Z="];
 TF= contains(LOG,coordinate_pat);
-find_T=find(TF);
+find_true=find(TF);
 
-first_T=min(find_T);
+first_T=min(find_true);
 trimmed_log = LOG(first_T:end,1);
+% find_coordinate = trimmed_log(find(contains(trimmed_log,coordinate_pat)));
+find_non_coordinate = trimmed_log(find(contains(trimmed_log,coordinate_pat)==0));
+
+event_only_log = find_non_coordinate;
+%%
 
 %숫자 있는거 모두 열추가
 %string
@@ -20,16 +25,20 @@ trimmed_log = LOG(first_T:end,1);
 %     "end_OCPR_num",  "decision",  "decision_num", 	"period",  "period_num", ...	
 %     "Others",  "Note"];
 
-%character, cell
-message = {'Pause', 	'causeevent timeframe', 	'timespent',  'timespent_num', ...
-    'Timeframe',     'relocation', 	'enter_arm',  'enter_arm_num',  ...
-    'enter_gate_', 'enter_gate_num',  'exit_gate_',  'exit_gate_num', ...
-    'causeevent scanend', 	'task number',  'task_umber_num',  	...
-    'start_control',  'start_control_num', 	'end_control',  'end_control_num', ...
-    'correcttrials',  'correcttrials_num',  'answer',  'answer_num',  ...	
-    'choice',  'choice_num',  'start_OCPR',  'start_OCPR_num', 	'end_OCPR', ...
-    'end_OCPR_num',  'decision',  'decision_num', 	'period',  'period_num', ...	
-    'Others',  'Note'};
+% %character, cell
+% message = {'Pause', 	'causeevent timeframe', 	'timespent',  'timespent_num', ...
+%     'Timeframe',     'relocation', 	'enter_arm',  'enter_arm_num',  ...
+%     'enter_gate_', 'enter_gate_num',  'exit_gate_',  'exit_gate_num', ...
+%     'causeevent scanend', 	'task number',  'task_umber_num',  	...
+%     'start_control',  'start_control_num', 	'end_control',  'end_control_num', ...
+%     'correcttrials',  'correcttrials_num',  'answer',  'answer_num',  ...	
+%     'choice',  'choice_num',  'start_OCPR',  'start_OCPR_num', 	'end_OCPR', ...
+%     'end_OCPR_num',  'decision',  'decision_num', 	'period',  'period_num', ...	
+%     'Others',  'Note'};
+
+%cell_ver2
+message = strsplit('Pause,causeevent timeframe,timespent,timespent_num,Timeframe,relocation,enter_arm,enter_arm_num,enter_gate_,enter_gate_num,exit_gate_,exit_gate_num,causeevent scanend,task number,task_umber_num,start_control,start_control_num,end_control,end_control_num,correcttrials,correcttrials_num,answer,answer_num,choice,choice_num,start_OCPR,start_OCPR_num,end_OCPR,end_OCPR_num,decision,decision_num,period,period_num,Others,Note',',');
+
 
 
 
@@ -38,27 +47,31 @@ M(1,:)=message(:);
 % time_sec = strcat("[","%f","]");
 % error_discription = strcat(":  ","%f");
 timestamp_pat = "["+digitsPattern(4) + "." + digitsPattern(2) + "]";
-% each_message = extractAfter(trimmed_log(i),":  ")
+% each_message = extractAfter(event_only_log(i),":  ")
 % find_numeric = sscanf(each_message,'%u')
-str_trimmed_log = string(trimmed_log);
+str_event_only_log = string(event_only_log);
 
-for i=1:length(str_trimmed_log)
+
+
+%% 
+
+
+for i=1:length(str_event_only_log)
     for j=1:length(message)
-        logic = contains(str_trimmed_log(i),message(j));
-        message_N = strcat(message(1,j),'_num');
-        index_message_N = find(strcmp(message, message_N));
+        logic = contains(str_event_only_log(i),message(j));
+        message_N = char(strcat(message(1,j),'_num'));
+        index_message_N = find(contains(message,message_N));
 
-        if logic == 1
+        if isempty(str_event_only_log(logic == 1)) == 0
 %            M(end+1, j)= sscanf(str_trimmed_log(i), time_sec);
-            M(end+1, j) = cellstr(extract(str_trimmed_log(i),timestamp_pat));
-          
-              event_message = extractAfter(str_trimmed_log(i),":  ");
+            M(end+1, j) = cellstr(extract(str_event_only_log(i),timestamp_pat));
+          %%
+              event_message = extractAfter(str_event_only_log(i),":  ");
 %              find_numeric = extractAfter(event_message,'%c');
-              num_pat = digitBoundary("end");
-              find_numeric = extract(event_message,num_pat);
+              find_numeric = extract(event_message,digitsPattern);
 
            if isnumeric(find_numeric) == 1
-               M(end,index_message_N) = cellstr(find_numeric);
+               M(end,index_message_N) = find_numeric;
            end
 
         else 
@@ -66,14 +79,16 @@ for i=1:length(str_trimmed_log)
 %             M(end+1,message('Others')) = sscanf(str_trimmed_log(i), time_sec);
             index_others = find(strcmp(message, 'Others'));
             index_note = find(strcmp(message, 'Note'));
-            M(end+1,index_others) = cellstr(extract(str_trimmed_log(i), timestamp_pat));
-            M(end,index_note) = cellstr(extractAfter(str_trimmed_log(i),":  "));
-        end 
+            M(end+1,index_others) = cellstr(extract(str_event_only_log(i), timestamp_pat));
+            M(end,index_note) = cellstr(extractAfter(str_event_only_log(i),":  "));
+        end
+        
     end
 end
+% 
+% br_pat = ["[", "]"];
+% M_final = extractBetween(M{:},"[","]");
+br_erased_M = strip(M,'both','[')
 
-br_pat = ["[", "]"];
-M_final = erase(M{:},br_pat);
-
-Event_Table = M_final;
+Event_Table = br_erased_M;
 Event_Table
