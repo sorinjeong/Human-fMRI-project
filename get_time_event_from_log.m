@@ -7,10 +7,9 @@ event_pat = "["+digitsPattern(4) + "." + digitsPattern(2) + "] " + optionalPatte
 
 if ~startsWith(event_log,"["+digitsPattern)
     event_log = "[0000.00] ";
+    time = 0;
 end
+event = event_log;
 
-
-event = squeeze(split(event_log, event_pat));
-event = [event(:,2)];
 
 end
