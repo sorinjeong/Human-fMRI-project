@@ -1,18 +1,29 @@
 LOG = log_data(1:300,:);
 LogStr = string(LOG);
 
-col_before_event = find(LogStr(250)==']',1,'last');
-event = LogChar(col_before_event:end)
-LogStr(250)
+event_pat = "["+digitsPattern(4) + "." + digitsPattern(2) + "] " + optionalPattern(lettersPattern+": ")+optionalPattern(lettersPattern+":  ");
 
-timeNevent = table
-for s =1:length(LogStr)
-[time,event] = get_time_event_from_log(LogStr(s));
-if ~isempty(time) & ~isempty(event);
-timeNevent.time(s) = time;
-timeNevent.event{s} = event;
-end
-end
+timeNevent = table;
+event_pre = [];
+time_pre = [];
+% for s = 1:length(LogStr)
+%     [time,event] = get_time_event_from_log(LogStr(s));
+        for t =1:length(LogStr)
+         [time,event] = get_time_event_from_log(LogStr(t));
+         time_pre(t) = time;
+         event_pre{t} = event;
+        end
+         processed_event = squeeze(split(string(event_pre), event_pat));
+         processed_event = [processed_event(:,2)];
+     
+
+%     if ~isempty(time)
+        timeNevent.time = time_pre';
+%     end
+    timeNevent.event = processed_event;
+% end
+%%
+
 
 var= [];T=table;
 event_name = ["Pause", "causeevent_timeframe"];
