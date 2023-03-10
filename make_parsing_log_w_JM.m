@@ -30,29 +30,25 @@ LogStr = string(LOG);
     Others=[];E=[];N=[];
 for i = 1:height(timeNevent)
     for j = 1: length(EventName)
-    S.(VarName{j}) = []; 
-
     contain_TF = contains(timeNevent.event{i},optionalPattern(lettersPattern | digitsPattern) + EventName{j} + optionalPattern(lettersPattern | digitsPattern), "IgnoreCase",true);
     if contain_TF == 1
-       E= timeNevent.time(i) ;
-
        digit = extract(timeNevent.event(i),digitsPattern);
        if ~isempty(digit)
-       E= [E, digit];
+           E= [E; timeNevent.time(i), digit];   
+       else
+           E= [E; timeNevent.time(i)];
        end
 
-    end
-    
-    if ~isempty(E)
-        E= [E; E];
-    elseif contains(timeNevent.event(i),coordinate_pat) ==1
-          continue;
-    else
-        Others = [Others; timeNevent.time(i), timeNevent.event(i)];
-    end
-    S.Others = Others;
-    S.(VarName{j}) = E;
-    end
+       S.(VarName{j}) = E;
 
+   elseif contains(timeNevent.event(i),coordinate_pat) ==1
+          break;
+   elseif isempty(E)
+       Others = [Others; timeNevent.time(i), timeNevent.event(i)];
+    end 
+    S.Others = Others;
+    end
 
 end
+%%
+S.Others = unique(S.Others)
