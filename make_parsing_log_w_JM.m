@@ -36,40 +36,57 @@ processed_event = [processed_event(:,2)];
 timeNevent.time = time_pre';
 timeNevent.event = processed_event;
 
-%% test whether the log contains each event name
-event_name = ["Pause", "causeevent timeframe", "Pause_num", "causeevent timeframe_num"];
-coordinate_pat = ["X=", "Y=", "Z="];
-% other_event_name = ["Others", "Others_note"]
+    %% test whether the log contains each event name
+    EventName = ["Pause", "causeevent timeframe", "Pause_num", "causeevent timeframe_num"];
+    VarName = ["Pause", "CTF", "Pause_num", "CTF_num"];
+    coordinate_pat = ["X=", "Y=", "Z="];
+    % other_event_name = ["Others", "Others_note"]
 
-V=[]; V1=[];V2=[];V_name1=[]; V_name2=[]; Others=[];
-V=table;
-for j = 1: length(event_name)
-message_num = strcat(event_name{j},'_num');
-index_message_num = find(contains(event_name,message_num));
-    for i = 1:height(timeNevent)
-        
-%         contain_TF = strcmpi(timeNevent.event{i},char(event_name(j)));
-        contain_TF = contains(timeNevent.event{i},optionalPattern(lettersPattern | digitsPattern) + event_name(j) + optionalPattern(lettersPattern | digitsPattern), "IgnoreCase",true);
-        if contain_TF == 1
-%            var(j) = timeNevent.time(i) ;
-           V{j} = [V{j}; timeNevent.time(i)];
-           V_name{j} = event_name(j);
+    % V=[]; V1=[];V2=[];V_name1=[]; V_name2=[]; Others=[];
+    % V=table(EventName); V=splitvars(V);
+    S=struct;
+    Others=[];E=[];N=[];
 
-           digit = extract(timeNevent.event(i),digitsPattern);
-           if ~isempty(digit)
-             V{j} = [V{j}, digit];
-             V_name2 = [V_name2, event_name(index_message_num)];
-           end
-        elseif contains(timeNevent.event(i),coordinate_pat) ==1
-            continue;
+    for j = 1: length(EventName)
+        S.(VarName{j}) = [];
+%         message_num = strcat(EventName{j},'_num');
+%         index_message_num = find(contains(EventName,message_num));
 
-        else
-%             var('Others') = timeNevent.time(i);
-%             var('Others_note') = timeNevent.event(i);
-            Others = [Others; timeNevent.time(i), timeNevent.event(i)];
+        for i = 1:height(timeNevent)
+            
+
+            %         contain_TF = strcmpi(timeNevent.event{i},char(event_name(j)));
+contain_TF = contains(timeNevent.event{i},optionalPattern(lettersPattern | digitsPattern) + EventName{j} + optionalPattern(lettersPattern | digitsPattern), "IgnoreCase",true);
+            if contain_TF == 1
+                E= [E; timeNevent.time(i)] ;
+                %            V(i,"EventName_"+j) = timeNevent.time(i);
+
+                digit = extract(timeNevent.event(i),digitsPattern);
+                if ~isempty(digit)
+                    %              V(i,"EventName_"+index_message_num) = digit;
+                 E= [E; timeNevent.time(i), digit];
+                end
+
+            elseif contains(timeNevent.event(i),coordinate_pat) ==1
+                continue;
+
+            else
+
+                %         OthersTime=[OthersTime; timeNevent.time(i)];
+                %         OthersNote=[OthersNote; timeNevent.event(i)];
+                Others = [Others; timeNevent.time(i), timeNevent.event(i)];
+                %             V.OthersTime(i) = timeNevent.time(i);
+                %             V.OthersNote(i) = timeNevent.event(i);
+            end
+
+
+
         end
+        S.(VarName{j}) = E
+%         S.(VarName{index_message_num}) = N
+        S.Others = Others
+
 
     end
-
-
 end
+
