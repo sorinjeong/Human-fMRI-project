@@ -37,32 +37,39 @@ timeNevent.time = time_pre';
 timeNevent.event = processed_event;
 
 %% test whether the log contains each event name
-event_name = ["Pause", "causeevent_timeframe"];
+event_name = ["Pause", "causeevent timeframe", "Pause_num", "causeevent timeframe_num"];
 coordinate_pat = ["X=", "Y=", "Z="];
+% other_event_name = ["Others", "Others_note"]
 
+V=[]; V1=[];V2=[];V_name1=[]; V_name2=[]; Others=[];
+V=table;
 for j = 1: length(event_name)
-message_num = char(strcat(event_name(j),'_num'));
+message_num = strcat(event_name{j},'_num');
 index_message_num = find(contains(event_name,message_num));
-
     for i = 1:height(timeNevent)
-        contain_TF = strcmp(timeNevent.event(i),event_name(j))
-        if contain_TF == 1;
-           var(j) = timeNevent.time(i) ;
-           event_name{j} = [];
-           event_name{j} = [event_name{j}; var(j)];
+        
+%         contain_TF = strcmpi(timeNevent.event{i},char(event_name(j)));
+        contain_TF = contains(timeNevent.event{i},optionalPattern(lettersPattern | digitsPattern) + event_name(j) + optionalPattern(lettersPattern | digitsPattern), "IgnoreCase",true);
+        if contain_TF == 1
+%            var(j) = timeNevent.time(i) ;
+           V{j} = [V{j}; timeNevent.time(i)];
+           V_name{j} = event_name(j);
 
-           if ~isempty(extract(timeNevent.event(i),digitsPattern))
-               var(index_message_num) = extract(timeNevent.event(i),digitsPattern);
-               event_name{index_message_num} = [];
-               event_name{index_message_num} = [event_name{index_message_num}; var(index_message_num)];
+           digit = extract(timeNevent.event(i),digitsPattern);
+           if ~isempty(digit)
+             V{j} = [V{j}, digit];
+             V_name2 = [V_name2, event_name(index_message_num)];
            end
-        elseif contains(timeNevent.event(i),coordinate_pat) ==1;
+        elseif contains(timeNevent.event(i),coordinate_pat) ==1
             continue;
 
         else
-            var(Others) = timeNevent.time(i);
-            var(Others_note) = timeNevent.event(i);
+%             var('Others') = timeNevent.time(i);
+%             var('Others_note') = timeNevent.event(i);
+            Others = [Others; timeNevent.time(i), timeNevent.event(i)];
         end
-    end
-end
 
+    end
+
+
+end
