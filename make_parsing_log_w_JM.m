@@ -4,22 +4,37 @@ FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL
 
 for fi = 1:numel(FileList)
     filenameo=FileList{fi};
-filefolder= ['Y:\EPhysRawData\fmri_oppa_analysis\' filenameo];
-addpath(filefolder)
+    filefolder= ['Y:\EPhysRawData\fmri_oppa_analysis\' filenameo];
+    addpath(filefolder)
 
-%% Import the file
-Root =[ filefolder '\'];
-fileToRead1=strcat(filenameo,'B.log');
-DELIMITER = ' ';
-HEADERLINES = 50000;
-no_trials=80;
+    %% Import the file
+    Root =[ filefolder '\'];
+    fileToRead1=strcat(filenameo,'B.log');
+    DELIMITER = ' ';
+    HEADERLINES = 50000;
+    no_trials=80;
 
-rawData1 = importdata([Root fileToRead1], DELIMITER, HEADERLINES);
-log_data=rawData1;
+    rawData1 = importdata([Root fileToRead1], DELIMITER, HEADERLINES);
+    log_data=rawData1;
 
-%% sample LOG file 300 rows
-LOG = log_data(1:300,:);
-LogStr = string(LOG);
+    %% sample LOG file 300 rows
+    LOG = log_data(1:300,:);
+    LogStr = string(LOG);
+
+    %% make time and event table using function
+    event_pat = "["+digitsPattern(4) + "." + digitsPattern(2) + "] " + optionalPattern(lettersPattern+": ")+optionalPattern(lettersPattern+":  ");
+
+    timeNevent = table; event_pre = []; time_pre = [];
+    for s =1:length(LogStr)
+        [time,event] = get_time_event_from_log(LogStr(s));
+        time_pre(s) = time;
+        event_pre{s} = event;
+    end
+    processed_event = squeeze(split(string(event_pre), event_pat));
+    processed_event = [processed_event(:,2)];
+
+    timeNevent.time = time_pre';
+    timeNevent.event = processed_event;
 
     %% test whether the log contains each event name
     EventName = ["Pause", "causeevent timeframe"];
@@ -28,7 +43,7 @@ LogStr = string(LOG);
 
     S=struct;
     Others=[];E=[];N=[];
-for i = 1:height(timeNevent)
+for i = 86:height(timeNevent)
     for j = 1: length(EventName)
     contain_TF = contains(timeNevent.event{i},optionalPattern(lettersPattern | digitsPattern) + EventName{j} + optionalPattern(lettersPattern | digitsPattern), "IgnoreCase",true);
     if contain_TF == 1
@@ -48,7 +63,11 @@ for i = 1:height(timeNevent)
     end 
     S.Others = Others;
     end
+end
+S.Others = unique(S.Others)
+
 
 end
-%%
-S.Others = unique(S.Others)
+
+
+
