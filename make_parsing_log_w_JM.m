@@ -44,9 +44,12 @@ for fi = 1:numel(FileList)
     S=struct;
     Others=[];E=[];
 for i = 1:height(timeNevent)
+    if contains(timeNevent.event(i),coordinate_pat) ==1
+        continue;
+    else 
     for j = 1: length(EventName)
     contain_TF = contains(timeNevent.event{i},optionalPattern(lettersPattern | digitsPattern) + EventName{j} + optionalPattern(lettersPattern | digitsPattern), "IgnoreCase",true);
-    if contain_TF == 1
+     if contain_TF == 1
        digit = extract(timeNevent.event(i),digitsPattern);
        if ~isempty(digit)
            E= [E; timeNevent.time(i), digit];   
@@ -56,18 +59,18 @@ for i = 1:height(timeNevent)
 
        S.(VarName{j}) = E;
        break;
-
-   elseif contains(timeNevent.event(i),coordinate_pat) ==1
-          continue;
-
-   elseif isempty(E)
-       continue;
+     else 
+         continue;
+     end
+           
     end
-        Others = [Others; timeNevent.time(i), timeNevent.event(i)];
-        S.Others = Others;
-        break;
-    end
+if ~contain_TF
+    Others = [Others; timeNevent.time(i), timeNevent.event(i)];
+    S.Others = Others; 
 end
+
+end 
+end 
 
 
 
