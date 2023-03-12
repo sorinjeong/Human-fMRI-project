@@ -42,8 +42,8 @@ for fi = 1:numel(FileList)
     coordinate_pat = ["X=", "Y=", "Z="];
 
     S=struct;
-    Others=[];E=[];N=[];
-for i = 86:height(timeNevent)
+    Others=[];E=[];
+for i = 1:height(timeNevent)
     for j = 1: length(EventName)
     contain_TF = contains(timeNevent.event{i},optionalPattern(lettersPattern | digitsPattern) + EventName{j} + optionalPattern(lettersPattern | digitsPattern), "IgnoreCase",true);
     if contain_TF == 1
@@ -55,16 +55,20 @@ for i = 86:height(timeNevent)
        end
 
        S.(VarName{j}) = E;
+       break;
 
    elseif contains(timeNevent.event(i),coordinate_pat) ==1
-          break;
+          continue;
+
    elseif isempty(E)
-       Others = [Others; timeNevent.time(i), timeNevent.event(i)];
-    end 
-    S.Others = Others;
+       continue;
+    end
+        Others = [Others; timeNevent.time(i), timeNevent.event(i)];
+        S.Others = Others;
+        break;
     end
 end
-S.Others = unique(S.Others)
+
 
 
 end
