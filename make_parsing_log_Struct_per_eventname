@@ -84,8 +84,11 @@ for i = 1:height(timeNevent)
 
   end 
 end 
+
+S.eOCPR = [S.eOCPR; timeNevent.time(end), timeNevent.event(end)]
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo], "S")
-% 
-% writetable(timeNevent, "timeNevent.xlsx")
 
 end
+
+
+
