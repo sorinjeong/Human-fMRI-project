@@ -1,24 +1,26 @@
+%% make trial N period
 
 Str=struct('Time',[],'Trial',[],'Period',[],'Event',[]);
 
 var_start = ["scont", "sOCPR"];
 var_end = ["endcont", "eOCPR"];
 
-prompt = "OCPR? control? or both? ";
-x = input(prompt)
-if x == "OCPR"
-    var_start = ["sOCPR"];
-    var_end = ["eOCPR"];
-elseif x == "control"
-    var_start = ["scont"];
-    var_end = ["endcont"];
-elseif x == "both" | isempty(prompt)
-    var_start = ["scont", "sOCPR"];
-    var_end = ["endcont", "eOCPR"];
-else
-    error('Input must be one of the three above')
-end
+% %% input
+% x = input('OCPR? control? or both? \n Enter 1 | 2 | 3 : ', 's')
+% if x == '1'
+%     var_start = ["sOCPR"];
+%     var_end = ["eOCPR"];
+% elseif x == '2'
+%     var_start = ["scont"];
+%     var_end = ["endcont"];
+% elseif x == '3' | isempty(prompt)
+%     var_start = ["scont", "sOCPR"];
+%     var_end = ["endcont", "eOCPR"];
+% else
+%     error('Input must be a number.')
+% end
 
+%% 
 for c=1:length(S.scont)
     for e=1:length(var_start)
         A=S.(var_start{e}); B=S.(var_end{e});
@@ -116,5 +118,13 @@ end
 
 %% make a table
 trialNperiod = table(Str.Time, Str.Trial, Str.Period, Str.Event);
+ 
+if x == '1'
+    tablename = 'trialNperiod_OCPR_only';
+elseif x == '2'
+    tablename = 'trialNperiod_control_only';
+elseif x == '3' | isempty(prompt)
+    tablename = 'trialNperiod_BOTH';
+end
 
-
+save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' tablename], "trialNperiod");
