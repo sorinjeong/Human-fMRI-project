@@ -17,12 +17,6 @@ for fi = 1:numel(FileList)
     rawData1 = importdata([Root fileToRead1], DELIMITER, HEADERLINES);
     log_data=rawData1;
 
-    %% sample LOG file 300 rows
-%     LOG = log_data(1:300,:);
-%     LogStr = string(LOG);
-% 
-%     EventName = ["Pause", "causeevent timeframe", "Timeframe"];
-%     VarName = ["Pause", "CTF", "Timeframe"];
     %% Log file to string
     LogStr = string(log_data(:));
 
@@ -92,7 +86,6 @@ for i = 1:height(timeNevent)
 end 
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo], "S")
 
+% writetable(timeNevent, "timeNevent.xlsx")
+
 end
-
-
-
