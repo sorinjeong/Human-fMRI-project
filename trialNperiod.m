@@ -5,21 +5,6 @@ Str=struct('Time',[],'Trial',[],'Period',[],'Event',[]);
 var_start = ["scont", "sOCPR"];
 var_end = ["endcont", "eOCPR"];
 
-% %% input
-% x = input('OCPR? control? or both? \n Enter 1 | 2 | 3 : ', 's')
-% if x == '1'
-%     var_start = ["sOCPR"];
-%     var_end = ["eOCPR"];
-% elseif x == '2'
-%     var_start = ["scont"];
-%     var_end = ["endcont"];
-% elseif x == '3' | isempty(prompt)
-%     var_start = ["scont", "sOCPR"];
-%     var_end = ["endcont", "eOCPR"];
-% else
-%     error('Input must be a number.')
-% end
-
 %% 
 for c=1:length(S.scont)
     for e=1:length(var_start)
@@ -30,7 +15,7 @@ for c=1:length(S.scont)
     timeBetween_p = startTime <= S.period(1:end,1) & S.period(1:end,1) <= endTime;
     timeBetween_d = startTime <= S.decision(1:end,1) & S.decision(1:end,1) <= endTime;
     [tp_r, tp_c] = find(timeBetween_p);
-    td_r = find(timeBetween_d);
+    [td_r, td_c] = find(timeBetween_d);
 
 %% start
     S_Time = startTime;
@@ -54,7 +39,7 @@ else
 end
 %% dicision
 % if ~isempty(td_r)    
-    D_Time = unique(S.decision(td_r));
+    D_Time = unique(S.decision(td_r,1));
     D_Trial = Str.Trial(end);
     D_Period = Str.Period(end);
     D_Event = "decision";
@@ -68,6 +53,7 @@ end
 
 
 %% dicision vs period
+if ~isempty(D_Time)
 
 for i=1:length(P_Time)
     for j=1:length(D_Time)
@@ -101,7 +87,7 @@ elseif length(P_Time) == length(D_Time)
             Str.Period = [Str.Period; D_Period ];
             Str.Event = [Str.Event; D_Event];
 end
-
+end
     %% end
     E_Time = endTime;
     E_Trial = Str.Trial(end);
@@ -113,18 +99,19 @@ end
     Str.Period= [Str.Period; E_Period];
     Str.Event= [Str.Event; E_Event];
 
-    end
-end
 
 %% make a table
 trialNperiod = table(Str.Time, Str.Trial, Str.Period, Str.Event);
- 
-if x == '1'
+trialNperiod.Properties.VariableNames = ["Time","Trial","Period","Event"];
+
+if ~mod(trialNperiod.Trial{1},2);
     tablename = 'trialNperiod_OCPR_only';
-elseif x == '2'
-    tablename = 'trialNperiod_control_only';
-elseif x == '3' | isempty(prompt)
+elseif (trialNperiod.Trial{1} == " 1") ==1 & contains(trialNperiod.Trial, "2") ==1
     tablename = 'trialNperiod_BOTH';
+else 
+    tablename = 'trialNperiod_control_only';
 end
 
-save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' tablename], "trialNperiod");
+save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '_' tablename], "trialNperiod");
+    end
+end
