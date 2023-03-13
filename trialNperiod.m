@@ -97,9 +97,13 @@ Str=struct('Time',[],'Trial',[],'Period',[],'Event',[]);
 var_start = ["scont", "sOCPR"];
 var_end = ["endcont", "eOCPR"];
 
-%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% e=1 control only | e=2 OCPR only | e=3 BOTH
+
 for c=1:length(S.scont)
-    for e=1:length(var_start)
+%     e=1; % control only
+%     e=2; % OCPR only
+    for e=1:length(var_start) % both
         A=S.(var_start{e}); B=S.(var_end{e});
 
     startTime = A(c,1);
@@ -136,6 +140,8 @@ end
     D_Period = Str.Period(end);
     D_Event = "decision";
 
+
+
     %% period
     P_Time = S.period(tp_r,1);
     P_Trial = Str.Trial(end);
@@ -153,7 +159,9 @@ for i=1:length(P_Time)
             Str.Time= [Str.Time; D_Time(j)];
 %             D_Time(j) = NaN;
             Str.Trial = [Str.Trial; D_Trial];
+                        S.decision(td_r,3) = D_Trial;
             Str.Period = [Str.Period; D_Period];
+                        S.decision(td_r,4) = D_Period;
             Str.Event = [Str.Event; D_Event];
         else 
             P_Time(i) < D_Time(j);
@@ -170,13 +178,17 @@ if length(P_Time) < length(D_Time)
     for a=length(P_Time)+1:length(D_Time)
         Str.Time=[Str.Time; D_Time(a)];
             Str.Trial = [Str.Trial; D_Trial];
+                        S.decision(td_r,3) = D_Trial;
             Str.Period = [Str.Period; D_Period ];
+                        S.decision(td_r,4) = D_Period;
             Str.Event = [Str.Event; D_Event];
     end
 elseif length(P_Time) == length(D_Time)
     Str.Time=[Str.Time; D_Time(length(D_Time))];
             Str.Trial = [Str.Trial; D_Trial];
+                         S.decision(td_r,3) = D_Trial;
             Str.Period = [Str.Period; D_Period ];
+                         S.decision(td_r,4) = D_Period;
             Str.Event = [Str.Event; D_Event];
 end
 end
@@ -191,26 +203,18 @@ end
     Str.Period= [Str.Period; E_Period];
     Str.Event= [Str.Event; E_Event];
 
-
+    end  % both
+end
 %% make a table
 trialNperiod = table(Str.Time, Str.Trial, Str.Period, Str.Event);
 trialNperiod.Properties.VariableNames = ["Time","Trial","Period","Event"];
 
-if ~mod(e,2)
-    tablename = 'trialNperiod_OCPR_only';
-elseif mod(e,2)
-    tablename = 'trialNperiod_control_only';
-end
+% tablename = 'trialNperiod_control_only'; % control only
+% tablename = 'trialNperiod_OCPR_only'; % OCPR only
+tablename = 'trialNperiod_BOTH'; % both
 
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '_' tablename], "trialNperiod");
-    end
-end
 
-trialNperiod = table(Str.Time, Str.Trial, Str.Period, Str.Event);
-trialNperiod.Properties.VariableNames = ["Time","Trial","Period","Event"];
-
-tablename = 'trialNperiod_BOTH';
-save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '_' tablename], "trialNperiod");
 end
 
 
