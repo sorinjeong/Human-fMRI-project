@@ -64,7 +64,7 @@ for i = 1:height(timeNevent)
          digit = [];
          digit = extract(timeNevent.event(i),digitsPattern);
        if ~isempty(digit)
-           S.(VarName{j})= [S.(VarName{j}); timeNevent.time(i), extractAfter(timeNevent.event(i), EventName{j})];   
+           S.(VarName{j})= [S.(VarName{j}); timeNevent.time(i), extractBefore(timeNevent.event(i), EventName{j})+extractAfter(timeNevent.event(i), EventName{j})];   
        else
            S.(VarName{j})= [S.(VarName{j}); timeNevent.time(i), ""];
        end
@@ -85,7 +85,7 @@ for i = 1:height(timeNevent)
   end 
 end 
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo], "S")
-
+% 
 % writetable(timeNevent, "timeNevent.xlsx")
 
 end
