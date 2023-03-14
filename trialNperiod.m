@@ -87,7 +87,8 @@ for i = 1:height(timeNevent)
 end 
 
 S.eOCPR = [S.eOCPR; timeNevent.time(end), timeNevent.event(end),i];
-save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo], "S")
+mkdir(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo]);
+save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo], "S");
 
 
 
@@ -221,6 +222,7 @@ end
 
     end  % both
 end
+
 %% make a table
 trialNperiod = table(str2double(Str.Time), str2double(Str.Trial), str2double(Str.Period), Str.Event);
 trialNperiod.Properties.VariableNames = ["Time","Trial","Period","Event"];
@@ -229,10 +231,65 @@ trialNperiod.Properties.VariableNames = ["Time","Trial","Period","Event"];
 % tablename = 'trialNperiod_OCPR_only'; % OCPR only
 tablename = 'trialNperiod_BOTH'; % both
 
-save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '_' tablename], "trialNperiod");
+save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_' tablename], "trialNperiod");
 
+
+%% S.decision + [trial period]
+
+Str.decision = S.decision;
+for i=1:height(trialNperiod)
+   for j=1:length(Str.decision)
+     if trialNperiod.Time(i) == str2double(Str.decision(j,1))
+        Str.decision(j,4) = trialNperiod.Trial(i);
+        Str.decision(j,5) = trialNperiod.Period(i);
+     end
+  end
+end
+
+Decision_table = splitvars(table(Str.decision));
+Decision_table.Properties.VariableNames = ["Time","ordi_num","Log","Trial","Period"];
+save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_Decision'], "Decision_table");
+
+%% S.caus_decision + [trial period]
+
+Str.caus_decision = S.caus_decision;
+for i=1:height(trialNperiod)
+   for j=1:length(Str.caus_decision)
+      if trialNperiod.Time(i) == str2double(Str.caus_decision(j,1))
+        Str.caus_decision(j,4) = trialNperiod.Trial(i);
+        Str.caus_decision(j,5) = trialNperiod.Period(i);
+      end
+   end
+end
+
+CausDecision_table = splitvars(table(Str.caus_decision));
+CausDecision_table.Properties.VariableNames = ["Time","ordi_num","Log","Trial","Period"];
+save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_CausDecision'], "CausDecision_table");
+
+%% S.Pause_table
+Str.Pause = S.Pause;
+for i = 1:2:height(S.Pause)
+        Str.Pause(i,2) = "start";
+end
+for i = 2:2:height(S.Pause)
+        Str.Pause(i,2) = "end";
+end
+Str.Pause(end,2) = "termination";
+Pause_table = splitvars(table(Str.Pause));
+Pause_table.Properties.VariableNames = ["Time","start/end","Log"];
+save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_Pause'], "Pause_table");
 
 end
+
+
+
+
+
+
+
+
+
+
 
 
 
