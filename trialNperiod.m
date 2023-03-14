@@ -94,6 +94,9 @@ end
 for i=1:height(S.caus_decision)
  S.caus_decision(i,2) = str2double(extractBefore(S.caus_decision(i,2),lettersPattern));
 end
+% S.period = str2double(
+% S.decision = str2double(
+% S.caus_decision = str2double(
 
 S.eOCPR = [S.eOCPR; timeNevent.time(end), timeNevent.event(end),i];
 
@@ -164,7 +167,7 @@ end
     %% make D_Log
     repeat_log=[];
     for i=1:length(td_r)
-    if S.decision(td_r(i),2) == ""
+    if ismissing(S.decision(td_r(i),2))
         repeat_log = [repeat_log, S.decision(td_r(i),3)];
         continue;
     else
