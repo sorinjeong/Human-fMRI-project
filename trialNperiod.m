@@ -1,7 +1,7 @@
-FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
-    'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
+% FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
+%     'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
 
-% FileList ={'CL130122_1'};
+FileList ={'CL130122_1'};
 
 %%
 for fi = 1:numel(FileList)
@@ -151,7 +151,22 @@ end
     D_Trial = S_Trial;
     D_Period = P_Period;
     D_Event = "decision";
-    D_Log = str2double(S.decision(td_r,3)');
+    D_Log=[];
+    %% make D_Log
+    repeat_log=[];
+    for i=1:length(td_r)
+    if S.decision(td_r(i),2) == ""
+        repeat_log = [repeat_log, S.decision(td_r(i),3)];
+        continue;
+    else
+        D_Log = [D_Log, S.decision(td_r(i),3)];
+    end
+    end
+if ~isempty(repeat_log)
+D_Log = [D_Log, repeat_log(1)];
+end
+D_Log = str2double(sort(D_Log));
+
 
 %% causeevent decision
 
