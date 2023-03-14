@@ -1,6 +1,7 @@
 FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
     'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
 
+% FileList = {'CL121121_1'};
 %%
 for fi = 1:numel(FileList)
     filenameo=FileList{fi};
@@ -84,7 +85,19 @@ for i = 1:height(timeNevent)
     end 
 end 
 
+for i=1:height(S.period)
+ S.period(i,2) = str2double(extractBefore(S.period(i,2),lettersPattern));
+end
+for i=1:height(S.decision)
+ S.decision(i,2) = str2double(extractBefore(S.decision(i,2),lettersPattern));
+end
+for i=1:height(S.caus_decision)
+ S.caus_decision(i,2) = str2double(extractBefore(S.caus_decision(i,2),lettersPattern));
+end
+
 S.eOCPR = [S.eOCPR; timeNevent.time(end), timeNevent.event(end),i];
+
+%% save log data
 % mkdir(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo]); % OCPR / control / BOTH 중 처음 한번만 run!
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo], "S");
 
@@ -106,11 +119,11 @@ for c=1:length(S.scont)
     for e=1:length(var_start) % both
         A=S.(var_start{e}); B=S.(var_end{e});
 
-    startTime = A(c,1);
-    endTime = B(c,1);
-    timeBetween_p = str2double(startTime) <= str2double(S.period(1:end,1)) & str2double(S.period(1:end,1)) <= str2double(endTime);
-    timeBetween_d = str2double(startTime) <= str2double(S.decision(1:end,1)) & str2double(S.decision(1:end,1)) <= str2double(endTime);
-    timeBetween_cd = str2double(startTime) <= str2double(S.caus_decision(1:end,1)) & str2double(S.caus_decision(1:end,1)) <= str2double(endTime);
+    startTime = str2double(A(c,1));
+    endTime = str2double(B(c,1));
+    timeBetween_p = startTime <= str2double(S.period(1:end,1)) & str2double(S.period(1:end,1)) <= endTime;
+    timeBetween_d = startTime <= str2double(S.decision(1:end,1)) & str2double(S.decision(1:end,1)) <= endTime;
+    timeBetween_cd = startTime <= str2double(S.caus_decision(1:end,1)) & str2double(S.caus_decision(1:end,1)) <= endTime;
     [tp_r, tp_c] = find(timeBetween_p);
     [td_r, td_c] = find(timeBetween_d);
     [tcd_r, tcd_c] = find(timeBetween_cd);
@@ -239,8 +252,9 @@ for i=1:height(trialNperiod)
      end
   end
 end
+% fillmissing(Str.decision,'constant',NaN)
 
-Decision_table = splitvars(table(Str.decision));
+Decision_table = splitvars(table(str2double(Str.decision)));
 Decision_table.Properties.VariableNames = ["Time","ordi_num","Log","Trial","Period"];
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_Decision'], "Decision_table");
 
@@ -256,8 +270,9 @@ for i=1:height(trialNperiod)
    end
 end
 
-CausDecision_table = splitvars(table(Str.caus_decision));
+CausDecision_table = splitvars(table(str2double(Str.caus_decision)));
 CausDecision_table.Properties.VariableNames = ["Time","ordi_num","Log","Trial","Period"];
+CausDecision_table = removevars(CausDecision_table,"ordi_num");
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_CausDecision'], "CausDecision_table");
 
 %% S.Pause_table
