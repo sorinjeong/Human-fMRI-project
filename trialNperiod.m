@@ -292,3 +292,4 @@ Pause_table.Properties.VariableNames = ["Time","start/end","Log"];
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_Pause'], "Pause_table");
 
 end
+
