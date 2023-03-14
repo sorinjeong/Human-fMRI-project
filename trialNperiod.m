@@ -1,6 +1,8 @@
 FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
     'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
 
+% FileList ={'CL130122_1'};
+
 %%
 for fi = 1:numel(FileList)
     filenameo=FileList{fi};
@@ -133,22 +135,19 @@ else
     Str.Period= [Str.Period; S_Period];
     Str.Event= [Str.Event; S_Event];
 end
-%% dicision
-% if ~isempty(td_r)    
-    D_Time = unique(S.decision(td_r,1));
-    D_Trial = Str.Trial(end);
-    D_Period = Str.Period(end);
-    D_Event = "decision";
 
-
-
-    %% period
+%% period
     P_Time = S.period(tp_r,1);
-    P_Trial = Str.Trial(end);
+    P_Trial = S_Trial;
     P_Period = extract(S.period(tp_r,2), digitsPattern);
     P_Event = "start";
 
-
+%% dicision
+% if ~isempty(td_r)    
+    D_Time = unique(S.decision(td_r,1));
+    D_Trial = S_Trial;
+    D_Period = P_Period;
+    D_Event = "decision";
 
 %% dicision vs period
 if ~isempty(D_Time)
@@ -158,13 +157,12 @@ for i=1:length(P_Time)
         if P_Time(i) > D_Time(j)
             Str.Time= [Str.Time; D_Time(j)];
 %             D_Time(j) = NaN;
-            Str.Trial = [Str.Trial; D_Trial];
-                        S.decision(td_r,3) = D_Trial;
-            Str.Period = [Str.Period; D_Period];
-                        S.decision(td_r,4) = D_Period;
+            Str.Trial = [Str.Trial; Str.Trial(end)];
+%                         S.decision(td_r,3) = D_Trial;
+            Str.Period = [Str.Period; Str.Period(end)];
+%                         S.decision(td_r,4) = D_Period;
             Str.Event = [Str.Event; D_Event];
-        else 
-            P_Time(i) < D_Time(j);
+        elseif P_Time(i) < D_Time(j);
             break;
         end
     end
@@ -178,23 +176,23 @@ if length(P_Time) < length(D_Time)
     for a=length(P_Time)+1:length(D_Time)
         Str.Time=[Str.Time; D_Time(a)];
             Str.Trial = [Str.Trial; D_Trial];
-                        S.decision(td_r,3) = D_Trial;
-            Str.Period = [Str.Period; D_Period ];
-                        S.decision(td_r,4) = D_Period;
+%                         S.decision(td_r,3) = D_Trial;
+            Str.Period = [Str.Period; D_Period(i)];
+%                         S.decision(td_r,4) = D_Period;
             Str.Event = [Str.Event; D_Event];
     end
 elseif length(P_Time) == length(D_Time)
     Str.Time=[Str.Time; D_Time(length(D_Time))];
             Str.Trial = [Str.Trial; D_Trial];
-                         S.decision(td_r,3) = D_Trial;
-            Str.Period = [Str.Period; D_Period ];
-                         S.decision(td_r,4) = D_Period;
+%                          S.decision(td_r,3) = D_Trial;
+            Str.Period = [Str.Period; D_Period(length(D_Time))];
+%                          S.decision(td_r,4) = D_Period;
             Str.Event = [Str.Event; D_Event];
 end
 end
     %% end
     E_Time = endTime;
-    E_Trial = Str.Trial(end);
+    E_Trial = S_Trial;
     E_Period = Str.Period(end);
     E_Event = "end";
 
@@ -206,7 +204,7 @@ end
     end  % both
 end
 %% make a table
-trialNperiod = table(Str.Time, Str.Trial, Str.Period, Str.Event);
+trialNperiod = table(str2double(Str.Time), str2double(Str.Trial), str2double(Str.Period), Str.Event);
 trialNperiod.Properties.VariableNames = ["Time","Trial","Period","Event"];
 
 % tablename = 'trialNperiod_control_only'; % control only
