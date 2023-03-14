@@ -1,7 +1,5 @@
-% FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
-%     'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
-
-FileList ={'CL130122_1'};
+FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
+    'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
 
 %%
 for fi = 1:numel(FileList)
@@ -233,7 +231,7 @@ tablename = 'trialNperiod_BOTH'; % both
 
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_' tablename], "trialNperiod");
 
-
+%%both일 경우에만 아래 table 생성!
 %% S.decision + [trial period]
 
 Str.decision = S.decision;
@@ -280,16 +278,3 @@ Pause_table.Properties.VariableNames = ["Time","start/end","Log"];
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_Pause'], "Pause_table");
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
