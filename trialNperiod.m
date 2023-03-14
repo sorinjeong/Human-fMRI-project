@@ -1,7 +1,7 @@
-% FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
-%     'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
+FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
+    'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
 
-FileList ={'CL130122_1'};
+% FileList ={'CL130122_1'};
 
 %%
 for fi = 1:numel(FileList)
@@ -166,7 +166,7 @@ end
     E_Trial = S_Trial;
 %   E_Period = Str.Period(end);
     E_Event = "end";
-    E_Log = str2double(S.endcont(c,3)');
+    E_Log = str2double(B(c,3));
 
 %% new strategy decision vs period
 
