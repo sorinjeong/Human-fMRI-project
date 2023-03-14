@@ -51,10 +51,11 @@ VarName = ["Pause", "CTF", "timespent", "Timeframe", "reloc", "arm",...
     coordinate_pat = ["X=", "Y=", "Z="];
 
     S=struct;
-    Others=[];E=[];
+    Others=[];E=[];decision=[];
 for i = 1:height(timeNevent)
-    if contains(timeNevent.event(i),coordinate_pat) ==1
+    if contains(timeNevent.event(i),coordinate_pat) ==1 & ~contains(timeNevent.event{i}, "2nd decision")
         continue;
+
     else 
     for j = 1: length(EventName)
     contain_TF = contains(timeNevent.event{i},optionalPattern(digitsPattern) + EventName{j} + optionalPattern(digitsPattern), "IgnoreCase",true);
@@ -84,7 +85,8 @@ for i = 1:height(timeNevent)
     S.Others = Others; 
    end
 
-  end 
+    end 
+
 end 
 
 S.eOCPR = [S.eOCPR; timeNevent.time(end), timeNevent.event(end),i];
