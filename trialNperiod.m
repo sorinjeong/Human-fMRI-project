@@ -108,9 +108,9 @@ for c=1:length(S.scont)
 
     startTime = A(c,1);
     endTime = B(c,1);
-    timeBetween_p = startTime <= S.period(1:end,1) & S.period(1:end,1) <= endTime;
-    timeBetween_d = startTime <= S.decision(1:end,1) & S.decision(1:end,1) <= endTime;
-    timeBetween_cd = startTime <= S.caus_decision(1:end,1) & S.caus_decision(1:end,1) <= endTime;
+    timeBetween_p = str2double(startTime) <= str2double(S.period(1:end,1)) & str2double(S.period(1:end,1)) <= str2double(endTime);
+    timeBetween_d = str2double(startTime) <= str2double(S.decision(1:end,1)) & str2double(S.decision(1:end,1)) <= str2double(endTime);
+    timeBetween_cd = str2double(startTime) <= str2double(S.caus_decision(1:end,1)) & str2double(S.caus_decision(1:end,1)) <= str2double(endTime);
     [tp_r, tp_c] = find(timeBetween_p);
     [td_r, td_c] = find(timeBetween_d);
     [tcd_r, tcd_c] = find(timeBetween_cd);
