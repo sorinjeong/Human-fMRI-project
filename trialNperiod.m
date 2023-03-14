@@ -85,7 +85,7 @@ for i = 1:height(timeNevent)
 end 
 
 S.eOCPR = [S.eOCPR; timeNevent.time(end), timeNevent.event(end),i];
-mkdir(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo]);
+% mkdir(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo]); % OCPR / control / BOTH 중 처음 한번만 run!
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo], "S");
 
 
@@ -146,8 +146,6 @@ end
 %% decision
 % if ~isempty(td_r)    
     D_Time = unique(S.decision(td_r,1))';
-    D_Trial = S_Trial;
-    D_Period = P_Period;
     D_Event = "decision";
     D_Log=[];
     %% make D_Log
@@ -169,15 +167,12 @@ D_Log = str2double(sort(D_Log));
 %% causeevent decision
 
     CD_Time = unique(S.caus_decision(tcd_r,1))';
-    CD_Trial = S_Trial;
-    CD_Period = P_Period;
     CD_Event = "caus_decision";
     CD_Log = str2double(S.caus_decision(tcd_r,3)');
 
 %% end
     E_Time = endTime;
     E_Trial = S_Trial;
-%   E_Period = Str.Period(end);
     E_Event = "end";
     E_Log = str2double(B(c,3));
 
@@ -231,7 +226,8 @@ tablename = 'trialNperiod_BOTH'; % both
 
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_' tablename], "trialNperiod");
 
-%%both일 경우에만 아래 table 생성!
+
+%%%%%%%%%%%%%%%%% both일 경우에만 아래 table 생성!%%%%%%%%%%%%%%%%%%%%%
 %% S.decision + [trial period]
 
 Str.decision = S.decision;
