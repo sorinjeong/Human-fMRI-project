@@ -57,36 +57,33 @@ for i = 1:height(timeNevent)
         continue;
 
     else 
-    for j = 1: length(EventName)
-    contain_TF = contains(timeNevent.event{i},optionalPattern(digitsPattern) + EventName{j} + optionalPattern(digitsPattern), "IgnoreCase",true);
+        for j = 1: length(EventName)
+         contain_TF = contains(timeNevent.event{i},optionalPattern(digitsPattern) + EventName{j} + optionalPattern(digitsPattern), "IgnoreCase",true);
 
-     if contain_TF == 1
-        if ~isfield(S,VarName{j})
-            S.(VarName{j}) = [];
-        end 
-         digit = [];
-         digit = extract(timeNevent.event(i),digitsPattern);
-       if ~isempty(digit)
-           S.(VarName{j})= [S.(VarName{j}); timeNevent.time(i), extractBefore(timeNevent.event(i), EventName{j})+extractAfter(timeNevent.event(i), EventName{j}), i];   
-       else
-           S.(VarName{j})= [S.(VarName{j}); timeNevent.time(i), "", i];
-       end
+            if contain_TF == 1
+                if ~isfield(S,VarName{j})
+                    S.(VarName{j}) = [];
+                end 
+                digit = [];
+                digit = extract(timeNevent.event(i),digitsPattern);
+                if ~isempty(digit)
+                  S.(VarName{j})= [S.(VarName{j}); timeNevent.time(i), extractBefore(timeNevent.event(i), EventName{j})+extractAfter(timeNevent.event(i), EventName{j}), i];   
+                 else
+                   S.(VarName{j})= [S.(VarName{j}); timeNevent.time(i), "", i];
+                end
 
-       break;
-
-      else 
-         continue;
-      end
+              break;
+            else 
+             continue;
+            end
            
-   end
+        end
 
-   if ~contain_TF
-    Others = [Others; timeNevent.time(i), timeNevent.event(i),i];
-    S.Others = Others; 
-   end
-
+        if ~contain_TF
+          Others = [Others; timeNevent.time(i), timeNevent.event(i),i];
+          S.Others = Others; 
+        end
     end 
-
 end 
 
 S.eOCPR = [S.eOCPR; timeNevent.time(end), timeNevent.event(end),i];
@@ -222,60 +219,6 @@ for i=1:length(log_order)
     end 
 end
 
-
-% %% decision vs period
-% if ~isempty(D_Time)
-% 
-%     
-% for i=1:length(P_Time)
-%     for j=1:length(D_Time)
-%         if P_Time(i) > D_Time(j)
-%             Str.Time= [Str.Time; D_Time(j)];
-% %             D_Time(j) = NaN;
-%             Str.Trial = [Str.Trial; Str.Trial(end)];
-% %                         S.decision(td_r,3) = D_Trial;
-%             Str.Period = [Str.Period; Str.Period(end)];
-% %                         S.decision(td_r,4) = D_Period;
-%             Str.Event = [Str.Event; D_Event];
-%         elseif P_Time(i) < D_Time(j);
-%             break;
-%         end
-%     end
-%     Str.Time = [Str.Time; P_Time(i)];
-%             Str.Trial = [Str.Trial; P_Trial];
-%             Str.Period = [Str.Period; P_Period(i)];
-%             Str.Event = [Str.Event; P_Event];
-% end
-% 
-% if length(P_Time) < length(D_Time)
-%     for a=length(P_Time)+1:length(D_Time)
-%         Str.Time=[Str.Time; D_Time(a)];
-%             Str.Trial = [Str.Trial; D_Trial];
-% %                         S.decision(td_r,3) = D_Trial;
-%             Str.Period = [Str.Period; D_Period(i)];
-% %                         S.decision(td_r,4) = D_Period;
-%             Str.Event = [Str.Event; D_Event];
-%     end
-% elseif length(P_Time) == length(D_Time)
-%     Str.Time=[Str.Time; D_Time(length(D_Time))];
-%             Str.Trial = [Str.Trial; D_Trial];
-% %                          S.decision(td_r,3) = D_Trial;
-%             Str.Period = [Str.Period; D_Period(length(D_Time))];
-% %                          S.decision(td_r,4) = D_Period;
-%             Str.Event = [Str.Event; D_Event];
-% end
-% end
-%     %% end
-%     E_Time = endTime;
-%     E_Trial = S_Trial;
-%     E_Period = Str.Period(end);
-%     E_Event = "end";
-% 
-%     Str.Time= [Str.Time; E_Time];
-%     Str.Trial= [Str.Trial; E_Trial];
-%     Str.Period= [Str.Period; E_Period];
-%     Str.Event= [Str.Event; E_Event];
-
     end  % both
 end
 %% make a table
@@ -287,6 +230,7 @@ trialNperiod.Properties.VariableNames = ["Time","Trial","Period","Event"];
 tablename = 'trialNperiod_BOTH'; % both
 
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '_' tablename], "trialNperiod");
+
 
 end
 
