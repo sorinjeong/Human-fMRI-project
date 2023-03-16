@@ -112,7 +112,7 @@ var_end = ["endcont", "eOCPR"];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% e=1 control only | e=2 OCPR only | e=3 BOTH
-
+c=missing;e=missing;
 for c=1:length(S.scont)
 %     e=1; % control only
 %     e=2; % OCPR only
@@ -121,13 +121,12 @@ for c=1:length(S.scont)
 
     startTime = str2double(A(c,1));
     endTime = str2double(B(c,1));
-    timeBetween_p = startTime <= str2double(S.period(1:end,1)) & str2double(S.period(1:end,1)) <= endTime;
-    timeBetween_d = startTime <= str2double(S.decision(1:end,1)) & str2double(S.decision(1:end,1)) <= endTime;
-    timeBetween_cd = startTime <= str2double(S.caus_decision(1:end,1)) & str2double(S.caus_decision(1:end,1)) <= endTime;
+    timeBetween_p = startTime <= str2double(S.period(:,1)) & str2double(S.period(:,1)) <= endTime;
+    timeBetween_d = startTime <= str2double(S.decision(:,1)) & str2double(S.decision(:,1)) <= endTime;
+    timeBetween_cd = startTime <= str2double(S.caus_decision(:,1)) & str2double(S.caus_decision(:,1)) <= endTime;
     [tp_r, tp_c] = find(timeBetween_p);
     [td_r, td_c] = find(timeBetween_d);
     [tcd_r, tcd_c] = find(timeBetween_cd);
-
 
 %% start
     S_Time = startTime;
@@ -191,24 +190,44 @@ D_Log = str2double(sort(D_Log));
     E_Log = str2double(B(c,3));
 
 %% correctness answer and choice #1
-C_Log=[]; A_Log=[];[o,c] = find(S.Others == "9");
+C_Log=[]; A_Log=[];[o,oc] = find(S.Others == "9");
+if c ~= length(A)
+    startLog = str2double(A(c,3));
+    nextstartLog = str2double(A(c+1,3));
+    logBetween_c = startLog <= str2double(S.choice(:,3)) & str2double(S.choice(:,3)) <= nextstartLog;
+    logBetween_a = startLog <= str2double(S.answer(:,3)) & str2double(S.answer(:,3)) <= nextstartLog;
+    logBetween_o = startLog <= str2double(S.Others(o,3)) & str2double(S.Others(o,3)) <= nextstartLog;
 
-for i=1:height(S.choice)
-    for j=1:height(S.answer)
-        if floor(str2double(S.choice(i,1))) == floor(str2double(S.answer(j,1)))
-            C_Log = [C_Log, str2double(S.choice(i,3))];
-            A_Log = [A_Log, str2double(S.answer(j,3))];
+    [lc_r, lc_c] = find(logBetween_c);
+    [la_r, la_c] = find(logBetween_a);
+    [lo_r, lo_c] = find(logBetween_o);
+
+
+    C_Time = str2double(S.choice(lc_r,1)');
+    C_Note = str2double(S.choice(lc_r,2)');
+    A_Time = str2double(S.answer(la_r,1)');
+    A_Note = str2double(S.answer(la_r,2)');
+    O_Time = str2double(S.Others(lo_r,1)');
+    O_Note = str2double(S.Others(lo_r,2)');
+
+end
+
+for i=1:height(lc_r)
+    for j=1:height(la_r)
+        if floor(C_Time(i)) == floor(A_Time(j))
+            C_Log = [C_Log, str2double(S.choice(lc_r(i),3))];
+            A_Log = [A_Log, str2double(S.answer(la_r(j),3))];
             break;
         else 
-            for k=1:length(o)
-                if floor(str2double(S.choice(i,1))) == floor(str2double(S.Others(o(k),1)))
-                    C_Log = [C_Log, str2double(S.choice(i,3))];
-                    A_Log = [A_Log, str2double(S.Others(o(k),3))];  
+            for k=1:length(lo_r)
+                if floor(C_Time(i)) == floor(O_Time(k))
+                    C_Log = [C_Log, str2double(S.choice(lc_r(i),3))];
+                    A_Log = [A_Log, str2double(S.Others(lo_r(k),3))];  
                     break;
                 end
             end
         end
-        if C_Log(end) == str2double(S.choice(i,3))
+        if C_Log(end) == str2double(S.choice(lc_r(i),3))
             break;
         end
     end
@@ -256,18 +275,18 @@ for i=1:length(log_order)
         Str.Note = [Str.Note; missing];
 
     elseif ~isempty(A_index)
-        if ~isempty(find(log_order(i) == str2double(S.answer(:,3))))
-        Str.Time= [Str.Time; S.answer(find(str2double(S.answer(:,3))==log_order(i)),1)];
+        if ~isempty(A_Log(A_index) == str2double(S.answer(la_r,3)))
+        Str.Time= [Str.Time; A_Time(A_Log(A_index) == str2double(S.answer(la_r,3)))];
         Str.Event = [Str.Event; "answer"];
-        Str.Note = [Str.Note; S.answer(find(str2double(S.answer(:,3))==log_order(i)),2)];
-        elseif ~isempty(find(log_order(i) == str2double(S.Others(:,3))))
-        Str.Time= [Str.Time; S.Others(find(str2double(S.Others(:,3))==log_order(i)),1)];
+        Str.Note = [Str.Note; A_Note(A_Log(A_index) == str2double(S.answer(la_r,3)))];
+        elseif ~isempty(A_Log(A_index) == str2double(S.Others(lo_r,3)))
+        Str.Time= [Str.Time; O_Time(A_Log(A_index) == str2double(S.Others(lo_r,3)))];
         Str.Event = [Str.Event; "miss_answer9"];
-        Str.Note = [Str.Note; S.Others(find(str2double(S.Others(:,3))==log_order(i)),2)];
+        Str.Note = [Str.Note; O_Note(A_Log(A_index) == str2double(S.Others(lo_r,3)))];
         end
-        Str.Time= [Str.Time; S.choice(find(str2double(S.choice(:,3))==str2double(log_order(i)+1)),1)];
+        Str.Time= [Str.Time; C_Time(floor(C_Time)==floor(str2double(Str.Time(end))))];
         Str.Event = [Str.Event; "choice"];
-        Str.Note = [Str.Note; S.choice(find(str2double(S.choice(:,3))==str2double(log_order(i)+1)),2)];
+        Str.Note = [Str.Note; C_Note(floor(C_Time)==floor(str2double(Str.Time(end))))];
         Str.Trial = [Str.Trial; missing; missing];
         Str.Period = [Str.Period; missing; missing];
     end 
@@ -277,7 +296,7 @@ end
 end
 
 %% make a table
-AnswerChoice = table(str2double(Str.Time), str2double(Str.Trial), str2double(Str.Period), Str.Event, Str.Note);
+AnswerChoice = table(str2double(Str.Time), str2double(Str.Trial), str2double(Str.Period), Str.Event, str2double(Str.Note));
 AnswerChoice.Properties.VariableNames = ["Time","Trial","Period","Event", "Note"];
 
 % tablename = 'trialNperiod_control_only'; % control only
@@ -334,6 +353,8 @@ Str.Pause(end,2) = "termination";
 Pause_table = splitvars(table(Str.Pause));
 Pause_table.Properties.VariableNames = ["Time","start/end","Log"];
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_Pause'], "Pause_table");
+
+
 
 end
 
