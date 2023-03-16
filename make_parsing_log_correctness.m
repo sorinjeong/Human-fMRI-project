@@ -105,7 +105,7 @@ save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' fi
 
 %% make trial N period
 
-Str=struct('Time',[],'Trial',[],'Period',[],'Event',[]);
+Str=struct('Time',[],'Trial',[],'Period',[],'Event',[],'Note',[]);
 
 var_start = ["scont", "sOCPR"];
 var_end = ["endcont", "eOCPR"];
@@ -190,9 +190,34 @@ D_Log = str2double(sort(D_Log));
     E_Event = "end";
     E_Log = str2double(B(c,3));
 
+%% correctness answer and choice #1
+C_Log=[]; A_Log=[];[o,c] = find(S.Others == "9");
+
+for i=1:height(S.choice)
+    for j=1:height(S.answer)
+        if floor(str2double(S.choice(i,1))) == floor(str2double(S.answer(j,1)))
+            C_Log = [C_Log, str2double(S.choice(i,3))];
+            A_Log = [A_Log, str2double(S.answer(j,3))];
+            break;
+        else 
+            for k=1:length(o)
+                if floor(str2double(S.choice(i,1))) == floor(str2double(S.Others(o(k),1)))
+                    C_Log = [C_Log, str2double(S.choice(i,3))];
+                    A_Log = [A_Log, str2double(S.Others(o(k),3))];  
+                    break;
+                end
+            end
+        end
+        if C_Log(end) == str2double(S.choice(i,3))
+            break;
+        end
+    end
+end
+
+
 %% new strategy decision vs period
 
-log_order = sort([P_Log D_Log CD_Log E_Log]);
+log_order = sort([P_Log D_Log CD_Log E_Log A_Log]);
 
 for i=1:length(log_order)
 
@@ -200,30 +225,51 @@ for i=1:length(log_order)
     D_index = find(log_order(i) == D_Log);
     CD_index = find(log_order(i) == CD_Log);
     E_index = find(log_order(i) == E_Log);
+    A_index = find(log_order(i) == A_Log);
 
     if ~isempty(P_index)
         Str.Time = [Str.Time; P_Time(P_index)];
         Str.Trial = [Str.Trial; P_Trial];
         Str.Period = [Str.Period; P_Period(P_index)];
         Str.Event = [Str.Event; P_Event];
+        Str.Note = [Str.Note; missing];
 
     elseif ~isempty(D_index)
         Str.Time= [Str.Time; D_Time(D_index)];
-        Str.Trial = [Str.Trial; Str.Trial(end)];
-        Str.Period = [Str.Period; Str.Period(end)];
+        Str.Trial = [Str.Trial; missing];
+        Str.Period = [Str.Period; missing];
         Str.Event = [Str.Event; D_Event];
+        Str.Note = [Str.Note; missing];
 
     elseif ~isempty(CD_index)
         Str.Time= [Str.Time; CD_Time(CD_index)];
-        Str.Trial = [Str.Trial; Str.Trial(end)];
-        Str.Period = [Str.Period; Str.Period(end)];
+        Str.Trial = [Str.Trial; missing];
+        Str.Period = [Str.Period; missing];
         Str.Event = [Str.Event; CD_Event];
+        Str.Note = [Str.Note; missing];
 
     elseif ~isempty(E_index)
         Str.Time= [Str.Time; E_Time];
         Str.Trial= [Str.Trial; E_Trial];
-        Str.Period= [Str.Period; Str.Period(end)];
+        Str.Period= [Str.Period; missing];
         Str.Event= [Str.Event; E_Event];
+        Str.Note = [Str.Note; missing];
+
+    elseif ~isempty(A_index)
+        if ~isempty(find(log_order(i) == str2double(S.answer(:,3))))
+        Str.Time= [Str.Time; S.answer(find(str2double(S.answer(:,3))==log_order(i)),1)];
+        Str.Event = [Str.Event; "answer"];
+        Str.Note = [Str.Note; S.answer(find(str2double(S.answer(:,3))==log_order(i)),2)];
+        elseif ~isempty(find(log_order(i) == str2double(S.Others(:,3))))
+        Str.Time= [Str.Time; S.Others(find(str2double(S.Others(:,3))==log_order(i)),1)];
+        Str.Event = [Str.Event; "miss_answer9"];
+        Str.Note = [Str.Note; S.Others(find(str2double(S.Others(:,3))==log_order(i)),2)];
+        end
+        Str.Time= [Str.Time; S.choice(find(str2double(S.choice(:,3))==str2double(log_order(i)+1)),1)];
+        Str.Event = [Str.Event; "choice"];
+        Str.Note = [Str.Note; S.choice(find(str2double(S.choice(:,3))==str2double(log_order(i)+1)),2)];
+        Str.Trial = [Str.Trial; missing; missing];
+        Str.Period = [Str.Period; missing; missing];
     end 
 end
 
@@ -231,25 +277,25 @@ end
 end
 
 %% make a table
-trialNperiod = table(str2double(Str.Time), str2double(Str.Trial), str2double(Str.Period), Str.Event);
-trialNperiod.Properties.VariableNames = ["Time","Trial","Period","Event"];
+AnswerChoice = table(str2double(Str.Time), str2double(Str.Trial), str2double(Str.Period), Str.Event, Str.Note);
+AnswerChoice.Properties.VariableNames = ["Time","Trial","Period","Event", "Note"];
 
 % tablename = 'trialNperiod_control_only'; % control only
 % tablename = 'trialNperiod_OCPR_only'; % OCPR only
-tablename = 'trialNperiod_BOTH'; % both
+tablename = 'AnswerChoice'; % both
 
-save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_' tablename], "trialNperiod");
+save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_' tablename], "AnswerChoice");
 
 
 %%%%%%%%%%%%%%%%% both일 경우에만 아래 table 생성!%%%%%%%%%%%%%%%%%%%%%
 %% S.decision + [trial period]
 
 Str.decision = S.decision;
-for i=1:height(trialNperiod)
+for i=1:height(AnswerChoice)
    for j=1:length(Str.decision)
-     if trialNperiod.Time(i) == str2double(Str.decision(j,1))
-        Str.decision(j,4) = trialNperiod.Trial(i);
-        Str.decision(j,5) = trialNperiod.Period(i);
+     if AnswerChoice.Time(i) == str2double(Str.decision(j,1))
+        Str.decision(j,4) = AnswerChoice.Trial(i);
+        Str.decision(j,5) = AnswerChoice.Period(i);
      end
   end
 end
@@ -262,11 +308,11 @@ save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' fi
 %% S.caus_decision + [trial period]
 
 Str.caus_decision = S.caus_decision;
-for i=1:height(trialNperiod)
+for i=1:height(AnswerChoice)
    for j=1:length(Str.caus_decision)
-      if trialNperiod.Time(i) == str2double(Str.caus_decision(j,1))
-        Str.caus_decision(j,4) = trialNperiod.Trial(i);
-        Str.caus_decision(j,5) = trialNperiod.Period(i);
+      if AnswerChoice.Time(i) == str2double(Str.caus_decision(j,1))
+        Str.caus_decision(j,4) = AnswerChoice.Trial(i);
+        Str.caus_decision(j,5) = AnswerChoice.Period(i);
       end
    end
 end
@@ -288,50 +334,6 @@ Str.Pause(end,2) = "termination";
 Pause_table = splitvars(table(Str.Pause));
 Pause_table.Properties.VariableNames = ["Time","start/end","Log"];
 save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' filenameo '\' filenameo '_Pause'], "Pause_table");
-
-%% correctness answer and choice
-
-[o,c] = find(S.Others == "9");
-
-correctStruct = struct('Time',trialNperiod.Time,'Trial',trialNperiod.Trial,'Period',trialNperiod.Period,'Event',trialNperiod.Event,'Note',[NaN(height(trialNperiod),1)]);
-
-% for k=1:height(S.answer)
-%     for j=1:height(S.choice)
-%         for a=1:length(o)
-            for i=1:(height(correctStruct)+(height(S.choice)*2))
-                for j=1:height(S.choice)
-                    for k=1:height(S.answer)
-                if correctStruct.Time(i) == str2double(S.choice(j,1))
-                    continue;
-                elseif correctStruct.Time(i) < str2double(S.choice(j,1)) & correctStruct.Time(i+1) > str2double(S.choice(j,1))
-                    for a=1:length(o)
-                    if str2double(S.answer(k,1)) == str2double(S.choice(j,1))
-                        correctStruct.Time = [correctStruct.Time(1:i); str2double(S.answer(k,1)); str2double(S.choice(j,1)); correctStruct.Time(i+1:end)];
-                        correctStruct.Trial = [correctStruct.Trial(1:i); correctStruct.Trial(i); correctStruct.Trial(i); correctStruct.Trial(i+1:end)];
-                        correctStruct.Period = [correctStruct.Period(1:i); correctStruct.Period(i); correctStruct.Period(i); correctStruct.Period(i+1:end)];
-                        correctStruct.Event =[correctStruct.Event(1:i); "answer"; "choice"; correctStruct.Event(i+1:end)];
-                        correctStruct.Note = [correctStruct.Note(1:i); str2double(S.answer(k,2)); str2double(S.choice(j,2)); correctStruct.Note(i+1:end)];
-                        break;
-                    elseif str2double(S.Others(o(a),1)) == str2double(S.choice(j,1))
-                        correctStruct.Time = [correctStruct.Time(1:i); str2double(S.Others(o(a),1)); str2double(S.choice(j,1)); correctStruct.Time(i+1:end)];
-                        correctStruct.Trial = [correctStruct.Trial(1:i); correctStruct.Trial(i); correctStruct.Trial(i); correctStruct.Trial(i+1:end)];
-                        correctStruct.Period = [correctStruct.Period(1:i); correctStruct.Period(i); correctStruct.Period(i); correctStruct.Period(i+1:end)];
-                        correctStruct.Event =[correctStruct.Event(1:i); "miss_answer9"; "choice"; correctStruct.Event(i+1:end)];
-                        correctStruct.Note = [correctStruct.Note(1:i); 9; str2double(S.choice(j,2)); correctStruct.Note(i+1:end)];
-% end
-                    end
-                end
-            end
-        end
-    end
-end
-
-
-correctTable = table(correctStruct.Time, correctStruct.Trial, correctStruct.Period, correctStruct.Event, correctStruct.Note);
-correctTable.Properties.VariableNames = ["Time","Trial","Period","Event", "Note"];
-
-
-
 
 end
 
