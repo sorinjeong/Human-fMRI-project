@@ -133,6 +133,7 @@ for c=1:length(S.scont)
     S_Trial = A(c,2);
     S_Period = "1";
     S_Event = "start";
+    S_Note = missing;
 
 %% make struct
 
@@ -141,13 +142,16 @@ if isempty(Str)
     Str.Trial= S_Trial;
     Str.Period= S_Period;
     Str.Event= S_Event;
+    Str.Note = S_Note;
 else
 
     Str.Time= [Str.Time; S_Time];
     Str.Trial= [Str.Trial; S_Trial];
     Str.Period= [Str.Period; S_Period];
     Str.Event= [Str.Event; S_Event];
+    Str.Note= [Str.Note; S_Note];
 end
+
 
 %% period
     P_Time = S.period(tp_r,1)';
@@ -202,6 +206,16 @@ if c ~= length(A)
     [la_r, la_c] = find(logBetween_a);
     [lo_r, lo_c] = find(logBetween_o);
 
+elseif c == length(A)
+    startLog = str2double(A(c,3));
+    logAfter_c = startLog <= str2double(S.choice(:,3));
+    logAfter_a = startLog <= str2double(S.answer(:,3));
+    logAfter_o = startLog <= str2double(S.Others(o,3));
+
+    [lc_r, lc_c] = find(logAfter_c);
+    [la_r, la_c] = find(logAfter_a);
+    [lo_r, lo_c] = find(logAfter_o);
+end
 
     C_Time = str2double(S.choice(lc_r,1)');
     C_Note = str2double(S.choice(lc_r,2)');
@@ -210,7 +224,6 @@ if c ~= length(A)
     O_Time = str2double(S.Others(lo_r,1)');
     O_Note = str2double(S.Others(lo_r,2)');
 
-end
 
 for i=1:height(lc_r)
     for j=1:height(la_r)
@@ -271,35 +284,38 @@ for i=1:length(log_order)
 
     elseif ~isempty(E_index)
         Str.Time= [Str.Time; E_Time];
-        Str.Trial= [Str.Trial; E_Trial];
+        Str.Trial= [Str.Trial; missing];
         Str.Period= [Str.Period; missing];
         Str.Event= [Str.Event; E_Event];
         Str.Note = [Str.Note; missing];
 
     elseif ~isempty(A_index)
-        if ~isempty(A_Log(A_index) == str2double(S.answer(la_r,3)))
-        Str.Time= [Str.Time; A_Time(A_Log(A_index) == str2double(S.answer(la_r,3)))];
-        Str.Event = [Str.Event; "answer"];
-        Str.Note = [Str.Note; A_Note(A_Log(A_index) == str2double(S.answer(la_r,3)))];
-        elseif ~isempty(A_Log(A_index) == str2double(S.Others(lo_r,3)))
-        Str.Time= [Str.Time; O_Time(A_Log(A_index) == str2double(S.Others(lo_r,3)))];
-        Str.Event = [Str.Event; "miss_answer9"];
-        Str.Note = [Str.Note; O_Note(A_Log(A_index) == str2double(S.Others(lo_r,3)))];
+        answer_log = str2double(S.answer(la_r,3));
+        others_log = str2double(S.Others(lo_r,3));
+        if ~isempty(A_Log(A_index) == answer_log)
+          Str.Time= [Str.Time; A_Time(find(la_r(A_Log(A_index) == answer_log)))];
+          Str.Event = [Str.Event; "answer"];
+          Str.Note = [Str.Note; A_Note(find(la_r(A_Log(A_index) == answer_log)))];
+        elseif ~isempty(A_Log(A_index) == others_log)
+          Str.Time= [Str.Time; O_Time(find(lo_r(A_Log(A_index) == others_log)))];
+          Str.Event = [Str.Event; "miss_answer9"];
+          Str.Note = [Str.Note; O_Note(find(lo_r(A_Log(A_index) == others_log)))];
         end
-        Str.Time= [Str.Time; C_Time(floor(C_Time)==floor(str2double(Str.Time(end))))];
-        Str.Event = [Str.Event; "choice"];
-        Str.Note = [Str.Note; C_Note(floor(C_Time)==floor(str2double(Str.Time(end))))];
-        Str.Trial = [Str.Trial; missing; missing];
-        Str.Period = [Str.Period; missing; missing];
+          Str.Time= [Str.Time; C_Time(floor(C_Time)==floor(str2double(Str.Time(end))))];
+          Str.Event = [Str.Event; "choice"];
+          Str.Note = [Str.Note; C_Note(floor(C_Time)==floor(str2double(Str.Time(end))))];
+          Str.Trial = [Str.Trial; missing; missing];
+          Str.Period = [Str.Period; missing; missing];
     end 
 end
-
+Str.Trial = fillmissing(Str.Trial,'previous');
+Str.Period = fillmissing(Str.Period,'previous');
     end  % both
 end
 
 %% make a table
-AnswerChoice = table(str2double(Str.Time), str2double(Str.Trial), str2double(Str.Period), Str.Event, str2double(Str.Note));
-AnswerChoice.Properties.VariableNames = ["Time","Trial","Period","Event", "Note"];
+AnswerChoice = table(str2double(Str.Time), str2double(Str.Trial), str2double(Str.Period), Str.Event, Str.Note);
+AnswerChoice.Properties.VariableNames = ["Time","Trial","Period","Event", "Note_direction"];
 
 % tablename = 'trialNperiod_control_only'; % control only
 % tablename = 'trialNperiod_OCPR_only'; % OCPR only
