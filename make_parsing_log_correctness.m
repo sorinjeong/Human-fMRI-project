@@ -227,8 +227,10 @@ for i=1:height(lc_r)
                 end
             end
         end
+        if ~isempty(C_Log)
         if C_Log(end) == str2double(S.choice(lc_r(i),3))
             break;
+        end
         end
     end
 end
