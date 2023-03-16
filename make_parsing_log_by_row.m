@@ -98,7 +98,7 @@ end
 S.eOCPR = [S.eOCPR; timeNevent.time(end), timeNevent.event(end),i];
 
 %% save log data
-mkdir(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed' filenameo]); % OCPR / control / BOTH 중 처음 한번만 run!
+mkdir(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo]); % OCPR / control / BOTH 중 처음 한번만 run!
 save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo], "S");
 
 
