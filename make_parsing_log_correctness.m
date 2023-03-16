@@ -1,5 +1,5 @@
-FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
-    'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
+% FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
+%     'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
 
 FileList = {'CL130227_1'};
 %%
@@ -295,10 +295,12 @@ save(['C:\Users\sorin\Documents\MATLAB\23.03.06_Log error arrange\processed\' fi
 
 correctStruct = struct('Time',trialNperiod.Time,'Trial',trialNperiod.Trial,'Period',trialNperiod.Period,'Event',trialNperiod.Event,'Note',[NaN(height(trialNperiod),1)]);
 
-for k=1:height(S.answer)
-    for j=1:height(S.choice)
+% for k=1:height(S.answer)
+%     for j=1:height(S.choice)
 %         for a=1:length(o)
             for i=1:(height(correctStruct)+(height(S.choice)*2))
+                for j=1:height(S.choice)
+                    for k=1:height(S.answer)
                 if correctStruct.Time(i) == str2double(S.choice(j,1))
                     continue;
                 elseif correctStruct.Time(i) < str2double(S.choice(j,1)) & correctStruct.Time(i+1) > str2double(S.choice(j,1))
@@ -316,9 +318,9 @@ for k=1:height(S.answer)
                         correctStruct.Period = [correctStruct.Period(1:i); correctStruct.Period(i); correctStruct.Period(i); correctStruct.Period(i+1:end)];
                         correctStruct.Event =[correctStruct.Event(1:i); "miss_answer9"; "choice"; correctStruct.Event(i+1:end)];
                         correctStruct.Note = [correctStruct.Note(1:i); 9; str2double(S.choice(j,2)); correctStruct.Note(i+1:end)];
-end
+% end
                     end
-%                 end
+                end
             end
         end
     end
