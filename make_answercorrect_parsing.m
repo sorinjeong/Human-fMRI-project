@@ -1,7 +1,7 @@
-% FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
-%     'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
+FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
+    'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
 
-FileList = {'CL130227_1'};
+% FileList = {'CL130227_1'};
 %%
 for fi = 1:numel(FileList)
     filenameo=FileList{fi};
@@ -98,15 +98,20 @@ end
 S.eOCPR = [S.eOCPR; timeNevent.time(end), timeNevent.event(end),i];
 
 %% save log data
-% mkdir(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo]); % OCPR / control / BOTH 중 처음 한번만 run!
+
+if ~isfolder (['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo])
+mkdir(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo]); 
+end
 save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo], "S");
 
 
-%% arrange trial, event by log order
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% arrange trial, event by log order%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Str=struct('Time',[],'Trial',[],'Period',[],'Event',[],'Note',[]);
 %% both: USE 'startNend'!!
 startNend=[];
+if height(S.scont) ~= height(S.eOCPR)
+    S.eOCPR(end,:) =[];
+end
 
 startNend = [(S.scont), (S.endcont); (S.sOCPR), (S.eOCPR)];
     startNend = sortrows(str2double(startNend),[3 6 1 4]);
@@ -188,63 +193,4 @@ save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' fi
 
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
