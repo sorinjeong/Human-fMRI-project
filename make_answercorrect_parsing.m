@@ -1,7 +1,7 @@
-FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
-    'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
+% FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
+%     'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
 
-% FileList = {'CL130227_1'};
+FileList = {'CL130226_1'};
 %%
 for fi = 1:numel(FileList)
     filenameo=FileList{fi};
@@ -203,25 +203,24 @@ for i=1:height(S.CTF)
     end
 end
 % running time, run numbering, time from start
-TR=[];Run=[1];time_from_run_start=[];
+TR=[];Run=[1];time_from_run_start=[];pauseoff=[];
 for i=1:height(causeevent_timeframe)-1
-    pauseoff = max(str2double(S.Pause(str2double(S.Pause(:,1))<causeevent_timeframe(i,1))));
-    time_from_run_start=[time_from_run_start; causeevent_timeframe(i,1)-pauseoff];
     TR = [TR; causeevent_timeframe(i+1,1)-causeevent_timeframe(i,1)];
-%    Run(i,1)=Run(i-1,1);
 if  i-1>=1
     if causeevent_timeframe(i,1)-causeevent_timeframe(i-1,1) > 3
         Run= [Run; Run(end)+1];
+        pauseoff(i) = max(str2double(S.Pause(str2double(S.Pause)<causeevent_timeframe(i,1))));
     else
         Run= [Run; Run(end)];
-
+        pauseoff(i) = missing;
     end
+elseif i == 1
+    Run = 1; pauseoff = max(str2double(S.Pause(str2double(S.Pause)<causeevent_timeframe(i,1))));
 end
+pauseoff = fillmissing(pauseoff,'previous');
+time_from_run_start=[time_from_run_start; causeevent_timeframe(i,1)-pauseoff(i)];
 end
-TR= [TR; 0];Run=[Run; Run(end)];time_from_run_start=[time_from_run_start; causeevent_timeframe(end)-str2double(S.Pause(end,1))];
-
-
-
+TR= [TR; 0];Run=[Run; Run(end)];time_from_run_start=[time_from_run_start; causeevent_timeframe(end)-pauseoff(end)];
 
 imaging = table(causeevent_timeframe, TR, Run, time_from_run_start);
 save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_Imaging'], "imaging");
