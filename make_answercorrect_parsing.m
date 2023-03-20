@@ -236,7 +236,7 @@ hold on
 
 %% histogram
 figure(plotting)
-subplot(2,2,2)
+subplot(1,2,2)
 histogram(imaging.TR(:))
 title('histogram')
 xlabel('TF(Time)'); ylabel('TR')
