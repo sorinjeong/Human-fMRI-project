@@ -203,16 +203,20 @@ for i=1:height(S.CTF)
     end
 end
 % running time, run numbering, time from start
-TR=[];Run=[];time_from_run_start=[];
+TR=[];Run=[1];time_from_run_start=[];
 for i=1:height(causeevent_timeframe)-1
     pauseoff = max(str2double(S.Pause(str2double(S.Pause(:,1))<causeevent_timeframe(i,1))));
     time_from_run_start=[time_from_run_start; causeevent_timeframe(i,1)-pauseoff];
     TR = [TR; causeevent_timeframe(i+1,1)-causeevent_timeframe(i,1)];
-    Run(i,1)=missing; Run(1,1)=1; 
-    Run = fillmissing(Run, 'previous');
-    if causeevent_timeframe(i+1,1)-causeevent_timeframe(i,1) > 3
-        Run(i,1)= Run(i-1)+1;
+%    Run(i,1)=Run(i-1,1);
+if  i-1>=1
+    if causeevent_timeframe(i,1)-causeevent_timeframe(i-1,1) > 3
+        Run= [Run; Run(end)+1];
+    else
+        Run= [Run; Run(end)];
+
     end
+end
 end
 TR= [TR; 0];Run=[Run; Run(end)];time_from_run_start=[time_from_run_start; causeevent_timeframe(end)-str2double(S.Pause(end,1))];
 
