@@ -96,6 +96,7 @@ for i=1:height(S.caus_decision)
 end
 
 S.eOCPR = [S.eOCPR; timeNevent.time(end), timeNevent.event(end),i];
+S.Pause(1:2:end, 2) = "start", S.Pause(2:2:end,2) = "end"; S.Pause(end,2) = "termination";
 
 %% save log data
 
@@ -106,15 +107,6 @@ save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' fi
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% arrange trial, event by log order%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% both: USE 'startNend'!!
-startNend=[];
-if height(S.scont) ~= height(S.eOCPR)
-    S.eOCPR(end,:) =[];
-end
-
-startNend = [(S.scont), (S.endcont); (S.sOCPR), (S.eOCPR)];
-    startNend = sortrows(str2double(startNend),[3 6 1 4]);
 
 %% make answer + others(answer_9) string
 [o,oc] = find(S.Others == "9");
@@ -170,27 +162,47 @@ wholetable.Properties.VariableNames = ["Time","Trial","Period","Event", "Note_di
 wholetable = sortrows(wholetable, [6 1 2 3]);
 wholetable(:,2:3) = fillmissing(wholetable(:,2:3),'previous'); % fill missings
 
-
-tablename = 'wholetable';
-
-save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_' tablename], "wholetable");
-
-
-%% S.Pause_table
-Str.Pause = S.Pause;
-for i = 1:2:height(S.Pause)
-        Str.Pause(i,2) = "start";
-end
-for i = 2:2:height(S.Pause)
-        Str.Pause(i,2) = "end";
-end
-Str.Pause(end,2) = "termination";
-Pause_table = splitvars(table(Str.Pause));
-Pause_table.Properties.VariableNames = ["Time","start/end","Log"];
-
-save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_Pause'], "Pause_table");
-
-
-
+%% make Whole, control only, OCPR only table
+ctrl_str = []; OCPR_str = [];
+for i=1:height(S.scont)
+    for j=1:height(wholetable)
+        if wholetable.Trial(j) == str2double(S.scont(i,2))
+            ctrl_str = [ctrl_str; wholetable.Time(j),wholetable.Trial(j),wholetable.Period(j),wholetable.Event(j),wholetable.Note_direction(j),wholetable.Log(j)];
+        elseif wholetable.Trial(j) == str2double(S.sOCPR(i,2))
+            OCPR_str = [OCPR_str; wholetable.Time(j),wholetable.Trial(j),wholetable.Period(j),wholetable.Event(j),wholetable.Note_direction(j),wholetable.Log(j)];
+        end
+    end
 end
 
+ctrl_table = splitvars(table(str2double(ctrl_str(:,1:3)), ctrl_str(:,4), str2double(ctrl_str(:,5:6))));
+ctrl_table.Properties.VariableNames = ["Time","Trial","Period","Event", "Note_direction", "Log"];
+OCPR_table = splitvars(table(str2double(OCPR_str(:,1:3)), OCPR_str(:,4), str2double(OCPR_str(:,5:6))));
+OCPR_table.Properties.VariableNames = ["Time","Trial","Period","Event", "Note_direction", "Log"];
+
+
+save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_wholetable'], "wholetable");
+save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_ctrl_table'], "ctrl_table");
+save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_OCPR_table'], "OCPR_table");
+
+
+%% causeevent timeframe - authentic imaging
+imaging = [];
+for i=1:height(S.CTF)
+    for j=2:2:(height(S.Pause)-1)
+
+    if str2double(S.Pause(j,3)) < str2double(S.CTF(i,3)) & str2double(S.CTF(i,3)) < str2double(S.Pause(j+1,3))
+        imaging = [imaging; str2double(S.CTF(i,1))];
+    end
+    end
+    if str2double(S.Pause(end,3)) < str2double(S.CTF(i,3))
+        imaging = [imaging; str2double(S.CTF(i,1))];
+    end
+end
+imaging = table(imaging);
+imaging.Properties.VariableNames = "causeevent timeframe";
+save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_Imaging'], "imaging");
+
+
+
+
+end
