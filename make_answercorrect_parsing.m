@@ -225,7 +225,21 @@ TR= [TR; 0];Run=[Run; Run(end)];time_from_run_start=[time_from_run_start; causee
 imaging = table(causeevent_timeframe, TR, Run, time_from_run_start);
 save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_Imaging'], "imaging");
 
+%% line plot
+plotting = figure('position',[100 100 300 300]);
+subplot(1,2,1)
+plot(imaging, "causeevent_timeframe", "TR")
+xlabel('Timeframe'); ylabel('TR')
+title('line plot')
+hold on
 
+
+%% histogram
+figure(plotting)
+subplot(2,2,2)
+histogram(imaging.TR(:))
+title('histogram')
+xlabel('TF(Time)'); ylabel('TR')
 
 end
 
