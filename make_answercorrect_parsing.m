@@ -190,23 +190,39 @@ save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' fi
 
 
 %% causeevent timeframe - authentic imaging
-imaging = [];
+causeevent_timeframe = [];
 for i=1:height(S.CTF)
     for j=2:2:(height(S.Pause)-1)
 
     if str2double(S.Pause(j,3)) < str2double(S.CTF(i,3)) & str2double(S.CTF(i,3)) < str2double(S.Pause(j+1,3))
-        imaging = [imaging; str2double(S.CTF(i,1))];
+        causeevent_timeframe = [causeevent_timeframe; str2double(S.CTF(i,1))];
     end
     end
     if str2double(S.Pause(end,3)) < str2double(S.CTF(i,3))
-        imaging = [imaging; str2double(S.CTF(i,1))];
+        causeevent_timeframe = [causeevent_timeframe; str2double(S.CTF(i,1))];
     end
 end
-imaging = table(imaging);
-imaging.Properties.VariableNames = "causeevent timeframe";
+% running time, run numbering, time from start
+TR=[];Run=[];time_from_run_start=[];
+for i=1:height(causeevent_timeframe)-1
+    pauseoff = max(str2double(S.Pause(str2double(S.Pause(:,1))<causeevent_timeframe(i,1))));
+    time_from_run_start=[time_from_run_start; causeevent_timeframe(i,1)-pauseoff];
+    TR = [TR; causeevent_timeframe(i+1,1)-causeevent_timeframe(i,1)];
+    Run(i,1)=missing; Run(1,1)=1; 
+    Run = fillmissing(Run, 'previous');
+    if causeevent_timeframe(i+1,1)-causeevent_timeframe(i,1) > 3
+        Run(i,1)= Run(i-1)+1;
+    end
+end
+TR= [TR; 0];Run=[Run; Run(end)];time_from_run_start=[time_from_run_start; causeevent_timeframe(end)-str2double(S.Pause(end,1))];
+
+
+
+
+imaging = table(causeevent_timeframe, TR, Run, time_from_run_start);
 save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_Imaging'], "imaging");
 
 
 
-
 end
+
