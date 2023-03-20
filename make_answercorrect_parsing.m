@@ -98,6 +98,10 @@ end
 S.eOCPR = [S.eOCPR; timeNevent.time(end), timeNevent.event(end),i];
 S.Pause(1:2:end, 2) = "start", S.Pause(2:2:end,2) = "end"; S.Pause(end,2) = "termination";
 
+if height(S.scont) ~= height(S.eOCPR)
+    S.eOCPR(end,:) =[];
+end
+
 %% save log data
 
 if ~isfolder (['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo])
