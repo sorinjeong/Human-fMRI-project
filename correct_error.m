@@ -1,7 +1,7 @@
-% FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
-%     'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
+FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
+    'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
 
-FileList = {'CL130107_1'};
+% FileList = {'CL130219_1'};
 %%
 for fi = 1:numel(FileList)
     filenameo=FileList{fi};
@@ -192,27 +192,21 @@ save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' fi
 %% causeevent timeframe - authentic imaging
 causeevent_timeframe = [];
 Pau = S.Pause;
-% if mod(height(Pau),2)==1
-%     Pau(end,:)=[];
-% end
+
 for i=1:height(S.CTF)
     for j=2:2:(height(Pau))
 
-    if j == height(Pau) & str2double(Pau(j,3)) < str2double(S.CTF(i,3))
-        causeevent_timeframe = [causeevent_timeframe; Pau(j,1)];
-    elseif str2double(Pau(j,3)) < str2double(S.CTF(i,3)) & str2double(S.CTF(i,3)) < str2double(Pau(j+1,3))
+    if j == height(Pau) & str2double(Pau(j,3)) < str2double(S.CTF(i,3)) | str2double(Pau(j,3)) < str2double(S.CTF(i,3)) & str2double(S.CTF(i,3)) < str2double(Pau(j+1,3))
         causeevent_timeframe = [causeevent_timeframe; str2double(S.CTF(i,1))];
+
     end
     end
-%     if str2double(Pau(end,3)) < str2double(S.CTF(i,3))
-%         causeevent_timeframe = [causeevent_timeframe; str2double(S.CTF(i,1))];
-%     end
 end
+
 %% running time, run numbering, time from start
-TR=[];Run=1;time_from_run_start=[];pauseoff=[];CAUS=[];
+CAUS=[];
 for i=1:height(causeevent_timeframe)-1
-    diff_value=[];
-    diff_value = causeevent_timeframe(i+1)-causeevent_timeframe(i);
+    diff_value = (causeevent_timeframe(i+1))-(causeevent_timeframe(i));
     CAUS = [CAUS;causeevent_timeframe(i)];
     if 5.5 < diff_value & diff_value < 5.7
         insert1 = causeevent_timeframe(i) + 2.79;
@@ -225,8 +219,9 @@ for i=1:height(causeevent_timeframe)-1
 end
 CAUS = [CAUS;causeevent_timeframe(end)];
 %%
+TR=[];Run=1;time_from_run_start=[];pauseoff=[];
 for i=1:height(CAUS)-1
-    diff_value = CAUS(i+1,1)-CAUS(i,1);
+    diff_value = (CAUS(i+1,1))-(CAUS(i,1));
     TR = [TR; diff_value];
 if  i>1
     if diff_value > 3
