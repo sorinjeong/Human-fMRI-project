@@ -189,21 +189,55 @@ save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' fi
 save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_OCPR_table'], "OCPR_table");
 
 
-%% causeevent timeframe - authentic imaging
+%% causeevent timeframe - authentic imaging (raw imaging)
+causeevent_timeframe1 = [];
+for i=1:height(S.CTF)
+    for j=2:2:(height(S.Pause)-1)
+
+    if str2double(S.Pause(j,3)) < str2double(S.CTF(i,3)) & str2double(S.CTF(i,3)) < str2double(S.Pause(j+1,3))
+        causeevent_timeframe1 = [causeevent_timeframe1; str2double(S.CTF(i,1))];
+    end
+    end
+    if str2double(S.Pause(end,3)) < str2double(S.CTF(i,3))
+        causeevent_timeframe1 = [causeevent_timeframe1; str2double(S.CTF(i,1))];
+    end
+end
+% running time, run numbering, time from start
+TR1=[];Run1=1;time_from_run_start1=[];pauseoff=[];
+for i=1:height(causeevent_timeframe1)-1
+    TR1 = [TR1; causeevent_timeframe1(i+1,1)-causeevent_timeframe1(i,1)];
+if  i-1>=1
+    if causeevent_timeframe1(i,1)-causeevent_timeframe1(i-1,1) > 3
+        Run1= [Run1; Run1(end)+1];
+        pauseoff(i) = max(str2double(S.Pause(str2double(S.Pause)<causeevent_timeframe1(i,1))));
+    else
+        Run1= [Run1; Run1(end)];
+        pauseoff(i) = missing;
+    end
+elseif i == 1
+    Run1 = 1; pauseoff = max(str2double(S.Pause(str2double(S.Pause)<causeevent_timeframe1(i,1))));
+end
+pauseoff = fillmissing(pauseoff,'previous');
+time_from_run_start1=[time_from_run_start1; causeevent_timeframe1(i,1)-pauseoff(i)];
+end
+TR1= [TR1; 0];Run1=[Run1; Run1(end)];time_from_run_start1=[time_from_run_start1; causeevent_timeframe1(end)-pauseoff(end)];
+
+raw_imaging = table(causeevent_timeframe1, TR1, Run1, time_from_run_start1);
+save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_Imaging'], "raw_imaging");
+
+%% correct causeevent timeframe missing error (Corr_imaging)
 causeevent_timeframe = [];
 Pau = S.Pause;
 
 for i=1:height(S.CTF)
     for j=2:2:(height(Pau))
-
     if j == height(Pau) & str2double(Pau(j,3)) < str2double(S.CTF(i,3)) | str2double(Pau(j,3)) < str2double(S.CTF(i,3)) & str2double(S.CTF(i,3)) < str2double(Pau(j+1,3))
         causeevent_timeframe = [causeevent_timeframe; str2double(S.CTF(i,1))];
-
     end
     end
 end
 
-%% running time, run numbering, time from start
+%% 
 CAUS=[];
 for i=1:height(causeevent_timeframe)-1
     diff_value = (causeevent_timeframe(i+1))-(causeevent_timeframe(i));
@@ -243,28 +277,39 @@ end
 
 TR= [TR; 0];Run=[Run; Run(end)];time_from_run_start=[time_from_run_start; CAUS(end)-pauseoff(end)];
 
-%%
-imaging = table(CAUS, TR, Run, time_from_run_start);
-save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_Imaging'], "imaging");
+
+corr_imaging = table(CAUS, TR, Run, time_from_run_start);
+save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_Corr_Imaging'], "corr_imaging");
 
 %% line plot
 plotting = figure('position',[100 100 300 300]);
-subplot(1,2,1)
-plot(imaging, "CAUS", "TR")
+subplot(2,2,1)
+plot(raw_imaging, "causeevent_timeframe1", "TR1")
 xlabel('Timeframe'); ylabel('TR')
-title('line plot')
+title('raw_line plot')
 hold on
 
+subplot(2,2,3)
+plot(corr_imaging, "CAUS", "TR")
+xlabel('Timeframe'); ylabel('TR')
+title('corr_line plot')
+hold on
 
 %% histogram
 figure(plotting)
-subplot(1,2,2)
-histogram(imaging.TR(:))
-title('histogram')
+subplot(2,2,2)
+histogram(raw_imaging.TR1(:))
+title('raw_histogram')
 xlabel('TF(Time)'); ylabel('TR')
 ylim([0 20])
+hold on
 
-
+figure(plotting)
+subplot(2,2,4)
+histogram(corr_imaging.TR(:))
+title('corr_histogram')
+xlabel('TF(Time)'); ylabel('TR')
+ylim([0 20])
 
 
 end
