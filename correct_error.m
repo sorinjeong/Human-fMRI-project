@@ -192,65 +192,70 @@ save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' fi
 %% causeevent timeframe - authentic imaging
 causeevent_timeframe = [];
 Pau = S.Pause;
-if mod(Pau,2)==1
-    Pau(end,:)=[];
-end
+% if mod(height(Pau),2)==1
+%     Pau(end,:)=[];
+% end
 for i=1:height(S.CTF)
-    for j=2:2:(height(S.Pause)-1)
+    for j=2:2:(height(Pau))
 
-    if str2double(S.Pause(j,3)) < str2double(S.CTF(i,3)) & str2double(S.CTF(i,3)) < str2double(S.Pause(j+1,3))
+    if j == height(Pau) & str2double(Pau(j,3)) < str2double(S.CTF(i,3))
+        causeevent_timeframe = [causeevent_timeframe; Pau(j,1)];
+    elseif str2double(Pau(j,3)) < str2double(S.CTF(i,3)) & str2double(S.CTF(i,3)) < str2double(Pau(j+1,3))
         causeevent_timeframe = [causeevent_timeframe; str2double(S.CTF(i,1))];
     end
     end
-    if str2double(S.Pause(end,3)) < str2double(S.CTF(i,3))
-        causeevent_timeframe = [causeevent_timeframe; str2double(S.CTF(i,1))];
-    end
+%     if str2double(Pau(end,3)) < str2double(S.CTF(i,3))
+%         causeevent_timeframe = [causeevent_timeframe; str2double(S.CTF(i,1))];
+%     end
 end
 %% running time, run numbering, time from start
-TR=[];Run=[1];time_from_run_start=[];pauseoff=[];
+TR=[];Run=1;time_from_run_start=[];pauseoff=[];CAUS=[];
 for i=1:height(causeevent_timeframe)-1
-    diff_value = causeevent_timeframe(i+1,1)-causeevent_timeframe(i,1);
+    diff_value=[];
+    diff_value = causeevent_timeframe(i+1)-causeevent_timeframe(i);
+    CAUS = [CAUS;causeevent_timeframe(i)];
+    if 5.5 < diff_value & diff_value < 5.7
+        insert1 = causeevent_timeframe(i) + 2.79;
+        CAUS = [CAUS; insert1];
+    elseif 8.3 < diff_value & diff_value < 8.5
+            insert1 = causeevent_timeframe(i) + 2.79;
+            insert2 = insert1 + 2.79;
+            CAUS = [CAUS; insert1; insert2];
+    end
+end
+CAUS = [CAUS;causeevent_timeframe(end)];
+%%
+for i=1:height(CAUS)-1
+    diff_value = CAUS(i+1,1)-CAUS(i,1);
     TR = [TR; diff_value];
 if  i>1
     if diff_value > 3
-        if 5.5< diff_value < 5.7
-            insert1 = causeevent_timeframe(i) + 2.8;
-            causeevent_timeframe = [causeevent_timeframe(1:i); insert1; causeevent_timeframe(i+1:end)];
-            Run= [Run; Run(end)];
-            pauseoff(i) = missing;
-        elseif 8.3 < diff_value < 8.5
-            insert1 = causeevent_timeframe(i) + 2.8;
-            insert2 = insert1 + 2.8;
-            causeevent_timeframe = [causeevent_timeframe(1:i); insert1; insert2; causeevent_timeframe(i+1:end)];
-            Run= [Run; Run(end)];
-            pauseoff(i) = missing;
-        else
         Run= [Run; Run(end)+1];
-        pauseoff(i) = max(str2double(S.Pause(str2double(S.Pause)<causeevent_timeframe(i,1))));
-        end
+        pauseoff(i) = max(str2double(Pau(str2double(Pau)<CAUS(i,1))));
     else
         Run= [Run; Run(end)];
         pauseoff(i) = missing;
     end
 elseif i == 1
-    Run = 1; pauseoff = max(str2double(S.Pause(str2double(S.Pause)<causeevent_timeframe(i,1))));
+    Run = 1; pauseoff = max(str2double(Pau(str2double(Pau)<CAUS(i,1))));
 end
 pauseoff = fillmissing(pauseoff,'previous');
 end
 
-for i=1:height(causeevent_timeframe)-1
-time_from_run_start=[time_from_run_start; causeevent_timeframe(i,1)-pauseoff(i)];
+for i=1:height(CAUS)-1
+time_from_run_start=[time_from_run_start; CAUS(i,1)-pauseoff(i)];
 end
-TR= [TR; 0];Run=[Run; Run(end)];time_from_run_start=[time_from_run_start; causeevent_timeframe(end)-pauseoff(end)];
+
+TR= [TR; 0];Run=[Run; Run(end)];time_from_run_start=[time_from_run_start; CAUS(end)-pauseoff(end)];
 
 %%
-imaging = table(causeevent_timeframe, TR, Run, time_from_run_start);
+imaging = table(CAUS, TR, Run, time_from_run_start);
 save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_Imaging'], "imaging");
 
 %% line plot
 plotting = figure('position',[100 100 300 300]);
 subplot(1,2,1)
-plot(imaging, "causeevent_timeframe", "TR")
+plot(imaging, "CAUS", "TR")
 xlabel('Timeframe'); ylabel('TR')
 title('line plot')
 hold on
