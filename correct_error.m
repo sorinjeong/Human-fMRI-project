@@ -1,7 +1,7 @@
 FileList = {'CL121121_1','CL121122_1','CL121128_1','CL121227_1','CL130107_1','CL130109_1','CL130114_2','CL130116_2',...
     'CL130121_2','CL130122_1','CL130130_1','CL130219_1','CL130220_1','CL130225_2','CL130226_1','CL130227_1'};
 
-% FileList = {'CL130114_2'};
+% FileList = {'CL130130_1'};
 %%
 for fi = 1:numel(FileList)
     filenameo=FileList{fi};
@@ -258,13 +258,13 @@ for i=1:height(CAUS)-1
     diff_value = (CAUS(i+1,1))-(CAUS(i,1));
     TR = [TR; diff_value];
 if  i>1
-    if diff_value > 3
+    if (CAUS(i,1))-(CAUS(i-1,1)) > 3
         Run= [Run; Run(end)+1];
-        pauseoff(i) = max(str2double(Pau(str2double(Pau)<CAUS(i,1))));
+        pauseoff(i) = max(str2double(Pau(str2double(Pau)<CAUS(i,1))));       
     else
         Run= [Run; Run(end)];
         pauseoff(i) = missing;
-    end
+    end 
 elseif i == 1
     Run = 1; pauseoff = max(str2double(Pau(str2double(Pau)<CAUS(i,1))));
 end
@@ -281,35 +281,35 @@ TR= [TR; 0];Run=[Run; Run(end)];time_from_run_start=[time_from_run_start; CAUS(e
 corr_imaging = table(CAUS, TR, Run, time_from_run_start);
 save(['C:\Users\sorin\Documents\MATLAB\23.03.16_Log error arrange\processed\' filenameo '\' filenameo '_Corr_Imaging'], "corr_imaging");
 
-%% line plot
-plotting = figure('position',[100 100 300 300]);
-subplot(2,2,1)
-plot(raw_imaging, "causeevent_timeframe1", "TR1")
-xlabel('Timeframe'); ylabel('TR')
-title('raw_line plot')
-hold on
-
-subplot(2,2,3)
-plot(corr_imaging, "CAUS", "TR")
-xlabel('Timeframe'); ylabel('TR')
-title('corr_line plot')
-hold on
-
-%% histogram
-figure(plotting)
-subplot(2,2,2)
-histogram(raw_imaging.TR1(:))
-title('raw_histogram')
-xlabel('TF(Time)'); ylabel('TR')
-ylim([0 20])
-hold on
-
-figure(plotting)
-subplot(2,2,4)
-histogram(corr_imaging.TR(:))
-title('corr_histogram')
-xlabel('TF(Time)'); ylabel('TR')
-ylim([0 20])
+% %% line plot
+% plotting = figure('position',[100 100 300 300]);
+% subplot(2,2,1)
+% plot(raw_imaging, "causeevent_timeframe1", "TR1")
+% xlabel('Timeframe'); ylabel('TR')
+% title('raw_line plot')
+% hold on
+% 
+% subplot(2,2,3)
+% plot(corr_imaging, "CAUS", "TR")
+% xlabel('Timeframe'); ylabel('TR')
+% title('corr_line plot')
+% hold on
+% 
+% %% histogram
+% figure(plotting)
+% subplot(2,2,2)
+% histogram(raw_imaging.TR1(:))
+% title('raw_histogram')
+% xlabel('TF(Time)'); ylabel('TR')
+% ylim([0 20])
+% hold on
+% 
+% figure(plotting)
+% subplot(2,2,4)
+% histogram(corr_imaging.TR(:))
+% title('corr_histogram')
+% xlabel('TF(Time)'); ylabel('TR')
+% ylim([0 20])
 
 
 end
