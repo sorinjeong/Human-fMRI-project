@@ -34,21 +34,24 @@ end
 %% EventParsing
 
 EventName = ["LapStart", "TrialStart", "TrialType", "ObjOn","ChoiceOn","Decision", "Duration", "ObjOff", "TrialEnd"];
-VarName = ["Lap", "TrialStart", "Trial", "Context", "Direction", "Location","Association", "Obj_ID", "ObjOn","ChoiceOn", "Choice","Decision", "Duration", "ObjOff", "TrialEnd"];
+VarName = ["Lap", "TrialStart", "Tr" + ...
+    "ial", "Context", "Direction", "Location","Association", "Obj_ID", "ObjOn","ChoiceOn", "Choice","Decision", "Duration", "ObjOff", "TrialEnd"];
 
-Str = struct;
+EventTable = table ;
+Str=struct;
 for i=1:height(RawEventLog)
-    for j=1:length(EventName)
-        for k=1:length(VarName)
-              if ~isfield(Str,VarName{k})
-                  Str.(VarName{k}) = [];
-              end 
+    for k=1:length(VarName)
+        if ~isfield(Str,VarName{k})
+           Str.(VarName{k}) = [];
+        end 
+
        % Lap
        if RawEventLog{i,2} == EventName(1)
            Str.Lap = [Str.Lap; RawEventLog{i,3}];
-       elseif isempty(Str.Lap) == 0
-           Str.Lap = [Str.Lap; Str.Lap(end)];
-       end
+           break
+       else
+
+
        % Trial
        if RawEventLog{i,2} == EventName(2)
            Str.TrialStart = [Str.TrialStart; RawEventLog{i,1}];
@@ -60,6 +63,10 @@ for i=1:height(RawEventLog)
            if Str.Trial(end) >= 5
                Str.Trial(end) = 1;
            end
+           if isempty(Str.Lap) == 0
+           Str.Lap = [Str.Lap; Str.Lap(end)];
+           end
+           break
        % TrialType
        elseif RawEventLog{i,2} == EventName(3)
            Numb = [];
@@ -73,17 +80,34 @@ for i=1:height(RawEventLog)
           Str.Location = [Str.Location; Numb(3)];
           Str.Association = [Str.Association; Numb(4)];
           Str.Obj_ID = [Str.Obj_ID; Numb(5)];
+          if isempty(Str.Lap) == 0
+           Str.Lap = [Str.Lap; Str.Lap(end)];
+          end
+          break
        %Object/choice On/Off, TrialEnd
        elseif RawEventLog{i,2} == EventName(4) | RawEventLog{i,2} == EventName(5) | RawEventLog{i,2} == EventName(8) | RawEventLog{i,2} == EventName(9)
            Str.(RawEventLog{i,2}) = [Str.(RawEventLog{i,2}); RawEventLog{i,1}];
+          if isempty(Str.Lap) == 0
+           Str.Lap = [Str.Lap; Str.Lap(end)];
+          end
+           break
        % decision, duration
        elseif RawEventLog{i,2} == EventName(6) | RawEventLog{i,2} == EventName(7)
            Str.(RawEventLog{i,2}) = [Str.(RawEventLog{i,2}); RawEventLog{i,3}];
+           if isempty(Str.Lap) == 0
+           Str.Lap = [Str.Lap; Str.Lap(end)];
+          end
+           break
        % Choice
        elseif contains(char(RawEventLog{i,2}),"Choice"+lettersPattern)
            Str.Choice = [Str.Choice; extractAfter(RawEventLog{i,2},"Choice")];
+           if isempty(Str.Lap) == 0
+           Str.Lap = [Str.Lap; Str.Lap(end)];
+          end
+           break
        end
-        end
+           end
+           break
     end
 end
 
