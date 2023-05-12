@@ -26,52 +26,42 @@ Eventlogfile wo/coordinate
     for s=1:5; ParsingPerTrial.(VarName{s+3}) = Numb(:,s); end
     for v=1:length(VarName); if ~isfield(ParsingPerTrial,VarName{v}); ParsingPerTrial.(VarName{v}) = [];end;end %event name별로 field 생성
  Event parsing
-    LapNumNTime = [];
-
-
+    LapNumNTime = [];EventName=[];EventName = string(RawEventLog.Var1(:));
     for i=1:height(RawEventLog)
-        if RawEventLog.Var1(i)=="LapStart"
+        if EventName(i)=="LapStart"
             LapNumNTime = [LapNumNTime; RawEventLog.Var2(i), RawEventLog.Var4(i)];
         end
-
-     
-            if RawEventLog.Var1(i)=="TrialStart"
+              % Lap, Trial
+            if EventName(i)=="TrialStart"
                 ParsingPerTrial.TrialStart = [ParsingPerTrial.TrialStart; RawEventLog{i,2}];
-                ParsingPerTrial.Trial = [ParsingPerTrial.Trial; RawEventLog{i,4}];
+
+                if isempty(ParsingPerTrial.Trial) | ParsingPerTrial.Trial(end)==4; t=1;
+                elseif ParsingPerTrial.Trial(end)==1; t=2;elseif ParsingPerTrial.Trial(end)==2; t=3;elseif ParsingPerTrial.Trial(end)==3; t=4;end;
+                ParsingPerTrial.Trial = [ParsingPerTrial.Trial; t];
+
+                ParsingPerTrial.Lap = [ParsingPerTrial.Lap; LapNumNTime(max(find(ParsingPerTrial.TrialStart(end) > LapNumNTime(:,1))),2)]
 
             else
-                for v=1:length(VarName)
-                    if RawEventLog.Var1(i) == VarName(v)
-                        name = VarName(v)
                 % Choice
-                if contains(char(RawEventLog{i,1}),"Choice"+('A'|'B'))
-                    ParsingPerTrial.(name) = [ParsingPerTrial.(name); extractAfter(char(RawEventLog.Var1(i)),"Choice")];
+                if contains(EventName(i),"Choice"+("A"|"B"))
+                    ParsingPerTrial.Choice = [ParsingPerTrial.Choice; string(extractAfter(EventName(i),"Choice"))];
 
                     % decision, duration
-                elseif RawEventLog.Var1(i)=="Decision"
+                elseif EventName(i)=="Decision"
                     ParsingPerTrial.Decision = [ParsingPerTrial.Decision; RawEventLog{i,2}];
                     ParsingPerTrial.Duration = [ParsingPerTrial.Decision; RawEventLog{i,4}];
 
                     %Object|choice On|Off, TrialEnd
-                else
-                    ParsingPerTrial.(name) = [ParsingPerTrial.(name); RawEventLog{i,2}];
+                elseif ismember(EventName(i),VarName)
+                    ParsingPerTrial.(EventName(i)) = [ParsingPerTrial.(EventName(i)); RawEventLog{i,2}];
+
                 end
-                    end
-                end
+  
             end
-        end
-
-    for j=1:height(LapNumNTime)
-        if isempty(ParsingPerTrial.Lap)
-
-            ParsingPerTrial.Lap = LapNumNTime(1,2);
-        elseif ParsingPerTrial.Trial(end) > LapNumNTime(j,1)
-            ParsingPerTrial.Lap = [ParsingPerTrial.Lap; LapNumNTime(j,2)];
-        elseif ParsingPerTrial.Trial(end) < LapNumNTime(j,1)
-            continue
-        end
     end
-
+   
+    find(choice) %%%% choice on과 object off 사이에 chice가 없을 경우 missing으로 둘 것
+    
 
 
 end
