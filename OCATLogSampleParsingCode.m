@@ -39,7 +39,7 @@ Eventlogfile wo/coordinate
                 elseif ParsingPerTrial.Trial(end)==1; t=2;elseif ParsingPerTrial.Trial(end)==2; t=3;elseif ParsingPerTrial.Trial(end)==3; t=4;end;
                 ParsingPerTrial.Trial = [ParsingPerTrial.Trial; t];
 
-                ParsingPerTrial.Lap = [ParsingPerTrial.Lap; LapNumNTime(max(find(ParsingPerTrial.TrialStart(end) > LapNumNTime(:,1))),2)]
+                ParsingPerTrial.Lap = [ParsingPerTrial.Lap; LapNumNTime(find(ParsingPerTrial.TrialStart(end) > LapNumNTime(:,1),1,'last'),2)]
 
             else
                 % Choice
