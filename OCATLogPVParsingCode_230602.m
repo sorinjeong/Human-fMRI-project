@@ -114,30 +114,40 @@ clf
 plottingX=1:height(LogTable);
 hold on
 yyaxis left
+colororder({'#0072BD','#000000'})
 title('RT & Correctness')
 xlabel('Trial')
 ylabel('RT')
-RTplot = plot(LogTable,"Duration");
-RTplot.Marker = ".";
-RTplot.MarkerSize = 10;
+RTplot = plot(LogTable,"Duration",'LineWidth',1.5,'Marker','.','MarkerSize',20);
+Threshold = yline(1.5,'-.','Timeout','Color',"#0072BD");
+
 xlim([1 height(LogTable)]);
 ylim([0 2]);
 pbaspect([2 1 1]);
 
 
 yyaxis right
+
 plottingY=LogTable.Decision';
+[to_r, to_c] = find(plottingY == 2);
+plottingY(1,to_c) = 1;
+
 
 stairs(plottingY);
-ylim([0 10]);
-ylabel('correctness')
 coloringX = [plottingX;plottingX];
 coloringY = [plottingY;plottingY];
 CorPlot = area(coloringX([2:end end]),coloringY(1:end));
-CorPlot.FaceColor = "#EDB120";
 
-yticks([0 1 2])
-yticklabels({'W', 'C', '▲'})
+
+TOmat = zeros(1,height(LogTable));
+TOmat(1,to_c) = 1;
+TOmat = [TOmat;TOmat];
+TOPlot = area(coloringX([2:end end]),TOmat(1:end));
+TOPlot.FaceColor = "#EDB120";
+ylim([0 10]);
+ylabel('correctness')
+yticks([0 0.5 1])
+yticklabels({'x', 'timeout', 'o'})
 hold off
 
 
