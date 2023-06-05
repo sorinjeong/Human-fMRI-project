@@ -77,6 +77,8 @@ writetable(postPVtaskLog,[Root subjectName '\' subjectName '_post-PVtaskLog.xlsx
 
                     % decision, duration
                 elseif EventName(i)=="Decision"
+                    if RawEventLog{i,4} > 1.5 & RawEventLog{i,2} ~= 2
+                        RawEventLog{i,2} = 2;end
                     ParsingPerTrial.Decision = [ParsingPerTrial.Decision; RawEventLog{i,2}];
                     ParsingPerTrial.Duration = [ParsingPerTrial.Duration; RawEventLog{i,4}];
 
@@ -109,23 +111,24 @@ writetable(LogTable,[Root subjectName '\' subjectName '_LogTable.xlsx']);
 
 
 %% Plot
-figure{fi}
 clf
+f=figure; f.Position; f.Position = [1500 500 1000 600];
+%RT plot
 plottingX=1:height(LogTable);
 hold on
-yyaxis left
 colororder({'#0072BD','#000000'})
+yyaxis left
 title('RT & Correctness')
 xlabel('Trial')
 ylabel('RT')
-RTplot = plot(LogTable,"Duration",'LineWidth',1.5,'Marker','.','MarkerSize',20);
+RTplot = plot(LogTable,"Duration",'Color','#0072BD', 'LineWidth',1.5,'Marker','.','MarkerSize',20);
 Threshold = yline(1.5,'-.','Timeout','LabelHorizontalAlignment', 'center' ,'Color',"#0072BD");
-
+yticks(0:0.2:1.8)
 xlim([1 height(LogTable)]);
-ylim([0 2]);
+ylim([-0.2 2]);
 pbaspect([2 1 1]);
 
-
+% correctness plot
 yyaxis right
 
 plottingY=LogTable.Decision';
@@ -137,17 +140,20 @@ stairs(plottingY);
 coloringX = [plottingX;plottingX];
 coloringY = [plottingY;plottingY];
 CorPlot = area(coloringX([2:end end]),coloringY(1:end));
+CorPlot.FaceColor = "k";
+ylim([0 10]);
 
+%legend
+img = imread('Plot_legend_v3.jpg');
+image(img,'XData',[32 36],'YData',[3 -0.5],'Clipping','off')
 
 TOmat = zeros(1,height(LogTable));
 TOmat(1,to_c) = 1;
 TOmat = [TOmat;TOmat];
 TOPlot = area(coloringX([2:end end]),TOmat(1:end));
 TOPlot.FaceColor = "#EDB120";
-ylim([0 10]);
-ylabel('correctness')
-yticks([0 0.5 1])
-yticklabels({'x', 'timeout', 'o'})
+yticks([])
+
 hold off
 
 saveas(gcf,[Root subjectName '\' subjectName 'RTandCorrect.png'])
