@@ -25,15 +25,22 @@ for fi = 1:numel(FileList)
     RawEventLog(MREvent,:) = [];
 
 %% PV task Parsing
-PVTaskStart = find(contains(RawEventLog.Var1(:),'OCP_on'));
-PVTaskEnd = find(contains(RawEventLog.Var1(:),'OCP_off'));
-PVtaskLog = RawEventLog(PVTaskStart:PVTaskEnd,:);
+%pre
+prePVTaskStart = find(contains(RawEventLog.Var1(:),'OCP_on'),1,"first");
+prePVTaskEnd = find(contains(RawEventLog.Var1(:),'OCP_off'),1,"first");
+prePVtaskLog = RawEventLog(prePVTaskStart:prePVTaskEnd,:);
 
-save([Root filenameo '\' filenameo '_PVtaskLog'], "PVtaskLog");
+save([Root filenameo '\' filenameo '_pre-PVtaskLog'], "prePVtaskLog");
+%post
+postPVTaskStart = find(contains(RawEventLog.Var1(:),'OCP_on'),1,"last");
+postPVTaskEnd = find(contains(RawEventLog.Var1(:),'OCP_off'),1,"last");
+postPVtaskLog = RawEventLog(postPVTaskStart:postPVTaskEnd,:);
+
+save([Root filenameo '\' filenameo '_post-PVtaskLog'], "postPVtaskLog");
 
 %% MainTask Parsing
     VarName = ["Lap", "TrialStart", "Trial" "Context", "Direction", "Location","Association" ...
-        , "Obj_ID", "ObjOn","ChoiceOn", "Choice","Decision", "Duration", "ObjOff", "TrialEnd"];
+        , "Obj_ID", "ObjOn","ChoiceOn", "Choice","Decisionc", "Duration", "ObjOff", "TrialEnd"];
 
     %%Split Trial Type
     TrialTypeRow = find(contains(RawEventLog.Var3(:),'Type'));
