@@ -119,7 +119,7 @@ title('RT & Correctness')
 xlabel('Trial')
 ylabel('RT')
 RTplot = plot(LogTable,"Duration",'LineWidth',1.5,'Marker','.','MarkerSize',20);
-Threshold = yline(1.5,'-.','Timeout','Color',"#0072BD");
+Threshold = yline(1.5,'-.','Timeout','LabelHorizontalAlignment', 'center' ,'Color',"#0072BD");
 
 xlim([1 height(LogTable)]);
 ylim([0 2]);
@@ -150,6 +150,7 @@ yticks([0 0.5 1])
 yticklabels({'x', 'timeout', 'o'})
 hold off
 
+saveas(gcf,[Root subjectName '\' subjectName 'RTandCorrect.png'])
 
 end
 
