@@ -97,8 +97,6 @@ writetable(postPVtaskLog,[Root subjectName '\' subjectName '_post-PVtaskLog.xlsx
 
 
 
-
-
 %% Save as Table 
 
 % field 순서 맞추고 table화
@@ -109,5 +107,14 @@ LogTable=struct2table(ParsingPerTrial);
 save([Root subjectName '\' subjectName '_LogTable'], "LogTable");
 writetable(LogTable,[Root subjectName '\' subjectName '_LogTable.xlsx']);
 
+
+%% Plot
+RTplot = plot(LogTable,"Duration");
+RTplot.Marker = ".";
+RTplot.MarkerSize = 10;
+xlim([0 height(LogTable)]);
+ylim([0 2]);
+box off
+pbaspect([2 1 1])
 
 end
