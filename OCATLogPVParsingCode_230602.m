@@ -109,12 +109,62 @@ writetable(LogTable,[Root subjectName '\' subjectName '_LogTable.xlsx']);
 
 
 %% Plot
+figure{fi}
+clf
+plottingX=1:height(LogTable);
+hold on
+yyaxis left
+title('RT & Correctness')
+xlabel('Trial')
+ylabel('RT')
 RTplot = plot(LogTable,"Duration");
 RTplot.Marker = ".";
 RTplot.MarkerSize = 10;
-xlim([0 height(LogTable)]);
+xlim([1 height(LogTable)]);
 ylim([0 2]);
-box off
-pbaspect([2 1 1])
+pbaspect([2 1 1]);
+
+
+yyaxis right
+plottingY=LogTable.Decision';
+
+stairs(plottingY);
+ylim([0 10]);
+ylabel('correctness')
+coloringX = [plottingX;plottingX];
+coloringY = [plottingY;plottingY];
+CorPlot = area(coloringX([2:end end]),coloringY(1:end));
+CorPlot.FaceColor = "#EDB120";
+
+yticks([0 1 2])
+yticklabels({'W', 'C', '▲'})
+hold off
+
 
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
