@@ -95,7 +95,7 @@ writetable(postPVtaskLog,[Root subjectName '\' subjectName '_post-PVtaskLog.xlsx
     [r1,c1] = find(ParsingPerTrial.Context ==1);[r2,c2] = find(ParsingPerTrial.Context ==2); ParsingPerTrial.Context=string(ParsingPerTrial.Context);
     ParsingPerTrial.Context(r1,1)="F"; ParsingPerTrial.Context(r2,1)="C";
 
-end
+
 
 
 
@@ -108,3 +108,6 @@ LogTable=struct2table(ParsingPerTrial);
 % save log data
 save([Root subjectName '\' subjectName '_LogTable'], "LogTable");
 writetable(LogTable,[Root subjectName '\' subjectName '_LogTable.xlsx']);
+
+
+end
