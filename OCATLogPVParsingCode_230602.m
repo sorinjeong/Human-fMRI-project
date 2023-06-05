@@ -21,6 +21,7 @@ for fi = 1:numel(Subjects)
     if ~isfolder ([Root subjectName])
     mkdir([Root subjectName]); end
     save([Root subjectName '\' subjectName '_TRLog'], "TRLog");
+    writetable(TRLog,[Root subjectName '\' subjectName '_TRLog.xlsx']);
 
     RawEventLog(MREvent,:) = [];
 
@@ -31,12 +32,15 @@ prePVTaskEnd = find(contains(RawEventLog.Var1(:),'OCP_off'),1,"first");
 prePVtaskLog = RawEventLog(prePVTaskStart:prePVTaskEnd,:);
 
 save([Root subjectName '\' subjectName '_pre-PVtaskLog'], "prePVtaskLog");
+writetable(prePVtaskLog,[Root subjectName '\' subjectName '_pre-PVtaskLog.xlsx']);
 %post
 postPVTaskStart = find(contains(RawEventLog.Var1(:),'OCP_on'),1,"last");
 postPVTaskEnd = find(contains(RawEventLog.Var1(:),'OCP_off'),1,"last");
 postPVtaskLog = RawEventLog(postPVTaskStart:postPVTaskEnd,:);
 
 save([Root subjectName '\' subjectName '_post-PVtaskLog'], "postPVtaskLog");
+writetable(postPVtaskLog,[Root subjectName '\' subjectName '_post-PVtaskLog.xlsx']);
+
 
 %% MainTask Parsing
     VarName = ["Lap", "TrialStart", "Trial" "Context", "Direction", "Location","Association" ...
@@ -103,5 +107,4 @@ LogTable=struct2table(ParsingPerTrial);
 
 % save log data
 save([Root subjectName '\' subjectName '_LogTable'], "LogTable");
-
-
+writetable(LogTable,[Root subjectName '\' subjectName '_LogTable.xlsx']);
