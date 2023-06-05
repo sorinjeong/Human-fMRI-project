@@ -1,13 +1,13 @@
-FileList = {'230531MRIPilotTest'};
+Subjects = {'Sub1', 'Sub2', 'Sub3', 'Sub4', 'Sub5'};
 
-for fi = 1:numel(FileList)
-    filenameo=FileList{fi};
-    filefolder= ['D:\internship\MATLAB\23.06.02_O-CAT parsing_PVtask+TRlog\' filenameo '\'];
-    addpath(filefolder)
+for fi = 1:numel(Subjects)
+    subjectName=Subjects{fi};
+    filefolder= ['D:\internship\MATLAB\23.06.02_O-CAT parsing_PVtask+TRlog\230602JiSunPilotLog'];
+    cd(filefolder)
 
 %% Import the file
     Root =[ filefolder '\'];
-    fileToRead1= dir(['*Time_Behavior.csv']);
+    fileToRead1= dir([subjectName '*Time_Behavior.csv']);
     TimeBehavior = readtable(fileToRead1.name);
 
 %% Eventlogfile wo/coordinate 
@@ -18,9 +18,9 @@ for fi = 1:numel(FileList)
     MREvent = find(contains(RawEventLog.Var1(:),'MR'));
     TRLog = RawEventLog(MREvent,:);
 
-    if ~isfolder ([Root filenameo])
-    mkdir([Root filenameo]); end
-    save([Root filenameo '\' filenameo '_TRLog'], "TRLog");
+    if ~isfolder ([Root subjectName])
+    mkdir([Root subjectName]); end
+    save([Root subjectName '\' subjectName '_TRLog'], "TRLog");
 
     RawEventLog(MREvent,:) = [];
 
@@ -30,17 +30,17 @@ prePVTaskStart = find(contains(RawEventLog.Var1(:),'OCP_on'),1,"first");
 prePVTaskEnd = find(contains(RawEventLog.Var1(:),'OCP_off'),1,"first");
 prePVtaskLog = RawEventLog(prePVTaskStart:prePVTaskEnd,:);
 
-save([Root filenameo '\' filenameo '_pre-PVtaskLog'], "prePVtaskLog");
+save([Root subjectName '\' subjectName '_pre-PVtaskLog'], "prePVtaskLog");
 %post
 postPVTaskStart = find(contains(RawEventLog.Var1(:),'OCP_on'),1,"last");
 postPVTaskEnd = find(contains(RawEventLog.Var1(:),'OCP_off'),1,"last");
 postPVtaskLog = RawEventLog(postPVTaskStart:postPVTaskEnd,:);
 
-save([Root filenameo '\' filenameo '_post-PVtaskLog'], "postPVtaskLog");
+save([Root subjectName '\' subjectName '_post-PVtaskLog'], "postPVtaskLog");
 
 %% MainTask Parsing
     VarName = ["Lap", "TrialStart", "Trial" "Context", "Direction", "Location","Association" ...
-        , "Obj_ID", "ObjOn","ChoiceOn", "Choice","Decisionc", "Duration", "ObjOff", "TrialEnd"];
+        , "Obj_ID", "ObjOn","ChoiceOn", "Choice","Decision", "Duration", "ObjOff", "TrialEnd"];
 
     %%Split Trial Type
     TrialTypeRow = find(contains(RawEventLog.Var3(:),'Type'));
@@ -102,6 +102,6 @@ ParsingPerTrial= orderfields(ParsingPerTrial,VarName);
 LogTable=struct2table(ParsingPerTrial);
 
 % save log data
-save([Root filenameo '\' filenameo '_LogTable'], "LogTable");
+save([Root subjectName '\' subjectName '_LogTable'], "LogTable");
 
 
