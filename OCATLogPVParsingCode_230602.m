@@ -157,6 +157,9 @@ yticks([])
 hold off
 
 saveas(gcf,[Root subjectName '\' subjectName 'RTandCorrect.png'])
+close(f)
+
+
 
 end
 
