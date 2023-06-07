@@ -1,8 +1,8 @@
-Subjects = {'Sub1', 'Sub2', 'Sub3', 'Sub4', 'Sub5'};
+Subjects = {'지순', '재민', '소린'};
 
 for fi = 1:numel(Subjects)
     subjectName=Subjects{fi};
-    filefolder= ['D:\internship\MATLAB\23.06.02_O-CAT parsing_PVtask+TRlog\230602JiSunPilotLog'];
+    filefolder= ['D:\internship\MATLAB\23.06.02_O-CAT parsing_PVtask+TRlog\230607fMRIPilotTest'];
     cd(filefolder)
 
 %% Import the file
@@ -16,7 +16,16 @@ for fi = 1:numel(Subjects)
     RawEventLog(Coord,:) = [];
 %% save TR log
     MREvent = find(contains(RawEventLog.Var1(:),'MR'));
+    % TRLog = RawEventLog(MREvent,:);
+    % TRLog.Var2 = TRLog.Var2 - TRLog.Var2(1);
+
+
+    % Time - MRStartTime
+    TimefromZero = find(~contains(RawEventLog.Var1(:), ("Decision" | "Trial")));
+    RawEventLog.Var2(TimefromZero) = RawEventLog.Var2(TimefromZero) - RawEventLog.Var2(MREvent(1));
     TRLog = RawEventLog(MREvent,:);
+
+
 
     if ~isfolder ([Root subjectName])
     mkdir([Root subjectName]); end
@@ -24,6 +33,8 @@ for fi = 1:numel(Subjects)
     writetable(TRLog,[Root subjectName '\' subjectName '_TRLog.xlsx']);
 
     RawEventLog(MREvent,:) = [];
+
+    
 
 %% PV task Parsing
 %pre
@@ -118,11 +129,13 @@ plottingX=1:height(LogTable);
 hold on
 colororder({'#0072BD','#000000'})
 yyaxis left
-title('RT & Correctness')
+title([subjectName ': RT & Correctness'])
+
+
 xlabel('Trial')
 ylabel('RT')
 RTplot = plot(LogTable,"Duration",'Color','#0072BD', 'LineWidth',1.5,'Marker','.','MarkerSize',20);
-Threshold = yline(1.5,'-.','Timeout','LabelHorizontalAlignment', 'center' ,'Color',"#0072BD");
+Threshold = yline(1.5,'-.','Timeout','LabelHorizontalAlignment', 'center' ,'Color',"#0072BD",'LineWidth',1.2);
 yticks(0:0.2:1.8)
 xlim([1 height(LogTable)]);
 ylim([-0.2 2]);
