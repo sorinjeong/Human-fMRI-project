@@ -1,4 +1,4 @@
-Subjects = {'지순', '재민', '소린'};
+Subjects = {'지순'};
 
 for fi = 1:numel(Subjects)
     subjectName=Subjects{fi};
@@ -16,13 +16,26 @@ for fi = 1:numel(Subjects)
     RawEventLog(Coord,:) = [];
 %% save TR log
     MREvent = find(contains(RawEventLog.Var1(:),'MR'));
+    MRStartTime = RawEventLog.Var2(MREvent(1));
     % TRLog = RawEventLog(MREvent,:);
     % TRLog.Var2 = TRLog.Var2 - TRLog.Var2(1);
 
 
     % Time - MRStartTime
-    TimefromZero = find(~contains(RawEventLog.Var1(:), ("Decision" | "Trial")));
-    RawEventLog.Var2(TimefromZero) = RawEventLog.Var2(TimefromZero) - RawEventLog.Var2(MREvent(1));
+    % TimefromZero = find(~contains(RawEventLog.Var1(:), ("Decision" | "Trial")));
+    % TrialStartRow = find(contains(RawEventLog.Var1(:), ("TrialStart")));
+
+
+    for i=1:height(RawEventLog)
+        if RawEventLog.Var1(i) ~= "Decision" & RawEventLog.Var1(i) ~= "Trial"
+            RawEventLog.Var2(i) =  minus(RawEventLog.Var2(i), MRStartTime);
+        else 
+            continue
+        end
+    end
+
+    % RawEventLog.Var2(TimefromZero) = RawEventLog.Var2(TimefromZero) - RawEventLog.Var2(MREvent(1));
+    % RawEventLog.Var2(TrialStartRow) = RawEventLog.Var2(TrialStartRow) - RawEventLog.Var2(MREvent(1));
     TRLog = RawEventLog(MREvent,:);
 
 
