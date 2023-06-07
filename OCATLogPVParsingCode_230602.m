@@ -17,15 +17,7 @@ for fi = 1:numel(Subjects)
 %% save TR log
     MREvent = find(contains(RawEventLog.Var1(:),'MR'));
     MRStartTime = RawEventLog.Var2(MREvent(1));
-    % TRLog = RawEventLog(MREvent,:);
-    % TRLog.Var2 = TRLog.Var2 - TRLog.Var2(1);
-
-
     % Time - MRStartTime
-    % TimefromZero = find(~contains(RawEventLog.Var1(:), ("Decision" | "Trial")));
-    % TrialStartRow = find(contains(RawEventLog.Var1(:), ("TrialStart")));
-
-
     for i=1:height(RawEventLog)
         if RawEventLog.Var1(i) ~= "Decision" & RawEventLog.Var1(i) ~= "Trial"
             RawEventLog.Var2(i) =  minus(RawEventLog.Var2(i), MRStartTime);
@@ -33,11 +25,7 @@ for fi = 1:numel(Subjects)
             continue
         end
     end
-
-    % RawEventLog.Var2(TimefromZero) = RawEventLog.Var2(TimefromZero) - RawEventLog.Var2(MREvent(1));
-    % RawEventLog.Var2(TrialStartRow) = RawEventLog.Var2(TrialStartRow) - RawEventLog.Var2(MREvent(1));
     TRLog = RawEventLog(MREvent,:);
-
 
 
     if ~isfolder ([Root subjectName])
@@ -47,7 +35,6 @@ for fi = 1:numel(Subjects)
 
     RawEventLog(MREvent,:) = [];
 
-    
 
 %% PV task Parsing
 %pre
@@ -142,7 +129,7 @@ plottingX=1:height(LogTable);
 hold on
 colororder({'#0072BD','#000000'})
 yyaxis left
-title([subjectName ': RT & Correctness'])
+title([subjectName ': RT & Correctness'],"FontSize",15,"FontWeight","bold")
 
 
 xlabel('Trial')
@@ -182,7 +169,7 @@ yticks([])
 
 hold off
 
-saveas(gcf,[Root subjectName '\' subjectName 'RTandCorrect.png'])
+saveas(gcf,[Root subjectName '\' subjectName 'Performance_Graph.png'])
 close(f)
 
 
