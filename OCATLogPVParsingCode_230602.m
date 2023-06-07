@@ -1,4 +1,4 @@
-Subjects = {'지순'};
+Subjects = {'지순', '재민', '소린'};
 
 for fi = 1:numel(Subjects)
     subjectName=Subjects{fi};
