@@ -169,7 +169,7 @@ yticks([])
 
 hold off
 
-saveas(gcf,[Root subjectName '\' subjectName 'Performance_Graph.png'])
+saveas(gcf,[Root subjectName '\' subjectName '_Performance_Graph.png'])
 close(f)
 
 
