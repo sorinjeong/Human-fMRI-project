@@ -2,8 +2,6 @@
 for subname = 1:1
     Subjects{subname} = sprintf('Sub%.15g', subname);
 end
-Events=struct;EventName = ["Session","Lap","Trial","Context","Direction","Location","Association","Object","Choice","Correct","RT","isTimeout"];
-for v=1:length(EventName); if ~isfield(Events,EventName{v}); Events.(EventName{v}) = [];end;end
 for fi = 1:numel(Subjects)
     subjectName=Subjects{fi};
     % Root = ['Z:\E-Phys Analysis\fMRI_ocat\'];
@@ -24,39 +22,25 @@ for fi = 1:numel(Subjects)
    
 
 %% Make LambBox
-for v=1:length(EventName)
-if 4<v<9
-    Events.(EventName{v}) = [Events.(EventName{v}); LogTable{:,v}];
-elseif v==9
-    
-elseif v==10 || v== 11
-    Events.(EventName{v}) = [Events.(EventName{v}); LogTable{:,v+2}];
-elseif v==12
-    Events.(EventName{v}) = zeros(length(LogTable),1);
-    for l=1:length(LogTable); if Events(l,10) == 2;Events.isTimeout(l) = 1;end;end
-else
-     %Session
-    subnum=repmat(fi,32,1);
-    Events.Session=[Events.Session; subnum];
-     %Lap 
-    Events.Lap=[Events.Lap; LogTable.Lap];
-     %Trial
-    Events.Trial=[Events.Trial; Trial1to32]; 
-     %Context
-    Events.Choice=[Events.Choice; ContextNum];
-end
-end
-%% 
-% %save
-% Events= orderfields(Events,EventName);
-% LambBox=struct2table(Events);
-% save([savefolder subjectName '\' subjectName '_LambBox'], "LambBox");
-% writetable(LambBox,[savefolder subjectName '\' subjectName '_LambBox.xlsx']);
-% 
-% 
+Events=struct('Session',subnum,'Lap',LogTable.Lap,'Trial',Trial1to32,'Context',ContextNum,'Direction',LogTable.Direction,...
+    'Location',LogTable.Location,'Association',LogTable.Association,'Object',LogTable.Obj_ID,'Choice',[],...
+    'Correct',LogTable.Decision,'RT',LogTable.Duration,'isTimeout',zeros(height(LogTable),1));
+    Events.Choice(find(LogTable.Choice=="A"))=1;
+    Events.Choice(find(LogTable.Choice=="B"))=2;
+    Events.Choice(find(LogTable.Choice==missing))=missing;
+    Events.Choice=Events.Choice';
+for l=1:height(LogTable); if Events.Correct(l) == 2;Events.isTimeout(l) = 1;end;end
 
 
+%% save / for 1 subject
+Events= orderfields(Events,EventName);
+LambBox=struct2table(Events);
+save([savefolder subjectName '\' subjectName '_LambBox'], "LambBox");
+writetable(LambBox,[savefolder subjectName '\' subjectName '_LambBox.xlsx']);
 
-
+%% save /all subjects
+total_lambBox=[]; total_lambBox=[total_lambBox, LambBox];
+save([savefolder 'AllsubLambBox'],"total_lambBox");
+writetable(total_lambBox,[savefolder 'AllsubLambBox.xlsx']);
 
 end
