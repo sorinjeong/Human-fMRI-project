@@ -1,7 +1,10 @@
+participants = 15;
+
 %% subject numbering , folder root
-for subname = 1:15
+for subname = 1:participants
     Subjects{subname} = sprintf('Sub%.15g', subname);
 end
+total_lambBox=[];
 for fi = 1:numel(Subjects)
     subjectName=Subjects{fi};
     Root = ['Z:\E-Phys Analysis\fMRI_ocat\'];
@@ -200,7 +203,6 @@ TOPlot.FaceColor = "#EDB120";
 yticks([])
 
 hold off
-
 saveas(gcf,[savefolder subjectName '\' subjectName '_Performance_Graph.png'])
 close(f)
 
@@ -216,8 +218,6 @@ end
 
 save([savefolder 'GLM\corr_' subjectName] ,"corr",'-mat')
 save([savefolder 'GLM\incorr_' subjectName] ,"incorr",'-mat')
-
-
 
 
 
@@ -240,17 +240,13 @@ save([savefolder subjectName '\' subjectName '_LambBox'], "LambBox");
 writetable(LambBox,[savefolder subjectName '\' subjectName '_LambBox.xlsx']);
 
 %% save /all subjects
-total_lambBox=[]; total_lambBox=[total_lambBox, LambBox];
+total_lambBox=[total_lambBox; LambBox];
 save([savefolder 'AllsubLambBox'],"total_lambBox");
 writetable(total_lambBox,[savefolder 'AllsubLambBox.xlsx']);
 
 
 
-
-
 end
-
-
 
 
 
