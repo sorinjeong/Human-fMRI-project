@@ -22,6 +22,7 @@ for fi = 1:numel(Subjects)
    
 
 %% Make LambBox
+subnum=repmat(fi,32,1);
 Events=struct('Session',subnum,'Lap',LogTable.Lap,'Trial',Trial1to32,'Context',ContextNum,'Direction',LogTable.Direction,...
     'Location',LogTable.Location,'Association',LogTable.Association,'Object',LogTable.Obj_ID,'Choice',[],...
     'Correct',LogTable.Decision,'RT',LogTable.Duration,'isTimeout',zeros(height(LogTable),1));

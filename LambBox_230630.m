@@ -1,32 +1,19 @@
 %% subject numbering , folder root
-for subname = 1:1
+for subname = 1:15
     Subjects{subname} = sprintf('Sub%.15g', subname);
 end
-% for fi = 1:numel(Subjects)
-%     subjectName=Subjects{fi};
-%     Root = ['Z:\E-Phys Analysis\fMRI_ocat\'];
-%     filefolder= [Root 'PilotData'];
-%     addpath(filefolder)
-%     cd(filefolder)
-%     % savefolder= [Root 'PilotData_analyzed\'];
-%     savefolder='D:\internship\MATLAB\23.06.30_LambBox\';
-%     addpath(savefolder)
-
 for fi = 1:numel(Subjects)
     subjectName=Subjects{fi};
-    % Root = ['Z:\E-Phys Analysis\fMRI_ocat\'];
-   Root = ['D:\internship\MATLAB\23.06.30_LambBox'];
-    % filefolder= [Root 'PilotData'];
-    filefolder=Root;
+    Root = ['Z:\E-Phys Analysis\fMRI_ocat\'];
+    filefolder= [Root 'PilotData\'];
     addpath(filefolder)
     cd(filefolder)
-    % savefolder= [Root 'PilotData_analyzed\'];
-    savefolder= [Root '\'];
+    savefolder= [Root 'PilotData_analyzed\'];
     addpath(savefolder)
 
 
 %% Import the file
-    fileToRead1= dir([subjectName '*Time_Behavior.csv']);
+    fileToRead1= dir([subjectName '_*Time_Behavior.csv']);
     TimeBehavior = readtable(fileToRead1.name);
 
 %% Eventlogfile wo/coordinate 
@@ -159,7 +146,7 @@ save([savefolder subjectName '\' subjectName '_Trial1to32'], "Trial1to32");
 save([savefolder subjectName '\' subjectName '_ContextNum'], "ContextNum");
 
 %save Total_Table
-cd([Root '\analyzed']);
+cd(savefolder);
 writetable(LogTable,'TotalSubject_LogTable.xlsx','Sheet', subjectName);
 writetable(postPVtaskLog,'TotalSubject_post-PV.xlsx','Sheet', subjectName);
 writetable(prePVtaskLog,'TotalSubject_pre-PV.xlsx','Sheet', subjectName);
@@ -229,15 +216,40 @@ end
 
 save([savefolder 'GLM\corr_' subjectName] ,"corr",'-mat')
 save([savefolder 'GLM\incorr_' subjectName] ,"incorr",'-mat')
-end
+
 
 
 
 
 %% LambBox for Analysis
+%% Make LambBox
+subnum=repmat(fi,32,1);
+Events=struct('Session',subnum,'Lap',LogTable.Lap,'Trial',Trial1to32,'Context',ContextNum,'Direction',LogTable.Direction,...
+    'Location',LogTable.Location,'Association',LogTable.Association,'Object',LogTable.Obj_ID,'Choice',[],...
+    'Correct',LogTable.Decision,'RT',LogTable.Duration,'isTimeout',zeros(height(LogTable),1));
+    Events.Choice(find(LogTable.Choice=="A"))=1;
+    Events.Choice(find(LogTable.Choice=="B"))=2;
+    Events.Choice(find(LogTable.Choice==missing))=missing;
+    Events.Choice=Events.Choice';
+for l=1:height(LogTable); if Events.Correct(l) == 2;Events.isTimeout(l) = 1;end;end
 
-%column: session, ocntext, location, object, assoc, choice, corr, RT,
-%Timeout, trial, lap
+
+%% save / for 1 subject
+Events= orderfields(Events,EventName);
+LambBox=struct2table(Events);
+save([savefolder subjectName '\' subjectName '_LambBox'], "LambBox");
+writetable(LambBox,[savefolder subjectName '\' subjectName '_LambBox.xlsx']);
+
+%% save /all subjects
+total_lambBox=[]; total_lambBox=[total_lambBox, LambBox];
+save([savefolder 'AllsubLambBox'],"total_lambBox");
+writetable(total_lambBox,[savefolder 'AllsubLambBox.xlsx']);
+
+
+
+
+
+end
 
 
 
