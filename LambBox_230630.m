@@ -235,7 +235,6 @@ for l=1:height(LogTable); if Events.Correct(l) == 2;Events.isTimeout(l) = 1;end;
 
 
 %% save / for 1 subject
-Events= orderfields(Events,EventName);
 LambBox=struct2table(Events);
 save([savefolder subjectName '\' subjectName '_LambBox'], "LambBox");
 writetable(LambBox,[savefolder subjectName '\' subjectName '_LambBox.xlsx']);
