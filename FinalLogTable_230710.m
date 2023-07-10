@@ -1,7 +1,7 @@
 %% 아래 두가지 variable 반드시 기입할 것!!!!
 
 NumOfSubs = 18;
-ParsingVersion = 0710;
+ParsingVersion = string(230710);
 
 %% subject numbering , folder root
 for subname = 1:NumOfSubs
@@ -79,7 +79,7 @@ writetable(postPVtaskLog,[savefolder Session '\' Session '_post-PVtaskLog.xlsx']
     %event name별로 field 생성  
     ParsingPerTrial=struct;
     for s=1:5; ParsingPerTrial.(VarName{s+5}) = Numb(:,s); end
-    for v=1:length(VarName); if ~isfield(ParsingPerTrial,VarName{v}); if contains(VarName{v},"_txt");ParsingPerTrial.(VarName{v})=string; else ParsingPerTrial.(VarName{v}) = [];end;end;end 
+    for v=1:length(VarName); if ~isfield(ParsingPerTrial,VarName{v}); ParsingPerTrial.(VarName{v}) = [];end;end 
 
     %% Event Parsing
  LapNumNTime = [];EventName=[];EventName = string(RawEventLog.Var1(:));
@@ -101,7 +101,7 @@ writetable(postPVtaskLog,[savefolder Session '\' Session '_post-PVtaskLog.xlsx']
      else
          % Choice
              if contains(EventName(i),"Choice"+("A"|"B"))
-              ParsingPerTrial.Choice_txt = [ParsingPerTrial.Choice_txt; extractAfter(EventName(i),"Choice")];
+              ParsingPerTrial.Choice_txt = [ParsingPerTrial.Choice_txt; string(extractAfter(EventName(i),"Choice"))];
               
         % Correctness, RT, isTimeout
              elseif EventName(i)=="Decision"
@@ -129,12 +129,17 @@ writetable(postPVtaskLog,[savefolder Session '\' Session '_post-PVtaskLog.xlsx']
                 ParsingPerTrial.Choice_txt = [ParsingPerTrial.Choice_txt; missing];end   
        
  end
- 
-%Choice txt to Number
-   ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="A"))=1;ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="B"))=2;
-   ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt==missing))=missing;ParsingPerTrial.Choice_Num=ParsingPerTrial.Choice_Num';
 
-     %Context Num to txt
+   %Choice txt to Number
+   % ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="A"))=1;ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="B"))=2;
+   % ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt==missing))=missing;ParsingPerTrial.Choice_Num=ParsingPerTrial.Choice_Num';
+    ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="A"))=1;
+    ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="B"))=2;
+    ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt==missing))=missing;
+    ParsingPerTrial.Choice_Num=ParsingPerTrial.Choice_Num';
+
+
+    %Context Num to txt
     ParsingPerTrial.Context_txt(find(ParsingPerTrial.Context_Num==1))="F";ParsingPerTrial.Context_txt(find(ParsingPerTrial.Context_Num==2))="C";
     ParsingPerTrial.Context_txt=ParsingPerTrial.Context_txt';
 
