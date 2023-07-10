@@ -5,7 +5,7 @@ ParsingVersion = 0710;
 
 %% subject numbering , folder root
 for subname = 1:NumOfSubs
-    Subjects{subname} = sprintf('Sub%.15g', (subname + 84));
+    Subjects{subname} = sprintf('Sub%.15g', (subname+84));
 end
 total_lambBox=[];
 for fi = 1:numel(Subjects)
@@ -79,7 +79,7 @@ writetable(postPVtaskLog,[savefolder Session '\' Session '_post-PVtaskLog.xlsx']
     %event name별로 field 생성  
     ParsingPerTrial=struct;
     for s=1:5; ParsingPerTrial.(VarName{s+4}) = Numb(:,s); end
-    for v=1:length(VarName); if ~isfield(ParsingPerTrial,VarName{v}); ParsingPerTrial.(VarName{v}) = [];end;end 
+    for v=1:length(VarName); if ~isfield(ParsingPerTrial,VarName{v}); if contains(VarName{v},"_txt");ParsingPerTrial.(VarName{v})=string; else ParsingPerTrial.(VarName{v}) = [];end;end;end 
 
     %% Event Parsing
  LapNumNTime = [];EventName=[];EventName = string(RawEventLog.Var1(:));
@@ -102,7 +102,7 @@ writetable(postPVtaskLog,[savefolder Session '\' Session '_post-PVtaskLog.xlsx']
          % Choice
              if contains(EventName(i),"Choice"+("A"|"B"))
               ParsingPerTrial.Choice_txt = [ParsingPerTrial.Choice_txt; string(extractAfter(EventName(i),"Choice"))];
-            
+              
         % Correctness, RT, isTimeout
              elseif EventName(i)=="Decision"
                     if RawEventLog{i,4} > 1.5 & RawEventLog{i,2} ~= 2
@@ -125,7 +125,7 @@ writetable(postPVtaskLog,[savefolder Session '\' Session '_post-PVtaskLog.xlsx']
         end
 
         %choice missing (choiceOn과 objOff 이벤트 개수와 choice 개수가 다를 경우 missing 삽입)
-          if length(ParsingPerTrial.ChoiceOn) == length(ParsingPerTrial.ObjOff) & length(ParsingPerTrial.ChoiceOn) ~= length(ParsingPerTrial.Choice)
+          if length(ParsingPerTrial.ChoiceOn) == length(ParsingPerTrial.ObjOff) & length(ParsingPerTrial.ChoiceOn) ~= length(ParsingPerTrial.Choice_txt)
                 ParsingPerTrial.Choice_txt = [ParsingPerTrial.Choice_txt; missing];end   
         
          ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="A"))=1;ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="B"))=2;
@@ -225,20 +225,25 @@ save([savefolder 'GLM\corr_' subjectName] ,"corr",'-mat')
 save([savefolder 'GLM\incorr_' subjectName] ,"incorr",'-mat')
 
 
-%% Table for Analysis == LogTable_woText
+%% Table for Analysis == LogTable_NumOnly
+subnum=repmat(subname+84,32,1);
+LogTable_NumOnly=struct('Session',subnum,'Lap',LogTable.Lap,'Trial',LogTable.Trial,'Context',LogTable.Context_Num,'Direction',LogTable.Direction,...
+    'Location',LogTable.Location,'Association',LogTable.Association,'Object',LogTable.Obj_ID,'Choice',LogTable.Choice_Num,...
+    'Correct',LogTable.Correct_Num,'RT',LogTable.RT,'isTimeout',LogTable.isTimeout);
 
 
 
+%% save / for 1 subject
+LogTable_NumOnly=struct2table(LogTable_NumOnly);
+save([savefolder subjectName '\' subjectName '_NumLogTable'], "LogTable_NumOnly");
+writetable(LogTable_NumOnly,[savefolder subjectName '\' subjectName '__NumLogTable.xlsx']);
 
+%% save /all subjects
+total_NumLogTable=[total_NumLogTable; LogTable_NumOnly];
+save([savefolder '_Allsub_NumLogTable'],"total_NumLogTable");
+writetable(total_lambBox,[savefolder 'Allsub_NumLogTable.xlsx']);
 
-
-
-
-
-
-
-
-
+end
 
 
 
