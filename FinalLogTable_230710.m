@@ -78,7 +78,7 @@ writetable(postPVtaskLog,[savefolder Session '\' Session '_post-PVtaskLog.xlsx']
     Numb = num2str(RawEventLog.Var4(TrialTypeRow)) - '0';
     %event name별로 field 생성  
     ParsingPerTrial=struct;
-    for s=1:5; ParsingPerTrial.(VarName{s+4}) = Numb(:,s); end
+    for s=1:5; ParsingPerTrial.(VarName{s+5}) = Numb(:,s); end
     for v=1:length(VarName); if ~isfield(ParsingPerTrial,VarName{v}); if contains(VarName{v},"_txt");ParsingPerTrial.(VarName{v})=string; else ParsingPerTrial.(VarName{v}) = [];end;end;end 
 
     %% Event Parsing
@@ -101,7 +101,7 @@ writetable(postPVtaskLog,[savefolder Session '\' Session '_post-PVtaskLog.xlsx']
      else
          % Choice
              if contains(EventName(i),"Choice"+("A"|"B"))
-              ParsingPerTrial.Choice_txt = [ParsingPerTrial.Choice_txt; string(extractAfter(EventName(i),"Choice"))];
+              ParsingPerTrial.Choice_txt = [ParsingPerTrial.Choice_txt; extractAfter(EventName(i),"Choice")];
               
         % Correctness, RT, isTimeout
              elseif EventName(i)=="Decision"
@@ -127,10 +127,12 @@ writetable(postPVtaskLog,[savefolder Session '\' Session '_post-PVtaskLog.xlsx']
         %choice missing (choiceOn과 objOff 이벤트 개수와 choice 개수가 다를 경우 missing 삽입)
           if length(ParsingPerTrial.ChoiceOn) == length(ParsingPerTrial.ObjOff) & length(ParsingPerTrial.ChoiceOn) ~= length(ParsingPerTrial.Choice_txt)
                 ParsingPerTrial.Choice_txt = [ParsingPerTrial.Choice_txt; missing];end   
-        
-         ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="A"))=1;ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="B"))=2;
-         ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt==missing))=missing;ParsingPerTrial.Choice_Num=ParsingPerTrial.Choice_Num';
-     end
+       
+ end
+ 
+%Choice txt to Number
+   ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="A"))=1;ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt=="B"))=2;
+   ParsingPerTrial.Choice_Num(find(ParsingPerTrial.Choice_txt==missing))=missing;ParsingPerTrial.Choice_Num=ParsingPerTrial.Choice_Num';
 
      %Context Num to txt
     ParsingPerTrial.Context_txt(find(ParsingPerTrial.Context_Num==1))="F";ParsingPerTrial.Context_txt(find(ParsingPerTrial.Context_Num==2))="C";
