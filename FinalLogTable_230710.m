@@ -1,4 +1,7 @@
+%% 아래 두가지 variable 반드시 기입할 것!!!!
+
 NumOfSubs = 18;
+ParsingVersion = 0710;
 
 %% subject numbering , folder root
 for subname = 1:NumOfSubs
@@ -11,7 +14,9 @@ for fi = 1:numel(Subjects)
     filefolder= [Root 'PilotData\'];
     addpath(filefolder)
     cd(filefolder)
-    savefolder= [Root 'PilotData_analyzed\'];
+
+%add version
+    savefolder= [Root 'PilotData_analyzed\ver_' ParsingVersion '\'];
     addpath(savefolder)
 
 
@@ -155,10 +160,72 @@ writetable(TRLog,'TotalSubject_TR.xlsx','Sheet', subjectName);
 
 
 
+%% Plot
+cd(savefolder) %legend 있는 곳으로 이동
+clf
+f=figure; f.Position; f.Position = [1500 500 1000 600];
+%RT plot
+plottingX=1:height(LogTable);
+hold on
+colororder({'#0072BD','#000000'})
+yyaxis left
+title([subjectName ': RT & Correctness'],"FontSize",15,"FontWeight","bold")
 
 
+xlabel('Trial','FontSize',13,'FontWeight','bold')
+ylabel('RT','FontSize',13,'FontWeight','bold')
+RTplot = plot(LogTable,"Duration",'Color','#0072BD', 'LineWidth',1.5,'Marker','.','MarkerSize',20);
+Threshold = yline(1.5,'-.','Timeout','LabelHorizontalAlignment', 'center' ,'Color',"#0072BD",'LineWidth',1.2);
+yticks(0:0.2:1.8)
+xlim([1 height(LogTable)]);
+ylim([-0.2 2]);
+pbaspect([2 1 1]);
+
+% correctness plot
+yyaxis right
+
+plottingY=LogTable.Decision';
+[to_r, to_c] = find(plottingY == 2);
+plottingY(1,to_c) = 1;
 
 
+stairs(plottingY);
+coloringX = [plottingX;plottingX];
+coloringY = [plottingY;plottingY];
+CorPlot = area(coloringX([2:end end]),coloringY(1:end));
+CorPlot.FaceColor = "k";
+ylim([0 10]);
+
+%legend
+img = imread('Plot_legend.jpg');
+image(img,'XData',[32 36],'YData',[3 -0.5],'Clipping','off')
+
+TOmat = zeros(1,height(LogTable));
+TOmat(1,to_c) = 1;
+TOmat = [TOmat;TOmat];
+TOPlot = area(coloringX([2:end end]),TOmat(1:end));
+TOPlot.FaceColor = "#EDB120";
+yticks([])
+
+hold off
+saveas(gcf,[savefolder subjectName '\' subjectName '_Performance_Graph.png'])
+close(f)
+
+%% GLM corr/incorr
+corr=[];incorr=[];
+for co = 1:height(LogTable)
+if ParsingPerTrial.Decision(co) == 1
+    corr= [corr ParsingPerTrial.ObjOn(co)];
+else 
+    incorr= [incorr ParsingPerTrial.ObjOn(co)];
+end
+end
+
+save([savefolder 'GLM\corr_' subjectName] ,"corr",'-mat')
+save([savefolder 'GLM\incorr_' subjectName] ,"incorr",'-mat')
+
+
+%% Table for Analysis == LogTable_woText
 
 
 
