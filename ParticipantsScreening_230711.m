@@ -39,13 +39,13 @@ for n=1:length(P); DataGroup.PASS.(sprintf('SUB_%.15g', P(n))) = SpliT.(sprintf(
 for n=1:length(F); DataGroup.FAIL.(sprintf('SUB_%.15g', F(n))) = SpliT.(sprintf('SUB_%.15g', F(n))); end
 
 
-Tc=To;Tc((find(Tc.Correct==0)),:)=[];
+Tc=To;Tc((find(Tc.Correct==0)),:)=[];corr_Percent = [];
 
 for i=1:length(Subs)
     varName = sprintf('SUB_%.15g',Subs(i));
     DataGroup.Correct.(varName) = Tc((Tc.Session(:) == Subs(i)),:);
 
-%% Performance
+%% Performance-Bias
 Screening.(varName)= struct("Accuracy",[],"RT",[],"Bias_Lap",[],"Bias",[]);
 
 ButtonA = length(find(DataGroup.PASS.(varName).Choice==1));
@@ -63,6 +63,28 @@ ButtonB_Lap = length(find(lapnumchoice==2));
 
 Screening.(varName).Bias_Lap.(sprintf('Lap%.15g', j)) = (ButtonA_Lap-ButtonB_Lap) / height(lapnumchoice);
 
-end
 
-end
+%% Performance-Accuracy
+corr_Percent = [corr_Percent; ((height(DataGroup.Correct.(varName)))/32)*100];
+bias = [bias; Screening.(varName).Bias];
+
+
+end;end
+SubInfoFile = addvars(SubInfoFile, corr_Percent, bias); 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
