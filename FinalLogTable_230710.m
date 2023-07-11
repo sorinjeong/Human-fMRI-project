@@ -8,7 +8,7 @@ ParsingVersion = num2str(230710);
 for subname = 1:NumOfSubs
     Subjects{subname} = sprintf('Sub%.15g', (subname+84));
 end
-total_lambBox=[];
+total_NumLogTable=[];
 for fi = 1:numel(Subjects)
     Session=Subjects{fi};
     Root = ['Z:\E-Phys Analysis\fMRI_ocat\'];
@@ -45,7 +45,7 @@ for fi = 1:numel(Subjects)
 
 
     if ~isfolder ([savefolder Session])
-    mkdir([savefolder Session]); end
+    mkdir([savefolder Session]);mkdir([savefolder 'GLM']); end
     save([savefolder Session '\' Session '_TRLog'], "TRLog");
     writetable(TRLog,[savefolder Session '\' Session '_TRLog.xlsx']);
 
@@ -165,7 +165,7 @@ writetable(TRLog,'TotalSubject_TR.xlsx','Sheet', Session);
 
 
 %% Plot
-cd(savefolder) %legend 있는 곳으로 이동
+cd([Root 'PilotData_analyzed\']) %legend 있는 곳으로 이동
 clf
 f=figure; f.Position; f.Position = [1500 500 1000 600];
 %RT plot
