@@ -1,7 +1,8 @@
 %% 아래 두가지 variable 반드시 기입할 것!!!!
 
 NumOfSubs = 18;
-ParsingVersion = string(230710);
+ParsingVersion = 230710;
+ParsingVersion = num2str(230710);
 
 %% subject numbering , folder root
 for subname = 1:NumOfSubs
@@ -17,8 +18,7 @@ for fi = 1:numel(Subjects)
 
 %add version
     savefolder= [Root 'PilotData_analyzed\ver_' ParsingVersion '\'];
-    addpath(savefolder)
-
+    if ~isfolder (savefolder);mkdir(savefolder);end;addpath(savefolder)
 
 %% Import the file
     fileToRead1= dir([Session '_*Time_Behavior.csv']);
@@ -152,18 +152,15 @@ LogTable=struct2table(ParsingPerTrial);
 %% Save the Table 
 
 % save log data
-save([savefolder subjectName '\' subjectName '_LogTable'], "LogTable");
-writetable(LogTable,[savefolder subjectName '\' subjectName '_LogTable.xlsx']);
-%save trial 1 to 32, context number
-save([savefolder subjectName '\' subjectName '_Trial1to32'], "Trial1to32");
-save([savefolder subjectName '\' subjectName '_ContextNum'], "ContextNum");
+save([savefolder Session '\' Session '_LogTable'], "LogTable");
+writetable(LogTable,[savefolder Session '\' Session '_LogTable.xlsx']);
 
 %save Total_Table
 cd(savefolder);
-writetable(LogTable,'TotalSubject_LogTable.xlsx','Sheet', subjectName);
-writetable(postPVtaskLog,'TotalSubject_post-PV.xlsx','Sheet', subjectName);
-writetable(prePVtaskLog,'TotalSubject_pre-PV.xlsx','Sheet', subjectName);
-writetable(TRLog,'TotalSubject_TR.xlsx','Sheet', subjectName);
+writetable(LogTable,'TotalSubject_LogTable.xlsx','Sheet', Session);
+writetable(postPVtaskLog,'TotalSubject_post-PV.xlsx','Sheet', Session);
+writetable(prePVtaskLog,'TotalSubject_pre-PV.xlsx','Sheet', Session);
+writetable(TRLog,'TotalSubject_TR.xlsx','Sheet', Session);
 
 
 
@@ -176,12 +173,12 @@ plottingX=1:height(LogTable);
 hold on
 colororder({'#0072BD','#000000'})
 yyaxis left
-title([subjectName ': RT & Correctness'],"FontSize",15,"FontWeight","bold")
+title([Session ': RT & Correctness'],"FontSize",18,"FontWeight","bold")
 
 
-xlabel('Trial','FontSize',13,'FontWeight','bold')
-ylabel('RT','FontSize',13,'FontWeight','bold')
-RTplot = plot(LogTable,"Duration",'Color','#0072BD', 'LineWidth',1.5,'Marker','.','MarkerSize',20);
+xlabel('Trial','FontSize',15,'FontWeight','bold')
+ylabel('RT','FontSize',15,'FontWeight','bold')
+RTplot = plot(LogTable,"RT",'Color','#0072BD', 'LineWidth',1.8,'Marker','.','MarkerSize',20);
 Threshold = yline(1.5,'-.','Timeout','LabelHorizontalAlignment', 'center' ,'Color',"#0072BD",'LineWidth',1.2);
 yticks(0:0.2:1.8)
 xlim([1 height(LogTable)]);
@@ -191,7 +188,7 @@ pbaspect([2 1 1]);
 % correctness plot
 yyaxis right
 
-plottingY=LogTable.Decision';
+plottingY=LogTable.Correct_Num';
 [to_r, to_c] = find(plottingY == 2);
 plottingY(1,to_c) = 1;
 
@@ -215,21 +212,21 @@ TOPlot.FaceColor = "#EDB120";
 yticks([])
 
 hold off
-saveas(gcf,[savefolder subjectName '\' subjectName '_Performance_Graph.png'])
+saveas(gcf,[savefolder Session '\' Session '_Performance_Graph.png'])
 close(f)
 
 %% GLM corr/incorr
 corr=[];incorr=[];
 for co = 1:height(LogTable)
-if ParsingPerTrial.Decision(co) == 1
+if ParsingPerTrial.Correct_Num(co) == 1
     corr= [corr ParsingPerTrial.ObjOn(co)];
 else 
     incorr= [incorr ParsingPerTrial.ObjOn(co)];
 end
 end
 
-save([savefolder 'GLM\corr_' subjectName] ,"corr",'-mat')
-save([savefolder 'GLM\incorr_' subjectName] ,"incorr",'-mat')
+save([savefolder 'GLM\corr_' Session] ,"corr",'-mat')
+save([savefolder 'GLM\incorr_' Session] ,"incorr",'-mat')
 
 
 %% Table for Analysis == LogTable_NumOnly
@@ -242,8 +239,8 @@ LogTable_NumOnly=struct('Session',subnum,'Lap',LogTable.Lap,'Trial',LogTable.Tri
 
 %% save / for 1 subject
 LogTable_NumOnly=struct2table(LogTable_NumOnly);
-save([savefolder subjectName '\' subjectName '_NumLogTable'], "LogTable_NumOnly");
-writetable(LogTable_NumOnly,[savefolder subjectName '\' subjectName '__NumLogTable.xlsx']);
+save([savefolder Session '\' Session '_NumLogTable'], "LogTable_NumOnly");
+writetable(LogTable_NumOnly,[savefolder Session '\' Session '__NumLogTable.xlsx']);
 
 %% save /all subjects
 total_NumLogTable=[total_NumLogTable; LogTable_NumOnly];
