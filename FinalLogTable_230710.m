@@ -43,7 +43,7 @@ for fi = 1:numel(Subjects)
     end
     TRLog = RawEventLog(MREvent,:);
 
-
+    disp([savefolder Session])
     if ~isfolder ([savefolder Session])
     mkdir([savefolder Session]);mkdir([savefolder 'GLM']); end
     save([savefolder Session '\' Session '_TRLog'], "TRLog");
@@ -245,7 +245,7 @@ writetable(LogTable_NumOnly,[savefolder Session '\' Session '__NumLogTable.xlsx'
 %% save /all subjects
 total_NumLogTable=[total_NumLogTable; LogTable_NumOnly];
 save([savefolder '_Allsub_NumLogTable'],"total_NumLogTable");
-writetable(total_lambBox,[savefolder 'Allsub_NumLogTable.xlsx']);
+writetable(total_NumLogTable,[savefolder 'Allsub_NumLogTable.xlsx']);
 
 end
 
