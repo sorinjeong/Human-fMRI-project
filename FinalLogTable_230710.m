@@ -1,8 +1,7 @@
 %% 아래 두가지 variable 반드시 기입할 것!!!!
 
 NumOfSubs = 18;
-ParsingVersion = 230710;
-ParsingVersion = num2str(230710);
+ParsingVersion = num2str(230711);
 
 %% subject numbering , folder root
 for subname = 1:NumOfSubs
@@ -18,13 +17,13 @@ for fi = 1:numel(Subjects)
 
 %add version
     savefolder= [Root 'PilotData_analyzed\ver_' ParsingVersion '\'];
-    if ~isfolder (savefolder);mkdir(savefolder);end;addpath(savefolder)
+    if ~isfolder (savefolder);mkdir(savefolder);mkdir([savefolder Session]);mkdir([savefolder 'GLM']);mkdir([savefolder 'Total']);end;addpath(savefolder)
 
 %% Import the file
     fileToRead1= dir([Session '_*Time_Behavior.csv']);
     TimeBehavior = readtable(fileToRead1.name);
     SubInfoFile = readtable('OCAT subject info (pilot).xlsx','ReadRowNames',false);
-    SubInfoFile = renamevars(SubInfoFile(2:NumOfSubs+1,[1 3 4]),["Var1","Var3","Var4"],["Session","Sex","Age"]);
+    SubInfoFile = renamevars(SubInfoFile(2:NumOfSubs+1,[1 3 4 5]),["Var1","Var3","Var4","Var5"],["Session","PASS","Sex","Age"]);
 
 %% Eventlogfile wo/coordinate 
     RawEventLog = TimeBehavior;
@@ -43,9 +42,9 @@ for fi = 1:numel(Subjects)
     end
     TRLog = RawEventLog(MREvent,:);
 
-    disp([savefolder Session])
-    if ~isfolder ([savefolder Session])
-    mkdir([savefolder Session]);mkdir([savefolder 'GLM']); end
+    % disp([savefolder Session])
+    % if ~isfolder ([savefolder Session])
+    % mkdir([savefolder Session]);mkdir([savefolder 'GLM']);mkdir([savefolder 'Total']);end
     save([savefolder Session '\' Session '_TRLog'], "TRLog");
     writetable(TRLog,[savefolder Session '\' Session '_TRLog.xlsx']);
 
@@ -103,7 +102,7 @@ writetable(postPVtaskLog,[savefolder Session '\' Session '_post-PVtaskLog.xlsx']
              if contains(EventName(i),"Choice"+("A"|"B"))
               ParsingPerTrial.Choice_txt = [ParsingPerTrial.Choice_txt; string(extractAfter(EventName(i),"Choice"))];
               
-        % Correctness, RT, isTimeout
+        % Correctness, RT, isTimeoutC
              elseif EventName(i)=="Decision"
                     if RawEventLog{i,4} > 1.5 & RawEventLog{i,2} ~= 2
                     RawEventLog{i,2} = 2;end
@@ -156,12 +155,11 @@ save([savefolder Session '\' Session '_LogTable'], "LogTable");
 writetable(LogTable,[savefolder Session '\' Session '_LogTable.xlsx']);
 
 %save Total_Table
-cd(savefolder);
-writetable(LogTable,'TotalSubject_LogTable.xlsx','Sheet', Session);
-writetable(postPVtaskLog,'TotalSubject_post-PV.xlsx','Sheet', Session);
-writetable(prePVtaskLog,'TotalSubject_pre-PV.xlsx','Sheet', Session);
-writetable(TRLog,'TotalSubject_TR.xlsx','Sheet', Session);
-
+cd([savefolder 'Total']);
+writetable(LogTable,'LogTable_Total.xlsx','Sheet', Session);
+writetable(postPVtaskLog,'post-PV_Total.xlsx','Sheet', Session);
+writetable(prePVtaskLog,'pre-PV_Total.xlsx','Sheet', Session);
+writetable(TRLog,'TR_Total.xlsx','Sheet', Session);
 
 
 %% Plot
@@ -202,7 +200,7 @@ ylim([0 10]);
 
 %legend
 img = imread('Plot_legend.jpg');
-image(img,'XData',[32 36],'YData',[3 -0.5],'Clipping','off')
+image(img,'XData',[32 34],'YData',[3 0],'Clipping','off')
 
 TOmat = zeros(1,height(LogTable));
 TOmat(1,to_c) = 1;
@@ -240,11 +238,11 @@ LogTable_NumOnly=struct('Session',subnum,'Lap',LogTable.Lap,'Trial',LogTable.Tri
 %% save / for 1 subject
 LogTable_NumOnly=struct2table(LogTable_NumOnly);
 save([savefolder Session '\' Session '_NumLogTable'], "LogTable_NumOnly");
-writetable(LogTable_NumOnly,[savefolder Session '\' Session '__NumLogTable.xlsx']);
+writetable(LogTable_NumOnly,[savefolder Session '\' Session '_NumLogTable.xlsx']);
 
 %% save /all subjects
 total_NumLogTable=[total_NumLogTable; LogTable_NumOnly];
-save([savefolder '_Allsub_NumLogTable'],"total_NumLogTable");
+save([savefolder 'Allsub_NumLogTable'],"total_NumLogTable");
 writetable(total_NumLogTable,[savefolder 'Allsub_NumLogTable.xlsx']);
 
 end
