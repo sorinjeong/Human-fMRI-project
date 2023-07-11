@@ -39,7 +39,7 @@ for n=1:length(P); DataGroup.PASS.(sprintf('SUB_%.15g', P(n))) = SpliT.(sprintf(
 for n=1:length(F); DataGroup.FAIL.(sprintf('SUB_%.15g', F(n))) = SpliT.(sprintf('SUB_%.15g', F(n))); end
 
 
-Tc=To;Tc((find(Tc.Correct==0)),:)=[];corr_Percent = [];
+Tc=To;Tc((find(Tc.Correct==0)),:)=[];corr_Percent = [];bias=[];
 
 for i=1:length(Subs)
     varName = sprintf('SUB_%.15g',Subs(i));
@@ -47,17 +47,26 @@ for i=1:length(Subs)
 
 %% Performance-Bias
 Screening.(varName)= struct("Accuracy",[],"RT",[],"Bias_Lap",[],"Bias",[]);
-
+if Subs(i) == P
 ButtonA = length(find(DataGroup.PASS.(varName).Choice==1));
 ButtonB = length(find(DataGroup.PASS.(varName).Choice==2));
+elseif Subs(i) == F
+ButtonA = length(find(DataGroup.FAIL.(varName).Choice==1));
+ButtonB = length(find(DataGroup.FAIL.(varName).Choice==2));
+end
 
 Screening.(varName).Bias = (ButtonA-ButtonB) / height(DataGroup.PASS.(varName));
 
 Screening.(varName).Bias_Lap = struct;
 for j=1:8
-lapnum = find(DataGroup.PASS.(varName).Lap==j);
-
-lapnumchoice = DataGroup.PASS.(varName).Choice(lapnum);
+    if Subs(i) == P
+        lapnum = find(DataGroup.PASS.(varName).Lap==j);
+        lapnumchoice = DataGroup.PASS.(varName).Choice(lapnum);
+    elseif Subs(i) == F
+        lapnum = find(DataGroup.FAIL.(varName).Lap==j);
+        lapnumchoice = DataGroup.FAIL.(varName).Choice(lapnum);
+    end
+    
 ButtonA_Lap = length(find(lapnumchoice==1));
 ButtonB_Lap = length(find(lapnumchoice==2));
 
