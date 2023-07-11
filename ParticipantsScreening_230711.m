@@ -12,7 +12,7 @@ Subs = unique(T.Session,"rows","sorted");
 SpliT=[]; To=T; To((find(To.isTimeout==1)),:)=[];
 for i=1:length(Subs)
     varName = sprintf('SUB_%.15g',Subs(i));
-    SpliT.(varName) = To(find(To.Session(:) == Subs(i)),:);
+    SpliT.(varName) = To((To.Session(:) == Subs(i)),:);
 % end; clear("varName", "i");
 
 
@@ -38,5 +38,13 @@ for n=1:length(P); DataGroup.PASS.(sprintf('SUB_%.15g', P(n))) = SpliT.(sprintf(
 for n=1:length(F); DataGroup.FAIL.(sprintf('SUB_%.15g', F(n))) = SpliT.(sprintf('SUB_%.15g', F(n))); end
 
 
+Tc=To;Tc((find(Tc.Correct==0)),:)=[];
+for i=1:length(Subs)
+    varName = sprintf('SUB_%.15g',Subs(i));
+    DataGroup.Correct.(varName) = Tc((Tc.Session(:) == Subs(i)),:);
+end
+DataGroup.Overall = SpliT;
 
+
+%% Performance
 
