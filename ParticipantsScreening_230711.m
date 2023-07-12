@@ -9,7 +9,7 @@ SubInfoFile = renamevars(SubInfoFile(2:19,[1 3 4 5]),["Var1","Var3","Var4","Var5
 %% session별 나누기
 Subs = unique(T.Session,"rows","sorted");
 
-SpliT=struct; To=table2array(T); To(To(:,12)==1,:)=missing;To=array2table(To);To.Properties.VariableNames = T.Properties.VariableNames;
+SpliT=struct; To=table2array(T); To(To(:,12)==1,2:end)=missing;To=array2table(To);To.Properties.VariableNames = T.Properties.VariableNames;
 for i=1:length(Subs)
     varName = sprintf('SUB_%.15g',Subs(i));
     SpliT.(varName) = To((To.Session(:) == Subs(i)),:);
@@ -38,7 +38,7 @@ F=SubInfoFile.Session(find(SubInfoFile.PASS == 0));
 for n=1:length(P); DataGroup.PASS.(sprintf('SUB_%.15g', P(n))) = SpliT.(sprintf('SUB_%.15g', P(n))); end
 for n=1:length(F); DataGroup.FAIL.(sprintf('SUB_%.15g', F(n))) = SpliT.(sprintf('SUB_%.15g', F(n))); end
 
-Tc=table2array(To); Tc(Tc(:,10)==0,:)=missing;Tc=array2table(Tc);Tc.Properties.VariableNames = To.Properties.VariableNames;
+Tc=table2array(To); Tc(Tc(:,10)==0,2:end)=missing;Tc=array2table(Tc);Tc.Properties.VariableNames = To.Properties.VariableNames;
 corr_Percent = [];halfbias=[];allbias=[];overall_corr = [];overall_sub =[];
 for i=1:length(Subs)
     varName = sprintf('SUB_%.15g',Subs(i));
@@ -93,21 +93,15 @@ halfbias = [halfbias; Screening.(varName).Bias_Half];
 
 
 %% make correctness array
-overall_RT = [overall_RT; DataGroup.Overall.(varName).RT];
-overall_sub = [overall_sub; DataGroup.Overall.(varName).Session];
+overall_sub = [overall_sub DataGroup.Overall.(varName).Session];
 
 end
 SubInfoFile = addvars(SubInfoFile, corr_Percent, allbias, halfbias); 
 
 
 
-%% Accuracy plot
-
-
-boxplot(overall_RT)
-
-
-
+%% Screening_RT plot
+% RT Y value 생성
 overall_RT=[];D=struct;
 for i=1:length(Subs)
     temp=T((T.Session(:) == Subs(i)),:);
@@ -115,10 +109,35 @@ for i=1:length(Subs)
     overall_RT = [overall_RT temp.RT] ;
 end
 
+% boxplot 생성
+f=figure;
+hold on
+title('Response Time /Subject')
+xlabel('Subject Number')
+ylabel('RT(s)')
 
+h = boxplot(overall_RT,SubInfoFile.Session);
+idx = find(ismember([SubInfoFile.Session], F));
+set(h(:,idx),'Color','red');
+set(h(6,:),'Color','k');
+% set(h(7,:),'MarkerEdgeColor','k');
+set(h(1:2,:),'LineStyle','-');
 
+ax = gca;
+xTick = ax.XTick;
+xLim = ax.XLim;
+yLim = ax.YLim;
 
-
+for i = 1:length(idx)
+    text(xTick(idx(i)), yLim(1)-0.05*diff(yLim), ax.XTickLabel{idx(i)},...
+        'Color', 'red', 'HorizontalAlignment', 'center','Rotation', 45);
+ax.XTickLabel{idx(i)} = '';
+end
+meanValues = mean(overall_RT);
+for i = 1:length(xTick)
+    text(xTick(i), yLim(1)-0.1*diff(yLim), sprintf('Mean: %.2f',...
+        meanValues(i)), 'HorizontalAlignment', 'center');
+end
 
 
 
