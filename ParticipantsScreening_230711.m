@@ -87,7 +87,7 @@ end
 end
 
 %% Performance-Accuracy
-corr_Percent = [corr_Percent; ((height(DataGroup.Correct.(varName)))/32)*100];
+corr_Percent = [corr_Percent; ((length(find(DataGroup.Correct.(varName).Correct==1)))/32)*100];
 allbias = [allbias; Screening.(varName).Bias_all];
 halfbias = [halfbias; Screening.(varName).Bias_Half];
 
