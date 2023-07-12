@@ -195,7 +195,7 @@ boxplot([pass_corr_RT pass_incorr_RT fail_corr_RT fail_incorr_RT], group, 'Label
 
 
 f = figure;
-f.Position = [1645,857,829,594];
+f.Position = [1300,700,1200,800];
 f.PaperSize = [21,30];
 hold on
 title('Response Time for Correct and Incorrect Trials by Subject')
@@ -208,10 +208,10 @@ group = [1:18, 19:36];
 positions = [1:18, 19:36];
 labels = {};
 for i=1:18
-    labels{end+1} = ['sub', num2str(i), '(Corr)'];
+    labels{end+1} = ['sub', num2str(SubInfoFile.Session(i)), '(Corr)'];
 end
 for i=1:18
-    labels{end+1} = ['sub', num2str(i), '(Incorr)'];
+    labels{end+1} = ['sub', num2str(SubInfoFile.Session(i)), '(Incorr)'];
 end
 boxplot([corr_RT incorr_RT], group, 'Labels', labels, 'Positions', positions, OutlierSize=10^(-200));
 
@@ -221,11 +221,23 @@ for j=1:length(h)
     if group(j) > 18
         patch(get(h(j),'XData'),get(h(j),'YData'),'g','FaceAlpha',.4);
     end
+    if ismember(SubInfoFile.Session(group(j)), F)
+        lines = findobj(h(j), 'Type', 'Line');
+        set(lines, 'Color', 'r', 'LineWidth', 2);
+    end
 end
 
 
-
-
+% % X label 색상 변경하기
+% ax = gca;
+% xTick = ax.XTick;
+% yLim = ax.YLim;
+% for i = 1:length(F)
+%     text(xTick(F(i)), yLim(1)-0.03*diff(yLim), ax.XTickLabel{F(i)},...
+%         'Color', 'red', 'HorizontalAlignment', 'center');
+%     ax.XTickLabel{F(i)} = '';
+% end
+% 
 
 
 
