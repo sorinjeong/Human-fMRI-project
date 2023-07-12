@@ -9,7 +9,7 @@ SubInfoFile = renamevars(SubInfoFile(2:19,[1 3 4 5]),["Var1","Var3","Var4","Var5
 %% session별 나누기
 Subs = unique(T.Session,"rows","sorted");
 
-SpliT=[]; To=T; To((find(To.isTimeout==1)),:)=[];
+SpliT=struct; To=table2array(T); To(To(:,12)==1,:)=missing;To=array2table(To);To.Properties.VariableNames = T.Properties.VariableNames;
 for i=1:length(Subs)
     varName = sprintf('SUB_%.15g',Subs(i));
     SpliT.(varName) = To((To.Session(:) == Subs(i)),:);
@@ -38,9 +38,8 @@ F=SubInfoFile.Session(find(SubInfoFile.PASS == 0));
 for n=1:length(P); DataGroup.PASS.(sprintf('SUB_%.15g', P(n))) = SpliT.(sprintf('SUB_%.15g', P(n))); end
 for n=1:length(F); DataGroup.FAIL.(sprintf('SUB_%.15g', F(n))) = SpliT.(sprintf('SUB_%.15g', F(n))); end
 
-
-Tc=To;Tc((find(Tc.Correct==0)),:)=[];corr_Percent = [];bias=[];
-
+Tc=table2array(To); Tc(Tc(:,10)==0,:)=missing;Tc=array2table(Tc);Tc.Properties.VariableNames = To.Properties.VariableNames;
+corr_Percent = [];halfbias=[];allbias=[];overall_corr = [];overall_sub =[];
 for i=1:length(Subs)
     varName = sprintf('SUB_%.15g',Subs(i));
     DataGroup.Correct.(varName) = Tc((Tc.Session(:) == Subs(i)),:);
@@ -85,16 +84,55 @@ ButtonA_Half = length(find(halfchoice==1));
 ButtonB_Half = length(find(halfchoice==2));
 Screening.(varName).Bias_Half = (ButtonA_Half-ButtonB_Half) / height(halfchoice);
 end
-
 end
 
 %% Performance-Accuracy
 corr_Percent = [corr_Percent; ((height(DataGroup.Correct.(varName)))/32)*100];
-bias = [bias; Screening.(varName).Bias_Half];
+allbias = [allbias; Screening.(varName).Bias_all];
+halfbias = [halfbias; Screening.(varName).Bias_Half];
 
+
+%% make correctness array
+overall_RT = [overall_RT; DataGroup.Overall.(varName).RT];
+overall_sub = [overall_sub; DataGroup.Overall.(varName).Session];
 
 end
-SubInfoFile = addvars(SubInfoFile, corr_Percent, bias); 
+SubInfoFile = addvars(SubInfoFile, corr_Percent, allbias, halfbias); 
+
+
+
+%% Accuracy plot
+
+
+boxplot(overall_RT)
+
+
+
+overall_RT=[];D=struct;
+for i=1:length(Subs)
+    temp=T((T.Session(:) == Subs(i)),:);
+    temp.RT(find(temp.isTimeout)) = nan;
+    overall_RT = [overall_RT temp.RT] ;
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
