@@ -10,6 +10,7 @@ SubInfoFile = renamevars(SubInfoFile(2:19,[1 3 4 5]),["Var1","Var3","Var4","Var5
 Subs = unique(T.Session,"rows","sorted");
 
 SpliT=struct; To=table2array(T); To(To(:,12)==1,2:end)=missing;To=array2table(To);To.Properties.VariableNames = T.Properties.VariableNames;
+Combination=[];
 for i=1:length(Subs)
     varName = sprintf('SUB_%.15g',Subs(i));
     SpliT.(varName) = To((To.Session(:) == Subs(i)),:);
@@ -21,13 +22,11 @@ for i=1:length(Subs)
 C = SpliT.(varName).Context(find(SpliT.(varName).Association == 1));
 O = SpliT.(varName).Object(find(SpliT.(varName).Association == 1));
 A=[C O];
-Asso= sort([A(find(O==4,1)),4; A(find(O==5,1)),5; A(find(O==6,1)),6; A(find(O==7,1)),7]);
+Asso= sortrows([A(find(O==4,1)),4; A(find(O==5,1)),5; A(find(O==6,1)),6; A(find(O==7,1)),7]);
 
 N=num2str(Asso(1:4,2)');SubInfoFile.Combi_FFCC=zeros(height(SubInfoFile),1);
-N(N ==' ')=[]; Combination = str2num(N);
-SubInfoFile.Combi_FFCC(find(SubInfoFile.Session == Subs(i)))=Combination;
-
-end; clear("varName", "i");
+N(N ==' ')=[]; Combination = [Combination; str2double(N)];
+end; SubInfoFile.Combi_FFCC=Combination; clear("varName", "i");
 
 %% Data Group (Pass/Fail , Correct/Overall)
 
@@ -106,13 +105,20 @@ for i=1:length(Subs)
     temp=T((T.Session(:) == Subs(i)),:);
     temp.RT(find(temp.isTimeout)) = nan;
     overall_RT = [overall_RT temp.RT] ;
-%     ttemp=temp;
-%     temp.RT(find(temp.Correct==0)) = nan;
-%     corr_RT = [corr_RT temp.RT] ;
-%     ttemp.RT(find(ttemp.Correct)) = nan;
-%     incorr_RT = [incorr_RT ttemp.RT];
+    ttemp=temp;
+    temp.RT(find(temp.Correct==0)) = nan;
+    corr_RT = [corr_RT temp.RT] ;
+    ttemp.RT(find(ttemp.Correct)) = nan;
+    incorr_RT = [incorr_RT ttemp.RT];
 end
 clear("temp")
+
+%screening RT mean값 구해서 넣고 accuracy도 채워넣기
+meanValues = nanmean(overall_RT);fns = fieldnames(Screening);
+for i=1:length(Subs)
+    Screening.(fns{i}).RT = meanValues(i);
+    Screening.(fns{i}).Accuracy = corr_Percent(i);
+end
 
 %% boxplot 생성
 f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
@@ -122,8 +128,8 @@ xlabel('Subject Number')
 ylabel('RT(s)')
 
 h = boxplot(overall_RT,SubInfoFile.Session, OutlierSize=10^(-200));
-idx = find(ismember([SubInfoFile.Session], F));
-set(h(:,idx),'Color','red');
+fail_group = find(ismember([SubInfoFile.Session], F));
+set(h(:,fail_group),'Color','red');
 set(h(6,:),'Color','k');
 set(h(7,:),'MarkerEdgeColor','w');
 set(h(1:2,:),'LineStyle','-');
@@ -134,10 +140,10 @@ xLim = ax.XLim;
 ylim([0 1.6]);
 yLim = ylim;
 
-for i = 1:length(idx)
-    text(xTick(idx(i)), yLim(1)-0.03*diff(yLim), ax.XTickLabel{idx(i)},...
+for i = 1:length(fail_group)
+    text(xTick(fail_group(i)), yLim(1)-0.03*diff(yLim), ax.XTickLabel{fail_group(i)},...
         'Color', 'red', 'HorizontalAlignment', 'center');
-ax.XTickLabel{idx(i)} = '';
+ax.XTickLabel{fail_group(i)} = '';
 end
 
 % % plot(meanValues) % mean값 넣고싶다면 이 주석을 풀어!
@@ -147,7 +153,63 @@ end
 % end
 
 
-% %% Screening_RT plot - Corr/inCorr
+%% Screening_RT plot - Corr/inCorr
+
+% boxplot 생성 - all sub, corr/incorr 2 boxes
+f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
+hold on
+title('Response Time (for Correct and Incorrect Trials)')
+xlabel('Correctness')
+ylabel('RT(s)')
+
+group = [ones(1,18), 2*ones(1,18)];
+labels = {'Correct', 'Incorrect'};
+xlim([0 3]);ylim([0 1.3]);
+ha = boxplot([nanmean(corr_RT) nanmean(incorr_RT)],group, 'Labels', labels);
+
+
+% boxplot 생성 - PASS sub, corr/incorr 2boxes
+
+f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
+hold on
+title('Response Time (for Correct and Incorrect Trials) by Group(P/F)')
+xlabel('Correctness')
+ylabel('RT(s)')
+xlim([0 5]);ylim([0 1.3]);
+pass_group = find(ismember([SubInfoFile.Session], P));
+
+% 각 그룹의 데이터 계산하기
+pass_corr_RT = nanmean(corr_RT(:, pass_group));
+pass_incorr_RT = nanmean(incorr_RT(:, pass_group));
+fail_corr_RT = nanmean(corr_RT(:, fail_group));
+fail_incorr_RT = nanmean(incorr_RT(:, fail_group));
+
+% boxplot 그리기
+group = [ones(1,length(pass_corr_RT)), 2*ones(1,length(pass_incorr_RT)), ...
+         3*ones(1,length(fail_corr_RT)), 4*ones(1,length(fail_incorr_RT))];
+labels = {'Correct (Pass)', 'Incorrect (Pass)', 'Correct (Fail)', 'Incorrect (Fail)'};
+boxplot([pass_corr_RT pass_incorr_RT fail_corr_RT fail_incorr_RT], group, 'Labels', labels);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 % 
 % %% boxplot 생성
 % f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
