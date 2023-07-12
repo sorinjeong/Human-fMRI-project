@@ -217,27 +217,23 @@ boxplot([corr_RT incorr_RT], group, 'Labels', labels, 'Positions', positions, Ou
 
 % 색상 변경하기
 h = findobj(gca,'Tag','Box');
+h = flipud(h);
 for j=1:length(h)
-    if group(j) > 18
+    if group(j) <= 18
         patch(get(h(j),'XData'),get(h(j),'YData'),'g','FaceAlpha',.4);
+        if find((j)==fail_group)
+            lines = findobj(h(j), 'Type', 'Line');
+        set(lines, 'Color', 'r', 'LineWidth', 2);
+        end
     end
-    if ismember(SubInfoFile.Session(group(j)), F)
+    if find(j-18==fail_group)
         lines = findobj(h(j), 'Type', 'Line');
         set(lines, 'Color', 'r', 'LineWidth', 2);
     end
 end
 
 
-% % X label 색상 변경하기
-% ax = gca;
-% xTick = ax.XTick;
-% yLim = ax.YLim;
-% for i = 1:length(F)
-%     text(xTick(F(i)), yLim(1)-0.03*diff(yLim), ax.XTickLabel{F(i)},...
-%         'Color', 'red', 'HorizontalAlignment', 'center');
-%     ax.XTickLabel{F(i)} = '';
-% end
-% 
+
 
 
 
