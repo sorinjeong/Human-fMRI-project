@@ -106,11 +106,11 @@ for i=1:length(Subs)
     temp=T((T.Session(:) == Subs(i)),:);
     temp.RT(find(temp.isTimeout)) = nan;
     overall_RT = [overall_RT temp.RT] ;
-    ttemp=temp;
-    temp.RT(find(temp.Correct==0)) = nan;
-    corr_RT = [corr_RT temp.RT] ;
-    ttemp.RT(find(ttemp.Correct)) = nan;
-    incorr_RT = [incorr_RT ttemp.RT];
+%     ttemp=temp;
+%     temp.RT(find(temp.Correct==0)) = nan;
+%     corr_RT = [corr_RT temp.RT] ;
+%     ttemp.RT(find(ttemp.Correct)) = nan;
+%     incorr_RT = [incorr_RT ttemp.RT];
 end
 clear("temp")
 
@@ -131,10 +131,11 @@ set(h(1:2,:),'LineStyle','-');
 ax = gca;
 xTick = ax.XTick;
 xLim = ax.XLim;
-ylim([0 1.6])
+ylim([0 1.6]);
+yLim = ylim;
 
 for i = 1:length(idx)
-    text(xTick(idx(i)), yLim(1)-0.01*diff(yLim), ax.XTickLabel{idx(i)},...
+    text(xTick(idx(i)), yLim(1)-0.03*diff(yLim), ax.XTickLabel{idx(i)},...
         'Color', 'red', 'HorizontalAlignment', 'center');
 ax.XTickLabel{idx(i)} = '';
 end
@@ -146,65 +147,65 @@ end
 % end
 
 
-%% Screening_RT plot - Corr/inCorr
-
-%% boxplot 생성
-f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
-hold on
-title('Response Time (for Correct and Incorrect Trials)')
-% xlabel('Subject Number')
-ylabel('RT(s)')
-
-hc = boxplot([corr_RT; incorr_RT],[correct; incorrect], OutlierSize=10^(-200));
-idxc = find(ismember([SubInfoFile.Session], F));
-set(h(:,idxc),'Color','red');
-set(h(6,:),'Color','k');
-set(h(7,:),'MarkerEdgeColor','w');
-set(h(1:2,:),'LineStyle','-');
-
-
-boxplot([corr_RT(:) incorr_RT(:)], [repmat(1:size(corr_RT,2),1,size(corr_RT,1))';...
-    repmat(1:size(incorr_RT,2),1,size(incorr_RT,1))'+size(corr_RT,2)], 'labels',...
-    [cellstr(num2str((1:size(corr_RT,2))'))' cellstr(num2str((1:size(incorr_RT,2))'))']);
-
-boxplot([corr_RT incorr_RT], 'labels', [cellstr(num2str((1:size(corr_RT,2))'))' cellstr(num2str((1:size(incorr_RT,2))'))']);
-
-
-% Remove NaN values from corr_RT
-corr_RT_noNaN = cell(size(corr_RT,2),1);
-for i = 1:size(corr_RT,2)
-    corr_RT_noNaN{i} = corr_RT(~isnan(corr_RT(:,i)),i);
-end
-% Create boxplot
-boxplot(cell2mat(corr_RT_noNaN'), 'labels', cellstr(num2str((1:size(corr_RT,2))')))
-title('RT for Correct Trials')
-ylabel('RT (s)')
-
-
-% Remove NaN values from incorr_RT
-incorr_RT_noNaN = cell(size(incorr_RT,2),1);
-for i = 1:size(incorr_RT,2)
-    incorr_RT_noNaN{i} = incorr_RT(~isnan(incorr_RT(:,i)),i);
-end
-
-% Create boxplot
-boxplot([corr_RT_noNaN(:) incorr_RT_noNaN(:)], 'labels', {'Correct', 'Incorrect'})
-title('RT for Correct and Incorrect Trials')
-ylabel('RT (s)')
-
-
-
-ax = gca;
-xTick = ax.XTick;
-xLim = ax.XLim;
-ylim([0 1.6])
-
-for i = 1:length(idxc)
-    text(xTick(idxc(i)), yLim(1)-0.01*diff(yLim), ax.XTickLabel{idx(i)},...
-        'Color', 'red', 'HorizontalAlignment', 'center');
-ax.XTickLabel{idxc(i)} = '';
-end
-
+% %% Screening_RT plot - Corr/inCorr
+% 
+% %% boxplot 생성
+% f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
+% hold on
+% title('Response Time (for Correct and Incorrect Trials)')
+% % xlabel('Subject Number')
+% ylabel('RT(s)')
+% 
+% hc = boxplot([corr_RT; incorr_RT],[correct; incorrect], OutlierSize=10^(-200));
+% idxc = find(ismember([SubInfoFile.Session], F));
+% set(h(:,idxc),'Color','red');
+% set(h(6,:),'Color','k');
+% set(h(7,:),'MarkerEdgeColor','w');
+% set(h(1:2,:),'LineStyle','-');
+% 
+% 
+% boxplot([corr_RT(:) incorr_RT(:)], [repmat(1:size(corr_RT,2),1,size(corr_RT,1))';...
+%     repmat(1:size(incorr_RT,2),1,size(incorr_RT,1))'+size(corr_RT,2)], 'labels',...
+%     [cellstr(num2str((1:size(corr_RT,2))'))' cellstr(num2str((1:size(incorr_RT,2))'))']);
+% 
+% boxplot([corr_RT incorr_RT], 'labels', [cellstr(num2str((1:size(corr_RT,2))'))' cellstr(num2str((1:size(incorr_RT,2))'))']);
+% 
+% 
+% % Remove NaN values from corr_RT
+% corr_RT_noNaN = cell(size(corr_RT,2),1);
+% for i = 1:size(corr_RT,2)
+%     corr_RT_noNaN{i} = corr_RT(~isnan(corr_RT(:,i)),i);
+% end
+% % Create boxplot
+% boxplot(cell2mat(corr_RT_noNaN'), 'labels', cellstr(num2str((1:size(corr_RT,2))')))
+% title('RT for Correct Trials')
+% ylabel('RT (s)')
+% 
+% 
+% % Remove NaN values from incorr_RT
+% incorr_RT_noNaN = cell(size(incorr_RT,2),1);
+% for i = 1:size(incorr_RT,2)
+%     incorr_RT_noNaN{i} = incorr_RT(~isnan(incorr_RT(:,i)),i);
+% end
+% 
+% % Create boxplot
+% boxplot([corr_RT_noNaN(:) incorr_RT_noNaN(:)], 'labels', {'Correct', 'Incorrect'})
+% title('RT for Correct and Incorrect Trials')
+% ylabel('RT (s)')
+% 
+% 
+% 
+% ax = gca;
+% xTick = ax.XTick;
+% xLim = ax.XLim;
+% ylim([0 1.6])
+% 
+% for i = 1:length(idxc)
+%     text(xTick(idxc(i)), yLim(1)-0.01*diff(yLim), ax.XTickLabel{idx(i)},...
+%         'Color', 'red', 'HorizontalAlignment', 'center');
+% ax.XTickLabel{idxc(i)} = '';
+% end
+% 
 
 
 
