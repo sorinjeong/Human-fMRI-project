@@ -46,39 +46,54 @@ for i=1:length(Subs)
     DataGroup.Correct.(varName) = Tc((Tc.Session(:) == Subs(i)),:);
 
 %% Performance-Bias
-Screening.(varName)= struct("Accuracy",[],"RT",[],"Bias_Lap",[],"Bias",[]);
-if Subs(i) == P
+Screening.(varName)= struct("Accuracy",[],"RT",[],"Bias_all",[],"Bias_Lap",[],"Bias_Half",[]);
+%Bias_overall trials
+if find(Subs(i) == P)
 ButtonA = length(find(DataGroup.PASS.(varName).Choice==1));
 ButtonB = length(find(DataGroup.PASS.(varName).Choice==2));
-elseif Subs(i) == F
+Screening.(varName).Bias_all = (ButtonA-ButtonB) / height(DataGroup.PASS.(varName));
+elseif find(Subs(i) == F)
 ButtonA = length(find(DataGroup.FAIL.(varName).Choice==1));
 ButtonB = length(find(DataGroup.FAIL.(varName).Choice==2));
+Screening.(varName).Bias_all = (ButtonA-ButtonB) / height(DataGroup.FAIL.(varName));
 end
 
-Screening.(varName).Bias = (ButtonA-ButtonB) / height(DataGroup.PASS.(varName));
-
+%Bias_per lap
 Screening.(varName).Bias_Lap = struct;
 for j=1:8
-    if Subs(i) == P
+    if find(Subs(i) == P)
         lapnum = find(DataGroup.PASS.(varName).Lap==j);
         lapnumchoice = DataGroup.PASS.(varName).Choice(lapnum);
-    elseif Subs(i) == F
+    elseif find(Subs(i) == F)
         lapnum = find(DataGroup.FAIL.(varName).Lap==j);
         lapnumchoice = DataGroup.FAIL.(varName).Choice(lapnum);
     end
-    
+
 ButtonA_Lap = length(find(lapnumchoice==1));
 ButtonB_Lap = length(find(lapnumchoice==2));
-
 Screening.(varName).Bias_Lap.(sprintf('Lap%.15g', j)) = (ButtonA_Lap-ButtonB_Lap) / height(lapnumchoice);
 
+%Bias_Last Half
+if j==5
+    if find(Subs(i) == P)
+    halfchoice = DataGroup.PASS.(varName).Choice(lapnum(1):end);
+    elseif find(Subs(i) == F)
+    halfchoice = DataGroup.FAIL.(varName).Choice(lapnum(1):end);
+    end
+
+ButtonA_Half = length(find(halfchoice==1));
+ButtonB_Half = length(find(halfchoice==2));
+Screening.(varName).Bias_Half = (ButtonA_Half-ButtonB_Half) / height(halfchoice);
+end
+
+end
 
 %% Performance-Accuracy
 corr_Percent = [corr_Percent; ((height(DataGroup.Correct.(varName)))/32)*100];
-bias = [bias; Screening.(varName).Bias];
+bias = [bias; Screening.(varName).Bias_Half];
 
 
-end;end
+end
 SubInfoFile = addvars(SubInfoFile, corr_Percent, bias); 
 
 
