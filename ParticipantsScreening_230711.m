@@ -101,7 +101,7 @@ SubInfoFile = addvars(SubInfoFile, corr_Percent, allbias, halfbias);
 
 
 %% Screening_RT plot
-% RT Y value 생성
+% overall_RT 생성
 overall_RT=[];D=struct;
 for i=1:length(Subs)
     temp=T((T.Session(:) == Subs(i)),:);
@@ -109,14 +109,25 @@ for i=1:length(Subs)
     overall_RT = [overall_RT temp.RT] ;
 end
 
-% boxplot 생성
+%%%% RT Box Plot 생성
+% remove outlier
+tempOverall_RT = overall_RT;
+Q1 = quantile(tempOverall_RT,0.25);
+Q3 = quantile(tempOverall_RT,0.75);
+IQR = Q3-Q1;
+lowerBound = Q1 - 1.5*IQR;
+upperBound = Q3 + 1.5*IQR;
+tempOverall_RT(tempOverall_RT < lowerBound | tempOverall_RT > upperBound) = NaN;
+
+
+%% boxplot 생성
 f=figure;
 hold on
-title('Response Time /Subject')
+title('Response Time (for each Subject)')
 xlabel('Subject Number')
 ylabel('RT(s)')
 
-h = boxplot(overall_RT,SubInfoFile.Session);
+h = boxplot(tempOverall_RT,SubInfoFile.Session, OutlierSize=10^(-200));
 idx = find(ismember([SubInfoFile.Session], F));
 set(h(:,idx),'Color','red');
 set(h(6,:),'Color','k');
@@ -126,19 +137,25 @@ set(h(1:2,:),'LineStyle','-');
 ax = gca;
 xTick = ax.XTick;
 xLim = ax.XLim;
-yLim = ax.YLim;
+ylim([0 1.6])
 
 for i = 1:length(idx)
-    text(xTick(idx(i)), yLim(1)-0.05*diff(yLim), ax.XTickLabel{idx(i)},...
-        'Color', 'red', 'HorizontalAlignment', 'center','Rotation', 45);
+    text(xTick(idx(i)), yLim(1)-0.01*diff(yLim), ax.XTickLabel{idx(i)},...
+        'Color', 'red', 'HorizontalAlignment', 'center');
 ax.XTickLabel{idx(i)} = '';
 end
-meanValues = mean(overall_RT);
-for i = 1:length(xTick)
-    text(xTick(i), yLim(1)-0.1*diff(yLim), sprintf('Mean: %.2f',...
-        meanValues(i)), 'HorizontalAlignment', 'center');
-end
+meanValues = nanmean(tempOverall_RT);
 
+% RT Corr/inCorr
+hold on
+
+
+
+
+% % plot(meanValues)
+% for i = 1:18
+%     text(i, 1.55, jjnum2str(meanValues(i),2), 'HorizontalAlignment', 'center');
+% end
 
 
 
