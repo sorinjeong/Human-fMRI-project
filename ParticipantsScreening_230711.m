@@ -120,11 +120,11 @@ for i=1:length(Subs)
     Screening.(fns{i}).Accuracy = corr_Percent(i);
 end
 
-%% boxplot 생성
+%% RT boxplot 생성 - for each subject
 f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
 hold on
 title('Response Time (for each Subject)')
-xlabel('Subject Number')
+xlabel('Subject')
 ylabel('RT(s)')
 
 h = boxplot(overall_RT,SubInfoFile.Session, OutlierSize=10^(-200));
@@ -155,7 +155,7 @@ end
 
 %% Screening_RT plot - Corr/inCorr
 
-% boxplot 생성 - all sub, corr/incorr 2 boxes
+%% RT boxplot 생성 - all sub, corr/incorr 2 boxes
 f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
 hold on
 title('Response Time (for Correct and Incorrect Trials)')
@@ -168,7 +168,7 @@ xlim([0 3]);ylim([0 1.3]);
 ha = boxplot([nanmean(corr_RT) nanmean(incorr_RT)],group, 'Labels', labels);
 
 
-% boxplot 생성 - PASS sub, corr/incorr 2boxes
+%% RT boxplot 생성 - PASS/Fail sub, corr/incorr 2boxes
 
 f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
 hold on
@@ -184,97 +184,44 @@ pass_incorr_RT = nanmean(incorr_RT(:, pass_group));
 fail_corr_RT = nanmean(corr_RT(:, fail_group));
 fail_incorr_RT = nanmean(incorr_RT(:, fail_group));
 
-% boxplot 그리기
+% boxplot
 group = [ones(1,length(pass_corr_RT)), 2*ones(1,length(pass_incorr_RT)), ...
          3*ones(1,length(fail_corr_RT)), 4*ones(1,length(fail_incorr_RT))];
 labels = {'Correct (Pass)', 'Incorrect (Pass)', 'Correct (Fail)', 'Incorrect (Fail)'};
 boxplot([pass_corr_RT pass_incorr_RT fail_corr_RT fail_incorr_RT], group, 'Labels', labels);
 
 
+%% RT boxplot 생성 - all sub, corr/incorr 2boxes
 
 
+f = figure;
+f.Position = [1645,857,829,594];
+f.PaperSize = [21,30];
+hold on
+title('Response Time for Correct and Incorrect Trials by Subject')
+xlabel('Subject')
+ylabel('RT(s)')
+set(h(1:2,:),'LineStyle','-');
 
+% boxplot 그리기
+group = [1:18, 19:36];
+positions = [1:18, 19:36];
+labels = {};
+for i=1:18
+    labels{end+1} = ['sub', num2str(i), '(Corr)'];
+end
+for i=1:18
+    labels{end+1} = ['sub', num2str(i), '(Incorr)'];
+end
+boxplot([corr_RT incorr_RT], group, 'Labels', labels, 'Positions', positions, OutlierSize=10^(-200));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% 
-% %% boxplot 생성
-% f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
-% hold on
-% title('Response Time (for Correct and Incorrect Trials)')
-% % xlabel('Subject Number')
-% ylabel('RT(s)')
-% 
-% hc = boxplot([corr_RT; incorr_RT],[correct; incorrect], OutlierSize=10^(-200));
-% idxc = find(ismember([SubInfoFile.Session], F));
-% set(h(:,idxc),'Color','red');
-% set(h(6,:),'Color','k');
-% set(h(7,:),'MarkerEdgeColor','w');
-% set(h(1:2,:),'LineStyle','-');
-% 
-% 
-% boxplot([corr_RT(:) incorr_RT(:)], [repmat(1:size(corr_RT,2),1,size(corr_RT,1))';...
-%     repmat(1:size(incorr_RT,2),1,size(incorr_RT,1))'+size(corr_RT,2)], 'labels',...
-%     [cellstr(num2str((1:size(corr_RT,2))'))' cellstr(num2str((1:size(incorr_RT,2))'))']);
-% 
-% boxplot([corr_RT incorr_RT], 'labels', [cellstr(num2str((1:size(corr_RT,2))'))' cellstr(num2str((1:size(incorr_RT,2))'))']);
-% 
-% 
-% % Remove NaN values from corr_RT
-% corr_RT_noNaN = cell(size(corr_RT,2),1);
-% for i = 1:size(corr_RT,2)
-%     corr_RT_noNaN{i} = corr_RT(~isnan(corr_RT(:,i)),i);
-% end
-% % Create boxplot
-% boxplot(cell2mat(corr_RT_noNaN'), 'labels', cellstr(num2str((1:size(corr_RT,2))')))
-% title('RT for Correct Trials')
-% ylabel('RT (s)')
-% 
-% 
-% % Remove NaN values from incorr_RT
-% incorr_RT_noNaN = cell(size(incorr_RT,2),1);
-% for i = 1:size(incorr_RT,2)
-%     incorr_RT_noNaN{i} = incorr_RT(~isnan(incorr_RT(:,i)),i);
-% end
-% 
-% % Create boxplot
-% boxplot([corr_RT_noNaN(:) incorr_RT_noNaN(:)], 'labels', {'Correct', 'Incorrect'})
-% title('RT for Correct and Incorrect Trials')
-% ylabel('RT (s)')
-% 
-% 
-% 
-% ax = gca;
-% xTick = ax.XTick;
-% xLim = ax.XLim;
-% ylim([0 1.6])
-% 
-% for i = 1:length(idxc)
-%     text(xTick(idxc(i)), yLim(1)-0.01*diff(yLim), ax.XTickLabel{idx(i)},...
-%         'Color', 'red', 'HorizontalAlignment', 'center');
-% ax.XTickLabel{idxc(i)} = '';
-% end
-% 
-
-
-
-
-
-
-
+% 색상 변경하기
+h = findobj(gca,'Tag','Box');
+for j=1:length(h)
+    if group(j) > 18
+        patch(get(h(j),'XData'),get(h(j),'YData'),'g','FaceAlpha',.4);
+    end
+end
 
 
 
