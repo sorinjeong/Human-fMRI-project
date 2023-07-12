@@ -91,7 +91,6 @@ corr_Percent = [corr_Percent; ((height(DataGroup.Correct.(varName)))/32)*100];
 allbias = [allbias; Screening.(varName).Bias_all];
 halfbias = [halfbias; Screening.(varName).Bias_Half];
 
-
 %% make correctness array
 overall_sub = [overall_sub DataGroup.Overall.(varName).Session];
 
@@ -100,38 +99,33 @@ SubInfoFile = addvars(SubInfoFile, corr_Percent, allbias, halfbias);
 
 
 
-%% Screening_RT plot
-% overall_RT 생성
-overall_RT=[];D=struct;
+%% Screening_RT plot - for each subject
+% overall_RT, correct trial에서의 RT 생성
+overall_RT=[];corr_RT=[];incorr_RT=[];
 for i=1:length(Subs)
     temp=T((T.Session(:) == Subs(i)),:);
     temp.RT(find(temp.isTimeout)) = nan;
     overall_RT = [overall_RT temp.RT] ;
+    ttemp=temp;
+    temp.RT(find(temp.Correct==0)) = nan;
+    corr_RT = [corr_RT temp.RT] ;
+    ttemp.RT(find(ttemp.Correct)) = nan;
+    incorr_RT = [incorr_RT ttemp.RT];
 end
-
-%%%% RT Box Plot 생성
-% remove outlier
-tempOverall_RT = overall_RT;
-Q1 = quantile(tempOverall_RT,0.25);
-Q3 = quantile(tempOverall_RT,0.75);
-IQR = Q3-Q1;
-lowerBound = Q1 - 1.5*IQR;
-upperBound = Q3 + 1.5*IQR;
-tempOverall_RT(tempOverall_RT < lowerBound | tempOverall_RT > upperBound) = NaN;
-
+clear("temp")
 
 %% boxplot 생성
-f=figure;
+f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
 hold on
 title('Response Time (for each Subject)')
 xlabel('Subject Number')
 ylabel('RT(s)')
 
-h = boxplot(tempOverall_RT,SubInfoFile.Session, OutlierSize=10^(-200));
+h = boxplot(overall_RT,SubInfoFile.Session, OutlierSize=10^(-200));
 idx = find(ismember([SubInfoFile.Session], F));
 set(h(:,idx),'Color','red');
 set(h(6,:),'Color','k');
-% set(h(7,:),'MarkerEdgeColor','k');
+set(h(7,:),'MarkerEdgeColor','w');
 set(h(1:2,:),'LineStyle','-');
 
 ax = gca;
@@ -144,18 +138,77 @@ for i = 1:length(idx)
         'Color', 'red', 'HorizontalAlignment', 'center');
 ax.XTickLabel{idx(i)} = '';
 end
-meanValues = nanmean(tempOverall_RT);
 
-% RT Corr/inCorr
-hold on
-
-
-
-
-% % plot(meanValues)
+% % plot(meanValues) % mean값 넣고싶다면 이 주석을 풀어!
+% meanValues = nanmean(overall_RT);
 % for i = 1:18
 %     text(i, 1.55, jjnum2str(meanValues(i),2), 'HorizontalAlignment', 'center');
 % end
+
+
+%% Screening_RT plot - Corr/inCorr
+
+%% boxplot 생성
+f=figure;f.Position = [1645,857,829,594]; f.PaperSize = [21,30];
+hold on
+title('Response Time (for Correct and Incorrect Trials)')
+% xlabel('Subject Number')
+ylabel('RT(s)')
+
+hc = boxplot([corr_RT; incorr_RT],[correct; incorrect], OutlierSize=10^(-200));
+idxc = find(ismember([SubInfoFile.Session], F));
+set(h(:,idxc),'Color','red');
+set(h(6,:),'Color','k');
+set(h(7,:),'MarkerEdgeColor','w');
+set(h(1:2,:),'LineStyle','-');
+
+
+boxplot([corr_RT(:) incorr_RT(:)], [repmat(1:size(corr_RT,2),1,size(corr_RT,1))';...
+    repmat(1:size(incorr_RT,2),1,size(incorr_RT,1))'+size(corr_RT,2)], 'labels',...
+    [cellstr(num2str((1:size(corr_RT,2))'))' cellstr(num2str((1:size(incorr_RT,2))'))']);
+
+boxplot([corr_RT incorr_RT], 'labels', [cellstr(num2str((1:size(corr_RT,2))'))' cellstr(num2str((1:size(incorr_RT,2))'))']);
+
+
+% Remove NaN values from corr_RT
+corr_RT_noNaN = cell(size(corr_RT,2),1);
+for i = 1:size(corr_RT,2)
+    corr_RT_noNaN{i} = corr_RT(~isnan(corr_RT(:,i)),i);
+end
+% Create boxplot
+boxplot(cell2mat(corr_RT_noNaN'), 'labels', cellstr(num2str((1:size(corr_RT,2))')))
+title('RT for Correct Trials')
+ylabel('RT (s)')
+
+
+% Remove NaN values from incorr_RT
+incorr_RT_noNaN = cell(size(incorr_RT,2),1);
+for i = 1:size(incorr_RT,2)
+    incorr_RT_noNaN{i} = incorr_RT(~isnan(incorr_RT(:,i)),i);
+end
+
+% Create boxplot
+boxplot([corr_RT_noNaN(:) incorr_RT_noNaN(:)], 'labels', {'Correct', 'Incorrect'})
+title('RT for Correct and Incorrect Trials')
+ylabel('RT (s)')
+
+
+
+ax = gca;
+xTick = ax.XTick;
+xLim = ax.XLim;
+ylim([0 1.6])
+
+for i = 1:length(idxc)
+    text(xTick(idxc(i)), yLim(1)-0.01*diff(yLim), ax.XTickLabel{idx(i)},...
+        'Color', 'red', 'HorizontalAlignment', 'center');
+ax.XTickLabel{idxc(i)} = '';
+end
+
+
+
+
+
 
 
 
