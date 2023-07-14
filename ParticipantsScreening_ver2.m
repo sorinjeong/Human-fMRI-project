@@ -54,7 +54,7 @@ Screening.(varName).Bias_all = (ButtonA-ButtonB) / height(DataGroup.Overall.(var
 Screening.(varName).Accuracy_all = ((length(find(DataGroup.Correct.(varName).Correct==1)))/32)*100;
 
 %Bias_per lap
-Screening.(varName).Bias_Lap = struct;lapAccuracy =[];
+lapAccuracy =[];
 for j=1:8
         lapnum = find(DataGroup.Overall.(varName).Lap==j);
         lapnumchoice = DataGroup.Overall.(varName).Choice(lapnum);
