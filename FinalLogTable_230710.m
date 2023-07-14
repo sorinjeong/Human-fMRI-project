@@ -139,9 +139,8 @@ writetable(postPVtaskLog,[savefolder Session '\' Session '_post-PVtaskLog.xlsx']
 
 
     %Context Num to txt
-    ParsingPerTrial.Context_txt(find(ParsingPerTrial.Context_Num==1))="F";ParsingPerTrial.Context_txt(find(ParsingPerTrial.Context_Num==2))="C";
-    ParsingPerTrial.Context_txt=ParsingPerTrial.Context_txt';
-
+    ParsingPerTrial.Context_txt = string(ParsingPerTrial.Context_Num);
+    ParsingPerTrial.Context_txt(find(ParsingPerTrial.Context_txt=="1"))="F";ParsingPerTrial.Context_txt(find(ParsingPerTrial.Context_txt=="2"))="C";
 
 %% Make a Table
 % field 순서 맞추고 table화
@@ -228,7 +227,7 @@ save([savefolder 'GLM\incorr_' Session] ,"incorr",'-mat')
 
 
 %% Table for Analysis == LogTable_NumOnly
-subnum=repmat(subname+84,32,1);
+subnum=repmat(fi+84,32,1);
 LogTable_NumOnly=struct('Session',subnum,'Lap',LogTable.Lap,'Trial',LogTable.Trial,'Context',LogTable.Context_Num,'Direction',LogTable.Direction,...
     'Location',LogTable.Location,'Association',LogTable.Association,'Object',LogTable.Obj_ID,'Choice',LogTable.Choice_Num,...
     'Correct',LogTable.Correct_Num,'RT',LogTable.RT,'isTimeout',LogTable.isTimeout);
@@ -242,10 +241,9 @@ writetable(LogTable_NumOnly,[savefolder Session '\' Session '_NumLogTable.xlsx']
 
 %% save /all subjects
 total_NumLogTable=[total_NumLogTable; LogTable_NumOnly];
+end
 save([savefolder 'Allsub_NumLogTable'],"total_NumLogTable");
 writetable(total_NumLogTable,[savefolder 'Allsub_NumLogTable.xlsx']);
-
-end
 
 
 

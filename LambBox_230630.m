@@ -1,7 +1,10 @@
-participants = 15;
+
+
+
+ participants = 102;
 
 %% subject numbering , folder root
-for subname = 1:participants
+for subname = 85:participants
     Subjects{subname} = sprintf('Sub%.15g', subname);
 end
 total_lambBox=[];
