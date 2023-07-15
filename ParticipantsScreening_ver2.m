@@ -38,7 +38,7 @@ for n=1:length(P); DataGroup.PASS.(sprintf('SUB_%.15g', P(n))) = SpliT.(sprintf(
 for n=1:length(F); DataGroup.FAIL.(sprintf('SUB_%.15g', F(n))) = SpliT.(sprintf('SUB_%.15g', F(n))); end
 
 Tc=table2array(To); Tc(Tc(:,10)==0,2:end)=missing;Tc=array2table(Tc);Tc.Properties.VariableNames = To.Properties.VariableNames;
-allAccuracy = [];halfbias=[];allbias=[];halfAccuracy=[];
+allAccuracy = [];halfbias=[];allbias=[];halfAccuracy=[];accu_perlap=[];
 for i=1:length(Subs)
     varName = sprintf('SUB_%.15g',Subs(i));
     DataGroup.Correct.(varName) = Tc((Tc.Session(:) == Subs(i)),:);
@@ -124,7 +124,7 @@ y_half=halfAccuracy;
 
 figure
 hold on
-title('Accuracy (for each Subject)')
+title('Accuracy (for each Subject)',FontSize=14,FontWeight='bold')
 xlabel('Subject')
 ylabel('Accuracy (%)')
 plot(x,y_all,'k-o', x,y_half,'b--*','linewidth',1.5, 'MarkerSize',5)
@@ -154,19 +154,91 @@ end
 
 figure
 hold on
-title('Accuracy (for each Lap)')
+title('Accuracy (for each Lap)',FontSize=14,FontWeight='bold')
 xlabel('Subject')
 ylabel('Accuracy (%)')
+ylim([-10 110])
 
 boxplot(accu_perlap,x, OutlierSize=10^(-200));
+% fail group에 색칠하기
+ax = gca; xTick = ax.XTick; xLim = ax.XLim; ax.XTickLabel = cellstr(num2str(x(:)));yLim = ylim;
+% 피험자번호
+for i = 1:length(fail_group)
+        text(xTick(fail_group(i)), yLim(1)-0.05*diff(yLim), ax.XTickLabel{fail_group(i)},...
+            'Color', 'red', 'HorizontalAlignment', 'center','Rotation',45);
+    ax.XTickLabel{fail_group(i)} = '';
+end
+% box색깔
+h = findobj(gca,'Tag','Box');
+h = flipud(h);
+for j=1:length(h)
+    if find((j)==fail_group)
+      lines = findobj(h(j), 'Type', 'Line');
+      set(lines, 'Color', 'r', 'LineWidth', 2);
+    end
+end
+
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Bias Plot!! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% all + half bias
+x=SubInfoFile.Session;
+y_all=allbias;
+y_half=halfbias;
+
+figure('position',[1535 609 818 624]);
+hold on
+title('Bias (for each Subject)',FontSize=14,FontWeight='bold')
+xlabel('Subject')
+ylabel('Button Press Bias')
+plot(x,y_all,'k-o', x,y_half,'b--*','linewidth',1.5, 'MarkerSize',5)
+% Plot the data points that are in fail_group
+plot(x(fail_group),y_all(fail_group),'r*', x(fail_group),y_half(fail_group),'r*','MarkerSize',6);
+
+legend({'overall','last-half','fail group'},'Location','northeast')
 
 
+% coloring fail group
+% fail_group = find(ismember([SubInfoFile.Session], F));
+ax = gca;
+ax.XTick = x;
+xTick = ax.XTick; xLim = ax.XLim; ax.XTickLabel = cellstr(num2str(x(:)));yLim = ylim;
 
+for i = 1:length(fail_group)
+    if fail_group(i) <= length(xTick)
+        text(xTick(fail_group(i)), yLim(1)-0.025*diff(yLim), ax.XTickLabel{fail_group(i)},...
+            'Color', 'red', 'HorizontalAlignment', 'center');
+        ax.XTickLabel{fail_group(i)} = '';
+    end
+end
 
+%% bias for each lap
 
+figure('position',[1535 609 818 624]);
+hold on
+title('Accuracy (for each Lap)',FontSize=14,FontWeight='bold')
+xlabel('Subject')
+ylabel('Accuracy (%)')
+ylim([-10 110])
 
-
-
+boxplot(accu_perlap,x, OutlierSize=10^(-200));
+% coloring fail group
+ax = gca; xTick = ax.XTick; xLim = ax.XLim; ax.XTickLabel = cellstr(num2str(x(:)));yLim = ylim;
+% 피험자번호
+for i = 1:length(fail_group)
+        text(xTick(fail_group(i)), yLim(1)-0.05*diff(yLim), ax.XTickLabel{fail_group(i)},...
+            'Color', 'red', 'HorizontalAlignment', 'center','Rotation',45);
+    ax.XTickLabel{fail_group(i)} = '';
+end
+% box색깔
+h = findobj(gca,'Tag','Box');
+h = flipud(h);
+for j=1:length(h)
+    if find((j)==fail_group)
+      lines = findobj(h(j), 'Type', 'Line');
+      set(lines, 'Color', 'r', 'LineWidth', 2);
+    end
+end
 
 
 
@@ -181,7 +253,7 @@ boxplot(accu_perlap,x, OutlierSize=10^(-200));
 % %% RT boxplot 생성 - for each subject
 % figure('position',[1645 857 829 594]);
 % hold on
-% title('Response Time (for each Subject)')
+% title('Response Time (for each Subject)',FontSize=14,FontWeight='bold')
 % xlabel('Subject')
 % ylabel('RT(s)')
 % 
@@ -217,8 +289,8 @@ boxplot(accu_perlap,x, OutlierSize=10^(-200));
 % %% RT boxplot 생성 - all sub, corr/incorr 2 boxes
 % figure('position',[1645 857 829 594]);
 % hold on
-% title('Response Time (for Correct and Incorrect Trials)')
-% xlabel('Correctness')
+% title('Response Time (for Correct and Incorrect Trials)',FontSize=14,FontWeight='bold')
+% xlabel('Correctness')]
 % ylabel('RT(s)')
 % 
 % group = [ones(1,18), 2*ones(1,18)];
@@ -231,7 +303,7 @@ boxplot(accu_perlap,x, OutlierSize=10^(-200));
 % 
 % figure('position',[1645 857 829 594]);
 % hold on
-% title('Response Time (for Correct and Incorrect Trials) by Group(P/F)')
+% title('Response Time (for Correct and Incorrect Trials) by Group(P/F)',FontSize=14,FontWeight='bold')
 % xlabel('Correctness')
 % ylabel('RT(s)')
 % xlim([0 5]);ylim([0 1.3]);
@@ -255,7 +327,7 @@ boxplot(accu_perlap,x, OutlierSize=10^(-200));
 % figure('position',[1300,700,1200,800]);
 % 
 % hold on
-% title('Response Time for Correct and Incorrect Trials by Subject')
+% title('Response Time for Correct and Incorrect Trials by Subject',FontSize=14,FontWeight='bold')
 % xlabel('Subject')
 % ylabel('RT(s)')
 % set(h(1:2,:),'LineStyle','-');
