@@ -38,7 +38,7 @@ for n=1:length(P); DataGroup.PASS.(sprintf('SUB_%.15g', P(n))) = SpliT.(sprintf(
 for n=1:length(F); DataGroup.FAIL.(sprintf('SUB_%.15g', F(n))) = SpliT.(sprintf('SUB_%.15g', F(n))); end
 
 Tc=table2array(To); Tc(Tc(:,10)==0,2:end)=missing;Tc=array2table(Tc);Tc.Properties.VariableNames = To.Properties.VariableNames;
-allAccuracy = [];halfbias=[];allbias=[];halfAccuracy=[];accu_perlap=[];
+allAccuracy = [];halfbias=[];allbias=[];halfAccuracy=[];accu_perlap=[];bias_perlap=[];
 for i=1:length(Subs)
     varName = sprintf('SUB_%.15g',Subs(i));
     DataGroup.Correct.(varName) = Tc((Tc.Session(:) == Subs(i)),:);
@@ -86,6 +86,7 @@ halfAccuracy = [halfAccuracy; Screening.(varName).Accuracy_Half];
 allbias = [allbias; Screening.(varName).Bias_all];
 halfbias = [halfbias; Screening.(varName).Bias_Half];
 accu_perlap = [accu_perlap Screening.(varName).Accuracy_Lap'];
+bias_perlap = [bias_perlap Screening.(varName).Bias_Lap'];
 
 %% 써먹지 않았지만 꽤 괜찮은 if문 (PASS/FAIL 구분)
 % if ismember(Subs(i), P)
@@ -159,7 +160,9 @@ xlabel('Subject')
 ylabel('Accuracy (%)')
 ylim([-10 110])
 
-boxplot(accu_perlap,x, OutlierSize=10^(-200));
+h=boxplot(accu_perlap,x, OutlierSize=1);
+set(h(6,:),'Color','k','LineWidth',2);
+set(h(1:2,:),'LineStyle','-');
 % fail group에 색칠하기
 ax = gca; xTick = ax.XTick; xLim = ax.XLim; ax.XTickLabel = cellstr(num2str(x(:)));yLim = ylim;
 % 피험자번호
@@ -174,29 +177,220 @@ h = flipud(h);
 for j=1:length(h)
     if find((j)==fail_group)
       lines = findobj(h(j), 'Type', 'Line');
-      set(lines, 'Color', 'r', 'LineWidth', 2);
+      set(lines, 'Color', 'r', 'LineWidth', 1);
     end
 end
 
 %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Bias Plot!! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% all + half bias
-x=SubInfoFile.Session;
-y_all=allbias;
-y_half=halfbias;
+
+%%Bidirectional Bar Chart
+%% bias for each lap connecting the lines between subjects
+
+x = SubInfoFile.Session;
+y_all = allbias;
+y_half = halfbias;
+
+% Calculate the maximum value of the data
+maxValue = max(max(abs([y_all(:); y_half(:)])));
+
+% Create a new figure
+figure('position',[1535 609 818 624]);
+hold on
+title('Bias (for each Subject)', 'FontSize', 14, 'FontWeight', 'bold')
+xlabel('Button Press Bias')
+ylabel('Subject')
+
+% Plot the first data series as a horizontal bar chart
+barh(x, y_all, 'FaceColor', [0.2 0.6 1])
+
+% Plot the second data series as a horizontal bar chart, on top of the first data series
+barh(x, y_half, 'FaceColor', [1 0.4 0.2], 'BarWidth', 0.5)
+
+% Set the x-axis limits
+xlim([-maxValue maxValue])
+ylim([min(x)-1 max(x)+1])
+
+% Add a legend
+legend({'overall', 'last-half'}, 'Location', 'bestoutside')
+
+% Add y-axis tick labels
+set(gca, 'YTick', x)
+set(gca, 'YTickLabel', cellstr(num2str(x(:))))
+
+% Color fail group labels red
+fail_group = find(ismember([SubInfoFile.Session], F));
+for i = 1:length(fail_group)
+    if fail_group(i) <= length(x)
+        text(-maxValue-0.02*diff(xlim), x(fail_group(i)), num2str(x(fail_group(i))),...
+            'Color', 'red', 'HorizontalAlignment', 'center');
+         x(fail_group(i)) = '';
+    end
+end
+
+
+
+%% bias for each lap connecting the lines between subjects
+
+% Create a new figure
+figure('position',[1535 609 818 624]);
+hold on
+title('Bias (for each Lap)',FontSize=14,FontWeight='bold')
+ylabel('Subject')
+xlabel('Button Press Bias')
+
+% Plot the horizontal box plot
+h=boxplot(bias_perlap',x,'orientation', 'horizontal');
+set(h(6,:),'Color','k','LineWidth',2);
+set(h(1:2,:),'LineStyle','-');
+
+% Set the x-axis limits to be symmetric around zero
+ax = gca;
+xLim = max(abs(ax.XLim));
+xlim([-xLim xLim]); ax.YTickLabel = cellstr(num2str(x(:)));
+% coloring fail group
+
+% 피험자번호
+for i = 1:length(fail_group)
+        text(ax.XLim(1), ax.YTick(fail_group(i)), ax.YTickLabel{fail_group(i)},...
+            'Color', 'red', 'HorizontalAlignment', 'right');
+    ax.YTickLabel{fail_group(i)} = '';
+end
+% box색깔
+h = findobj(gca,'Tag','Box');
+h = flipud(h);
+for j=1:length(h)
+    if find((j)==fail_group)
+      lines = findobj(h(j), 'Type', 'Line');
+      set(lines, 'Color', 'r', 'LineWidth', 2);
+    end
+end
+
+
+
+%% bias for each lap connecting the lines between subjects
 
 figure('position',[1535 609 818 624]);
 hold on
-title('Bias (for each Subject)',FontSize=14,FontWeight='bold')
+title('Bias (for each Lap)',FontSize=14,FontWeight='bold')
 xlabel('Subject')
 ylabel('Button Press Bias')
-plot(x,y_all,'k-o', x,y_half,'b--*','linewidth',1.5, 'MarkerSize',5)
-% Plot the data points that are in fail_group
-plot(x(fail_group),y_all(fail_group),'r*', x(fail_group),y_half(fail_group),'r*','MarkerSize',6);
 
-legend({'overall','last-half','fail group'},'Location','northeast')
+h=boxplot(bias_perlap,x);
+set(h(6,:),'Color','k','LineWidth',2);
+set(h(1:2,:),'LineStyle','-');
+% coloring fail group
+ax = gca; xTick = ax.XTick; xLim = ax.XLim; ax.XTickLabel = cellstr(num2str(x(:)));yLim = ylim;
+% 피험자번호
+for i = 1:length(fail_group)
+        text(xTick(fail_group(i)), yLim(1)-0.025*diff(yLim), ax.XTickLabel{fail_group(i)},...
+            'Color', 'red', 'HorizontalAlignment', 'center');
+    ax.XTickLabel{fail_group(i)} = '';
+end
+% box색깔
+h = findobj(gca,'Tag','Box');
+h = flipud(h);
+for j=1:length(h)
+    if find((j)==fail_group)
+      lines = findobj(h(j), 'Type', 'Line');
+      set(lines, 'Color', 'r', 'LineWidth', 2);
+    end
+end
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%% box plot
+
+% %% all + half bias % connecting the lines between subjects
+% x=SubInfoFile.Session;
+% y_all=allbias;
+% y_half=halfbias;
+% 
+% figure('position',[1535 609 818 624]);
+% hold on
+% title('Bias (for each Subject)',FontSize=14,FontWeight='bold')
+% xlabel('Subject')
+% ylabel('Button Press Bias')
+% plot(x,y_all,'k-o', x,y_half,'b--*','linewidth',1.5, 'MarkerSize',5)
+% % Plot the data points that are in fail_group
+% plot(x(fail_group),y_all(fail_group),'r*', x(fail_group),y_half(fail_group),'r*','MarkerSize',6);
+% 
+% legend({'overall','last-half','fail group'},'Location','northeast')
+% 
+% 
+% % coloring fail group
+% % fail_group = find(ismember([SubInfoFile.Session], F));
+% ax = gca;
+% ax.XTick = x;
+% xTick = ax.XTick; xLim = ax.XLim; ax.XTickLabel = cellstr(num2str(x(:)));yLim = ylim;
+% 
+% for i = 1:length(fail_group)
+%     if fail_group(i) <= length(xTick)
+%         text(xTick(fail_group(i)), yLim(1)-0.025*diff(yLim), ax.XTickLabel{fail_group(i)},...
+%             'Color', 'red', 'HorizontalAlignment', 'center');
+%         ax.XTickLabel{fail_group(i)} = '';
+%     end
+% end
+
+
+%% all + half bias % connect the dots for y_all and y_half
+x = SubInfoFile.Session;
+y_all = allbias;
+y_half = halfbias;
+
+figure
+hold on
+title('Bias Change for each Subject', FontSize=14, FontWeight='bold')
+xlabel('Subject')
+ylabel('Button Press Bias')
+
+% Plot the data points for y_all and y_half
+plot(x,y_all,'ko', x,y_half,'bo','linewidth',1.5, 'MarkerSize',5, 'MarkerFaceColor','k');
+plot(x,y_half,'bo','linewidth',1.5, 'MarkerSize',5, 'MarkerFaceColor','b');
+% Draw a line between each pair of data points
+for i = 1:length(x)
+    if find((i)==fail_group)
+        line([x(i) x(i)], [y_all(i) y_half(i)], 'Color', 'r', 'LineStyle', '--')
+    else
+        line([x(i) x(i)], [y_all(i) y_half(i)], 'Color', 'k', 'LineStyle', '--')
+    end
+end
+
+% Create a dummy plot with a red dashed line
+% p3=plot(NaN,NaN,'r--');
+
+legend({'overall','last-half','','','fail group'},'Location','northeast')
+% legend([p3],{'fail group'},'Location','northeast')
 
 % coloring fail group
 % fail_group = find(ismember([SubInfoFile.Session], F));
@@ -206,28 +400,38 @@ xTick = ax.XTick; xLim = ax.XLim; ax.XTickLabel = cellstr(num2str(x(:)));yLim = 
 
 for i = 1:length(fail_group)
     if fail_group(i) <= length(xTick)
-        text(xTick(fail_group(i)), yLim(1)-0.025*diff(yLim), ax.XTickLabel{fail_group(i)},...
-            'Color', 'red', 'HorizontalAlignment', 'center');
+        text(xTick(fail_group(i)), yLim(1)-0.05*diff(yLim), ax.XTickLabel{fail_group(i)},...
+            'Color', 'red', 'HorizontalAlignment', 'center','Rotation',45);
         ax.XTickLabel{fail_group(i)} = '';
     end
 end
 
-%% bias for each lap
+
+
+
+
+
+
+
+
+
+%% bias for each lap connecting the lines between subjects
 
 figure('position',[1535 609 818 624]);
 hold on
-title('Accuracy (for each Lap)',FontSize=14,FontWeight='bold')
+title('Bias (for each Lap)',FontSize=14,FontWeight='bold')
 xlabel('Subject')
-ylabel('Accuracy (%)')
-ylim([-10 110])
+ylabel('Button Press Bias')
 
-boxplot(accu_perlap,x, OutlierSize=10^(-200));
+h=boxplot(bias_perlap,x);
+set(h(6,:),'Color','k','LineWidth',2);
+set(h(1:2,:),'LineStyle','-');
 % coloring fail group
 ax = gca; xTick = ax.XTick; xLim = ax.XLim; ax.XTickLabel = cellstr(num2str(x(:)));yLim = ylim;
 % 피험자번호
 for i = 1:length(fail_group)
-        text(xTick(fail_group(i)), yLim(1)-0.05*diff(yLim), ax.XTickLabel{fail_group(i)},...
-            'Color', 'red', 'HorizontalAlignment', 'center','Rotation',45);
+        text(xTick(fail_group(i)), yLim(1)-0.025*diff(yLim), ax.XTickLabel{fail_group(i)},...
+            'Color', 'red', 'HorizontalAlignment', 'center');
     ax.XTickLabel{fail_group(i)} = '';
 end
 % box색깔
