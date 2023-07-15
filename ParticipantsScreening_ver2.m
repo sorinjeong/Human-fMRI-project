@@ -118,14 +118,52 @@ SubInfoFile = addvars(SubInfoFile, allAccuracy, halfAccuracy, allbias, halfbias)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% accuracy plot!! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% all + half
 x=SubInfoFile.Session;
 y_all=allAccuracy;
 y_half=halfAccuracy;
 
 figure
-plot(x,y_all,x,y_half)
-xlim([84.5 102.5])
-ylim([40 102])
+hold on
+title('Accuracy (for each Subject)')
+xlabel('Subject')
+ylabel('Accuracy (%)')
+plot(x,y_all,'k-o', x,y_half,'b--*','linewidth',1.5, 'MarkerSize',5)
+% Plot the data points that are in fail_group
+plot(x(fail_group),y_all(fail_group),'r*', x(fail_group),y_half(fail_group),'r*','MarkerSize',6);
+
+legend({'overall','last-half','fail group'},'Location','southwest')
+
+
+% fail group에 색칠하기
+fail_group = find(ismember([SubInfoFile.Session], F));
+
+ax = gca;
+ax.XTick = x;
+ax.XTickLabel = cellstr(num2str(x(:)));
+
+for i = 1:length(fail_group)
+    if fail_group(i) <= length(xTick)
+        text(xTick(fail_group(i)), yLim(1)-0.05*diff(yLim), ax.XTickLabel{fail_group(i)},...
+            'Color', 'red', 'HorizontalAlignment', 'center','Rotation',45);
+        ax.XTickLabel{fail_group(i)} = '';
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
