@@ -77,7 +77,6 @@ if j==5
 %accuracy_Last half
     halfcorr = DataGroup.Overall.(varName).Correct(lapnum(1):end);
     Screening.(varName).Accuracy_Half = (length(find(halfcorr))/ height(halfcorr))*100;
-
 end
 end
 
@@ -86,7 +85,7 @@ allAccuracy = [allAccuracy; Screening.(varName).Accuracy_all];
 halfAccuracy = [halfAccuracy; Screening.(varName).Accuracy_Half];
 allbias = [allbias; Screening.(varName).Bias_all];
 halfbias = [halfbias; Screening.(varName).Bias_Half];
-
+accu_perlap = [accu_perlap Screening.(varName).Accuracy_Lap'];
 
 %% 써먹지 않았지만 꽤 괜찮은 if문 (PASS/FAIL 구분)
 % if ismember(Subs(i), P)
@@ -118,7 +117,7 @@ SubInfoFile = addvars(SubInfoFile, allAccuracy, halfAccuracy, allbias, halfbias)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% accuracy plot!! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% all + half
+%% all + half accuracy
 x=SubInfoFile.Session;
 y_all=allAccuracy;
 y_half=halfAccuracy;
@@ -151,11 +150,15 @@ for i = 1:length(fail_group)
 end
 
 
+%% accuracy for each lap
 
+figure
+hold on
+title('Accuracy (for each Lap)')
+xlabel('Subject')
+ylabel('Accuracy (%)')
 
-
-
-
+boxplot(accu_perlap,x, OutlierSize=10^(-200));
 
 
 
@@ -189,6 +192,7 @@ end
 % set(h(7,:),'MarkerEdgeColor','w');
 % set(h(1:2,:),'LineStyle','-');
 % 
+% %fail group만 색칠하기!
 % ax = gca;
 % xTick = ax.XTick;
 % xLim = ax.XLim;
