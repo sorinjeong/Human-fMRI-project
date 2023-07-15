@@ -231,72 +231,8 @@ end
 
 
 
-%% bias for each lap connecting the lines between subjects
-
-% Create a new figure
-figure('position',[1535 609 818 624]);
-hold on
-title('Bias (for each Lap)',FontSize=14,FontWeight='bold')
-ylabel('Subject')
-xlabel('Button Press Bias')
-
-% Plot the horizontal box plot
-h=boxplot(bias_perlap',x,'orientation', 'horizontal');
-set(h(6,:),'Color','k','LineWidth',2);
-set(h(1:2,:),'LineStyle','-');
-
-% Set the x-axis limits to be symmetric around zero
-ax = gca;
-xLim = max(abs(ax.XLim));
-xlim([-xLim xLim]); ax.YTickLabel = cellstr(num2str(x(:)));
-% coloring fail group
-
-% 피험자번호
-for i = 1:length(fail_group)
-        text(ax.XLim(1), ax.YTick(fail_group(i)), ax.YTickLabel{fail_group(i)},...
-            'Color', 'red', 'HorizontalAlignment', 'right');
-    ax.YTickLabel{fail_group(i)} = '';
-end
-% box색깔
-h = findobj(gca,'Tag','Box');
-h = flipud(h);
-for j=1:length(h)
-    if find((j)==fail_group)
-      lines = findobj(h(j), 'Type', 'Line');
-      set(lines, 'Color', 'r', 'LineWidth', 2);
-    end
-end
 
 
-
-%% bias for each lap connecting the lines between subjects
-
-figure('position',[1535 609 818 624]);
-hold on
-title('Bias (for each Lap)',FontSize=14,FontWeight='bold')
-xlabel('Subject')
-ylabel('Button Press Bias')
-
-h=boxplot(bias_perlap,x);
-set(h(6,:),'Color','k','LineWidth',2);
-set(h(1:2,:),'LineStyle','-');
-% coloring fail group
-ax = gca; xTick = ax.XTick; xLim = ax.XLim; ax.XTickLabel = cellstr(num2str(x(:)));yLim = ylim;
-% 피험자번호
-for i = 1:length(fail_group)
-        text(xTick(fail_group(i)), yLim(1)-0.025*diff(yLim), ax.XTickLabel{fail_group(i)},...
-            'Color', 'red', 'HorizontalAlignment', 'center');
-    ax.XTickLabel{fail_group(i)} = '';
-end
-% box색깔
-h = findobj(gca,'Tag','Box');
-h = flipud(h);
-for j=1:length(h)
-    if find((j)==fail_group)
-      lines = findobj(h(j), 'Type', 'Line');
-      set(lines, 'Color', 'r', 'LineWidth', 2);
-    end
-end
 
 
 
@@ -445,6 +381,42 @@ for j=1:length(h)
 end
 
 
+
+%% Horizontal!!! bias for each lap connecting the lines between subjects
+
+% Create a new figure
+figure('position',[1535 609 818 624]);
+hold on
+title('Bias (for each Lap)',FontSize=14,FontWeight='bold')
+ylabel('Subject')
+xlabel('Button Press Bias')
+
+% Plot the horizontal box plot
+h = boxplot(bias_perlap, 'Labels', x, 'orientation', 'horizontal');
+set(h(6,:), 'Color', 'k', 'LineWidth', 2);
+set(h(1:2,:),'LineStyle','-');
+
+% Set the x-axis limits to be symmetric around zero
+ax = gca;
+xLim = max(abs(ax.XLim));
+xlim([-xLim xLim]); ax.YTickLabel = cellstr(num2str(x(:)));
+% coloring fail group
+
+% 피험자번호
+for i = 1:length(fail_group)
+        text(ax.XLim(1)-0.02, ax.YTick(fail_group(i)), ax.YTickLabel{fail_group(i)},...
+            'Color', 'red', 'HorizontalAlignment', 'right');
+    ax.YTickLabel{fail_group(i)} = '';
+end
+% box색깔
+h = findobj(gca,'Tag','Box');
+h = flipud(h);
+for j=1:length(h)
+    if find((j)==fail_group)
+      lines = findobj(h(j), 'Type', 'Line');
+      set(lines, 'Color', 'r', 'LineWidth', 2);
+    end
+end
 
 
 
