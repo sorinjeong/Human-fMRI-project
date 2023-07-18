@@ -534,17 +534,26 @@ sz=[10 3]; vnam=["group","p-value","h-value"];vtype=["string","double","double"]
 StatResults = table('size',sz,'VariableNames',vnam,'VariableTypes',vtype);
 % 1. overall_accuracy - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [all_accu_p,all_accu_h] = ranksum(allAccuracy(pass_group), allAccuracy(fail_group_wo_epilepsy));
-StatResults(1,:) = {"Overall_Accuracy",all_accu_p,all_accu_h};
+StatResults(1,:) = {"Overall_Accuracy-P/F",all_accu_p,all_accu_h};
 
 % 2. first-half_accuracy - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [first_accu_p,first_accu_h] = ranksum(halfAccuracy_F(pass_group), halfAccuracy_F(fail_group_wo_epilepsy));
-StatResults(2,:) = {"First-half_Accuracy",first_accu_p,first_accu_h};
+StatResults(2,:) = {"First-half_Accuracy-P/F",first_accu_p,first_accu_h};
 
 
 % 3. last-half_accuracy - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [last_accu_p,last_accu_h] = ranksum(halfAccuracy_L(pass_group), halfAccuracy_L(fail_group_wo_epilepsy));
-StatResults(3,:) = {"Last-half_Accuracy",last_accu_p,last_accu_h};
+StatResults(3,:) = {"Last-half_Accuracy-P/F",last_accu_p,last_accu_h};
 
+
+% 4. PASS/FAIL RT
+fail_woEpilepsy_RT = nanmean(corr_RT(:, fail_group_wo_epilepsy))+nanmean(incorr_RT(:, fail_group_wo_epilepsy));
+[RT_p,RT_h] = ranksum(pass_corr_RT+ pass_incorr_RT, fail_woEpilepsy_RT);
+StatResults(4,:) = {"RT mean-P/F",RT_p,RT_h};
+
+% 5. Corr vs Incorr RT
+[corr_RT_p,corr_RT_h] = ranksum(pass_corr_RT, pass_incorr_RT);
+StatResults(5,:) = {"RT-Correctness",corr_RT_p,corr_RT_h};
 
 
 
