@@ -309,10 +309,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RT Plot!! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%% RT boxplot 생성 - for each subject
+%% RT boxplot 생성 - for each Lap
 figure('position',[1645 857 829 594]);
 hold on
-title('Response Time (for each Subject)',FontSize=14,FontWeight='bold')
+title('Response Time (for each Lap)',FontSize=14,FontWeight='bold')
 xlabel('Subject')
 ylabel('RT(s)')
 
@@ -335,6 +335,62 @@ for i = 1:length(fail_group)
         'Color', 'red', 'HorizontalAlignment', 'center');
 ax.XTickLabel{fail_group(i)} = '';
 end
+
+
+%% First + all + Last RT % connect the dots for y_first-half and y_last-half
+all_RT = nanmean(overall_RT);
+halfRT_L = nanmean(overall_RT(16:end,:));
+halfRT_F = nanmean(overall_RT(1:16,:));
+
+x = SubInfoFile.Session;
+y_all = all_RT;
+y_half_L = halfRT_L;
+y_half_F = halfRT_F;
+
+figure
+hold on
+title('Response Time (for each Subject)', 'FontSize', 14, 'FontWeight', 'bold')
+xlabel('Subject')
+ylabel('RT')
+
+% Plot the data points for y_all, y_half and y_first
+plot(x, y_half_F, 'ko', 'linewidth', 1, 'MarkerSize', 5);
+plot(x, y_half_L, 'ko', 'linewidth', 1, 'MarkerSize', 5, 'MarkerFaceColor', 'k');
+
+% Plot the data points for y_all with different marker based on the relationship between y_half_F and y_half_L
+for i = 1:length(x)
+    if y_half_F(i) > y_half_L(i)
+        plot(x(i), y_all(i), 'kv', 'linewidth', 1, 'MarkerSize', 5,'HandleVisibility','off');
+    else
+        plot(x(i), y_all(i), 'k^', 'linewidth', 1, 'MarkerSize', 5,'HandleVisibility','off');
+    end
+end
+plot(nan,nan,'k^');
+% Draw a line between each pair of data points
+for i = 1:length(x)
+    if find((i) == fail_group)
+        line([x(i) x(i)], [y_half_F(i) y_half_L(i)], 'Color', 'r', 'LineStyle', '--')
+    else
+        line([x(i) x(i)], [y_half_F(i) y_half_L(i)], 'Color', 'k', 'LineStyle', '--')
+    end
+end
+
+legend({'first-half','last-half','overall','','fail group'},'Location','bestoutside')
+
+% coloring fail group
+ax = gca;
+ax.XTick = x;
+xTick = ax.XTick; ax.XLim = [84 103]; ax.XTickLabel = cellstr(num2str(x(:)));ylim([0.45 1]);yLim = ylim;
+
+for i = 1:length(fail_group)
+    if fail_group(i) <= length(xTick)
+        text(xTick(fail_group(i)), yLim(1)-0.05*diff(yLim), ax.XTickLabel{fail_group(i)},...
+            'Color', 'red', 'HorizontalAlignment', 'center','Rotation',45);
+        ax.XTickLabel{fail_group(i)} = '';
+    end
+end
+
+hold off
 
 
 %% Screening_RT plot - Corr/inCorr
@@ -530,7 +586,7 @@ legend({'Accuracy','RT'},'Location','bestoutside')
 %% 
 %%%%%%%%%%%%%%%%%%%%%% Statistic test %%%%%%%%%%%%%%%%%%%%%%%%%%
 %result table 생성
-sz=[8 3]; vnam=["group","p-value","h-value"];vtype=["string","double","double"];
+sz=[10 3]; vnam=["group","p-value","h-value"];vtype=["string","double","double"];
 StatResults = table('size',sz,'VariableNames',vnam,'VariableTypes',vtype);
 % 1. overall_accuracy - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [all_accu_p,all_accu_h] = ranksum(allAccuracy(pass_group), allAccuracy(fail_group_wo_epilepsy));
@@ -540,33 +596,39 @@ StatResults(1,:) = {"Overall_Accuracy-P/F",all_accu_p,all_accu_h};
 [first_accu_p,first_accu_h] = ranksum(halfAccuracy_F(pass_group), halfAccuracy_F(fail_group_wo_epilepsy));
 StatResults(2,:) = {"First-half_Accuracy-P/F",first_accu_p,first_accu_h};
 
-
 % 3. last-half_accuracy - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [last_accu_p,last_accu_h] = ranksum(halfAccuracy_L(pass_group), halfAccuracy_L(fail_group_wo_epilepsy));
 StatResults(3,:) = {"Last-half_Accuracy-P/F",last_accu_p,last_accu_h};
 
 
-% 4. RT mean - PASS/FAIL group에 대한 Wilcoxon rank sum test
-fail_woEpilepsy_RT = nanmean(corr_RT(:, fail_group_wo_epilepsy))+nanmean(incorr_RT(:, fail_group_wo_epilepsy));
-[RT_p,RT_h] = ranksum(pass_corr_RT+ pass_incorr_RT, fail_woEpilepsy_RT);
-StatResults(4,:) = {"RT mean-P/F",RT_p,RT_h};
+% 4. overall_RT - PASS/FAIL group에 대한 Wilcoxon rank sum test
+[all_RT_p,all_RT_h] = ranksum(all_RT(pass_group), all_RT(fail_group_wo_epilepsy));
+StatResults(4,:) = {"Overall_RT-P/F",all_RT_p,all_RT_h};
 
-% 5. Corr vs Incorr RT - correct/incorrect group에 대한 Wilcoxon rank sum test
+% 5. overall_RT - PASS/FAIL group에 대한 Wilcoxon rank sum test
+[first_RT_p,first_RT_h] = ranksum(halfRT_F(pass_group), halfRT_F(fail_group_wo_epilepsy));
+StatResults(5,:) = {"Overall_RT-P/F",first_RT_p,first_RT_h};
+
+% 6. overall_RT - PASS/FAIL group에 대한 Wilcoxon rank sum test
+[last_RT_p,last_RT_h] = ranksum(halfRT_L(pass_group), halfRT_L(fail_group_wo_epilepsy));
+StatResults(6,:) = {"Overall_RT-P/F",last_RT_p,last_RT_h};
+
+% 7. Corr vs Incorr RT - correct/incorrect group에 대한 Wilcoxon rank sum test
 [corr_RT_p,corr_RT_h] = ranksum(pass_corr_RT, pass_incorr_RT);
-StatResults(5,:) = {"RT-Correctness",corr_RT_p,corr_RT_h};
+StatResults(7,:) = {"RT-Correctness",corr_RT_p,corr_RT_h};
 
-% 6. overall_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
+
+% 8. overall_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [all_bias_p,all_bias_h] = ranksum(abs(allbias(pass_group)), abs(allbias(fail_group_wo_epilepsy)));
-StatResults(6,:) = {"Overall_Bias-P/F",all_bias_p,all_bias_h};
+StatResults(8,:) = {"Overall_Bias-P/F",all_bias_p,all_bias_h};
 
-% 7. first-half_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
+% 9. first-half_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [first_bias_p,first_bias_h] = ranksum(abs(halfbias_F(pass_group)), abs(halfbias_F(fail_group_wo_epilepsy)));
-StatResults(7,:) = {"First-half_Bias-P/F",first_bias_p,first_bias_h};
+StatResults(9,:) = {"First-half_Bias-P/F",first_bias_p,first_bias_h};
 
-
-% 8. last-half_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
+% 10. last-half_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [last_bias_p,last_bias_h] = ranksum(abs(halfbias_L(pass_group)), abs(halfbias_L(fail_group_wo_epilepsy)));
-StatResults(8,:) = {"Last-half_Bias-P/F",last_bias_p,last_bias_h};
+StatResults(10,:) = {"Last-half_Bias-P/F",last_bias_p,last_bias_h};
 
 
 
