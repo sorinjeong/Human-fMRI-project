@@ -605,13 +605,13 @@ StatResults(3,:) = {"Last-half_Accuracy-P/F",last_accu_p,last_accu_h};
 [all_RT_p,all_RT_h] = ranksum(all_RT(pass_group), all_RT(fail_group_wo_epilepsy));
 StatResults(4,:) = {"Overall_RT-P/F",all_RT_p,all_RT_h};
 
-% 5. overall_RT - PASS/FAIL group에 대한 Wilcoxon rank sum test
+% 5. first-half_RT - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [first_RT_p,first_RT_h] = ranksum(halfRT_F(pass_group), halfRT_F(fail_group_wo_epilepsy));
-StatResults(5,:) = {"Overall_RT-P/F",first_RT_p,first_RT_h};
+StatResults(5,:) = {"First-half_RT-P/F",first_RT_p,first_RT_h};
 
-% 6. overall_RT - PASS/FAIL group에 대한 Wilcoxon rank sum test
+% 6. last-half_RT - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [last_RT_p,last_RT_h] = ranksum(halfRT_L(pass_group), halfRT_L(fail_group_wo_epilepsy));
-StatResults(6,:) = {"Overall_RT-P/F",last_RT_p,last_RT_h};
+StatResults(6,:) = {"Last-half_RT-P/F",last_RT_p,last_RT_h};
 
 % 7. Corr vs Incorr RT - correct/incorrect group에 대한 Wilcoxon rank sum test
 [corr_RT_p,corr_RT_h] = ranksum(pass_corr_RT, pass_incorr_RT);
