@@ -219,7 +219,7 @@ figure
 hold on
 title('Bias Change (for each Subject)', 'FontSize', 14, 'FontWeight', 'bold')
 xlabel('Subject')
-ylabel('Button Press Bias')
+ylabel('Button-Pressing Bias')
 
 % Plot the data points for y_all, y_half and y_first
 plot(x, y_half_F, 'ko', 'linewidth', 1, 'MarkerSize', 5);
@@ -272,7 +272,7 @@ figure('position',[1535 609 818 624]);
 hold on
 title('Bias (for each Lap)',FontSize=14,FontWeight='bold')
 ylabel('Subject')
-xlabel('Button Press Bias')
+xlabel('Button-Pressing Bias')
 
 % Plot the horizontal box plot
 h = boxplot(bias_perlap, 'Labels', x, 'orientation', 'horizontal');
@@ -586,7 +586,7 @@ legend({'Accuracy','RT'},'Location','bestoutside')
 %% 
 %%%%%%%%%%%%%%%%%%%%%% Statistic test %%%%%%%%%%%%%%%%%%%%%%%%%%
 %result table 생성
-sz=[10 3]; vnam=["group","p-value","h-value"];vtype=["string","double","double"];
+sz=[11 3]; vnam=["group","p-value","h-value"];vtype=["string","double","double"];
 StatResults = table('size',sz,'VariableNames',vnam,'VariableTypes',vtype);
 % 1. overall_accuracy - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [all_accu_p,all_accu_h] = ranksum(allAccuracy(pass_group), allAccuracy(fail_group_wo_epilepsy));
@@ -613,22 +613,26 @@ StatResults(5,:) = {"First-half_RT-P/F",first_RT_p,first_RT_h};
 [last_RT_p,last_RT_h] = ranksum(halfRT_L(pass_group), halfRT_L(fail_group_wo_epilepsy));
 StatResults(6,:) = {"Last-half_RT-P/F",last_RT_p,last_RT_h};
 
-% 7. Corr vs Incorr RT - correct/incorrect group에 대한 Wilcoxon rank sum test
-[corr_RT_p,corr_RT_h] = ranksum(pass_corr_RT, pass_incorr_RT);
-StatResults(7,:) = {"RT-Correctness",corr_RT_p,corr_RT_h};
+% 7. PASS) Corr vs Incorr RT - PASS) correct/incorrect group에 대한 Wilcoxon rank sum test
+[P_corr_RT_p,P_corr_RT_h] = ranksum(pass_corr_RT, pass_incorr_RT);
+StatResults(7,:) = {"PASS_RT-Correctness",P_corr_RT_p,P_corr_RT_h};
+
+% 8. FAIL) Corr vs Incorr RT - FAIL) correct/incorrect group에 대한 Wilcoxon rank sum test
+[F_corr_RT_p,F_corr_RT_h] = ranksum(fail_corr_RT([1 3:end]), fail_incorr_RT([1 3:end]));
+StatResults(8,:) = {"FAIL_RT-Correctness",F_corr_RT_p,F_corr_RT_h};
 
 
-% 8. overall_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
+% 9. overall_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [all_bias_p,all_bias_h] = ranksum(abs(allbias(pass_group)), abs(allbias(fail_group_wo_epilepsy)));
-StatResults(8,:) = {"Overall_Bias-P/F",all_bias_p,all_bias_h};
+StatResults(9,:) = {"Overall_Bias-P/F",all_bias_p,all_bias_h};
 
-% 9. first-half_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
+% 10. first-half_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [first_bias_p,first_bias_h] = ranksum(abs(halfbias_F(pass_group)), abs(halfbias_F(fail_group_wo_epilepsy)));
-StatResults(9,:) = {"First-half_Bias-P/F",first_bias_p,first_bias_h};
+StatResults(10,:) = {"First-half_Bias-P/F",first_bias_p,first_bias_h};
 
-% 10. last-half_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
+% 11. last-half_bias - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [last_bias_p,last_bias_h] = ranksum(abs(halfbias_L(pass_group)), abs(halfbias_L(fail_group_wo_epilepsy)));
-StatResults(10,:) = {"Last-half_Bias-P/F",last_bias_p,last_bias_h};
+StatResults(11,:) = {"Last-half_Bias-P/F",last_bias_p,last_bias_h};
 
 
 
