@@ -1,5 +1,5 @@
 %% root 수기지정
-
+addpath('D:\internship\MATLAB\23.07.10_behaviorAnalysis\');
 cd('Z:\E-Phys Analysis\fMRI_ocat\PilotData_analyzed\ver_230711\');
 load('Allsub_NumLogTable.mat');T=total_NumLogTable;clear("total_NumLogTable");
 %Session info
@@ -500,66 +500,89 @@ legend('Subject Average','Location','northeast')
 
 hold off
 
-%% Context별 accuracy와 RT를 lap별로, 피험자별로 확인할 수 있는 그래프 
+%% Lap별로 피험자들의 Accuracy 변화를 볼 수 있는 그래프
+% Change in accuracy over Laps
+RT_perLap=[];pass_RT=overall_RT; pass_RT(:,fail_group)=[];
+for i=0:7; RT_perLap = [RT_perLap;nanmean((pass_RT((i*4)+1:(i+1)*4,:)))];end
+RT_allSub_perLap = nanmean(RT_perLap,2);
 
-% 1. Context - accuracy
-Forest_accu=[];City_accu=[];Forest_RT=[];City_RT=[];
-for i=1:length(pass_group)
-    varName = sprintf('SUB_%.15g',Subs(pass_group(i)));
-    FA = mean(DataGroup.PASS.(varName).Correct(find(DataGroup.PASS.(varName).Context==1)))*100;
-    CA = mean(DataGroup.PASS.(varName).Correct(find(DataGroup.PASS.(varName).Context==2)))*100;
-    FR = mean(DataGroup.PASS.(varName).RT(find(DataGroup.PASS.(varName).Context==1)));
-    CR = mean(DataGroup.PASS.(varName).RT(find(DataGroup.PASS.(varName).Context==2)));    
-    fr=DataGroup.PASS.(varName).RT(find(DataGroup.PASS.(varName).Context==1));
-    cr=DataGroup.PASS.(varName).RT(find(DataGroup.PASS.(varName).Context==2));
-    FRh = mean(fr(9:end));
-    CRh = mean(cr(9:end));  
-
-
-Forest_accu = [Forest_accu; FA];
-City_accu = [City_accu; CA];
-Forest_RT = [Forest_RT; FR];
-City_RT = [City_RT; CR];
-HForest_RT = [HForest_RT; FRh];
-HCity_RT = [HCity_RT; CRh];
-
-end
-
-% dual box plot - accu
 figure
 hold on
-boxplot([Forest_accu, City_accu])
-set(gca,'XTickLabel',{'Forest','City'})
-title('Forest vs City-accuracy',FontSize=14,FontWeight='bold')
-xlabel('Context')
-ylabel('Accuracy(%)')
-ylim([65 105]); xlim([0.5 2.5])
-% connect the corresponding rows of Forest_accu and City_accu with lines and points
-% % hold on
-% % x = repmat([1;2],1,size(Forest_accu,1));
-% % y = [Forest_accu'; City_accu'];
-% % plot(x,y,'-o')
-
-% dual box plot - RT
-figure
-hold on
-boxplot([Forest_RT, City_RT])
-set(gca,'XTickLabel',{'Forest','City'})
-title('Forest vs City-RT',FontSize=14,FontWeight='bold')
-xlabel('Context')
+plot(RT_allSub_perLap,'k-o');
+boxplot(RT_perLap')
+title('Change in Accuracy over Laps',FontSize=14,FontWeight='bold')
+xlabel('Lap')
 ylabel('RT(s)')
-ylim([0.5 0.8]); xlim([0.5 2.5])
 
-% dual box plot - RT
-figure
-hold on
-boxplot([HForest_RT, HCity_RT])
-set(gca,'XTickLabel',{'Forest','City'})
-title('Forest vs City-half-RT',FontSize=14,FontWeight='bold')
-xlabel('Context')
-ylabel('RT(s)')
-ylim([0.4 0.8]); xlim([0.5 2.5])
+legend('Subject Average','Location','northeast')
 
+hold off
+
+
+
+
+
+% 
+% %% Context별 accuracy와 RT를 lap별로, 피험자별로 확인할 수 있는 그래프 
+% 
+% % 1. Context - accuracy
+% Forest_accu=[];City_accu=[];Forest_RT=[];City_RT=[];
+% for i=1:length(pass_group)
+%     varName = sprintf('SUB_%.15g',Subs(pass_group(i)));
+%     FA = mean(DataGroup.PASS.(varName).Correct(find(DataGroup.PASS.(varName).Context==1)))*100;
+%     CA = mean(DataGroup.PASS.(varName).Correct(find(DataGroup.PASS.(varName).Context==2)))*100;
+%     FR = mean(DataGroup.PASS.(varName).RT(find(DataGroup.PASS.(varName).Context==1)));
+%     CR = mean(DataGroup.PASS.(varName).RT(find(DataGroup.PASS.(varName).Context==2)));    
+%     fr=DataGroup.PASS.(varName).RT(find(DataGroup.PASS.(varName).Context==1));
+%     cr=DataGroup.PASS.(varName).RT(find(DataGroup.PASS.(varName).Context==2));
+%     FRh = mean(fr(9:end));
+%     CRh = mean(cr(9:end));  
+% 
+% 
+% Forest_accu = [Forest_accu; FA];
+% City_accu = [City_accu; CA];
+% Forest_RT = [Forest_RT; FR];
+% City_RT = [City_RT; CR];
+% HForest_RT = [HForest_RT; FRh];
+% HCity_RT = [HCity_RT; CRh];
+% 
+% end
+% 
+% % dual box plot - accu
+% figure
+% hold on
+% boxplot([Forest_accu, City_accu])
+% set(gca,'XTickLabel',{'Forest','City'})
+% title('Forest vs City-accuracy',FontSize=14,FontWeight='bold')
+% xlabel('Context')
+% ylabel('Accuracy(%)')
+% ylim([65 105]); xlim([0.5 2.5])
+% % connect the corresponding rows of Forest_accu and City_accu with lines and points
+% % % hold on
+% % % x = repmat([1;2],1,size(Forest_accu,1));
+% % % y = [Forest_accu'; City_accu'];
+% % % plot(x,y,'-o')
+% 
+% % dual box plot - RT
+% figure
+% hold on
+% boxplot([Forest_RT, City_RT])
+% set(gca,'XTickLabel',{'Forest','City'})
+% title('Forest vs City-RT',FontSize=14,FontWeight='bold')
+% xlabel('Context')
+% ylabel('RT(s)')
+% ylim([0.5 0.8]); xlim([0.5 2.5])
+% 
+% % dual box plot - RT
+% figure
+% hold on
+% boxplot([HForest_RT, HCity_RT])
+% set(gca,'XTickLabel',{'Forest','City'})
+% title('Forest vs City-half-RT',FontSize=14,FontWeight='bold')
+% xlabel('Context')
+% ylabel('RT(s)')
+% ylim([0.4 0.8]); xlim([0.5 2.5])
+% 
 
 
 
@@ -688,29 +711,26 @@ StatResults(10,:) = {"First-half_Bias-P/F",first_bias_p,first_bias_h};
 StatResults(11,:) = {"Last-half_Bias-P/F",last_bias_p,last_bias_h};
 
 
-% 12. Forest vs City - Accuracy Wilcoxon sign rank sum test
-[FC_accu_p, FC_accu_h] = signrank(Forest_accu, City_accu);
-StatResults(12,:) = {"Forest/Context_accuracy", FC_accu_p,FC_accu_h};
-
-% 13. Forest vs City - RT Wilcoxon sign rank sum test
-[FC_RT_p, FC_RT_h] = signrank(Forest_RT, City_RT);
-StatResults(13,:) = {"Forest/Context_RT", FC_RT_p,FC_RT_h};
-
-% 14. Forest vs City - RT Wilcoxon sign rank sum test
-[hFC_RT_p, hFC_RT_h] = signrank(HForest_RT, HCity_RT);
-StatResults(14,:) = {"Forest/Context_HALF RT", hFC_RT_p,hFC_RT_h};
-
-
-
-
-[h,p] = vartest2(Forest_RT, City_RT)
-StatResults(13,:) = {"Forest/Context_RT", h,p};
+% % 12. Forest vs City - Accuracy Wilcoxon sign rank sum test
+% [FC_accu_p, FC_accu_h] = signrank(Forest_accu, City_accu);
+% StatResults(12,:) = {"Forest/Context_accuracy", FC_accu_p,FC_accu_h};
+% 
+% % 13. Forest vs City - RT Wilcoxon sign rank sum test
+% [FC_RT_p, FC_RT_h] = signrank(Forest_RT, City_RT);
+% StatResults(13,:) = {"Forest/Context_RT", FC_RT_p,FC_RT_h};
+% 
+% % 14. Forest vs City - RT Wilcoxon sign rank sum test
+% [hFC_RT_p, hFC_RT_h] = signrank(HForest_RT, HCity_RT);
+% StatResults(14,:) = {"Forest/Context_HALF RT", hFC_RT_p,hFC_RT_h};
 
 
 
 
-figs = findobj('Type', 'figure');
-for i = 1:length(figs)
-    saveas(figs(i), ['D:\internship\Human fMRI analysis\소린 목요일 미팅자료\230720\plots\figure' num2str(i) '.png']);
-end
+
+%% figure 저장
+% 
+% figs = findobj('Type', 'figure');
+% for i = 1:length(figs)
+%     saveas(figs(i), ['D:\internship\Human fMRI analysis\소린 목요일 미팅자료\230720\plots\figure' num2str(i) '.png']);
+% end
 
