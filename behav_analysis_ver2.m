@@ -133,7 +133,8 @@ y_half_L=halfAccuracy_L;
 
 figure
 hold on
-title('Accuracy (for each Subject)',FontSize=14,FontWeight='bold')
+title('Accuracy (for each subject)',FontSize=14,FontWeight='bold')
+subtitle('overall / first half / last half로 나누어 계산')
 xlabel('Subject')
 ylabel('Accuracy (%)')
 
@@ -181,7 +182,8 @@ end
 x = SubInfoFile.Session;
 figure
 hold on
-title('Accuracy (for each Lap)',FontSize=14,FontWeight='bold')
+title('Accuracy (for each subject)',FontSize=14,FontWeight='bold')
+subtitle('Lap별로 나누어 계산')
 xlabel('Subject')
 ylabel('Accuracy (%)')
 
@@ -217,7 +219,8 @@ y_half_F = halfbias_F;
 
 figure
 hold on
-title('Bias Change (for each Subject)', 'FontSize', 14, 'FontWeight', 'bold')
+title('Bias (for each subject)',FontSize=14,FontWeight='bold')
+subtitle('overall / first half / last half로 나누어 계산')
 xlabel('Subject')
 ylabel('Button-Pressing Bias')
 
@@ -270,7 +273,8 @@ hold off
 x = SubInfoFile.Session;
 figure('position',[1535 609 818 624]);
 hold on
-title('Bias (for each Lap)',FontSize=14,FontWeight='bold')
+title('Bias (for each subject)',FontSize=14,FontWeight='bold')
+subtitle('Lap별로 나누어 계산')
 ylabel('Subject')
 xlabel('Button-Pressing Bias')
 
@@ -312,7 +316,8 @@ end
 %% RT boxplot 생성 - for each Lap
 figure('position',[1645 857 829 594]);
 hold on
-title('Response Time (for each Lap)',FontSize=14,FontWeight='bold')
+title('Response Time (for each subject)',FontSize=14,FontWeight='bold')
+subtitle('Lap별로 나누어 계산')
 xlabel('Subject')
 ylabel('RT(s)')
 
@@ -349,7 +354,8 @@ y_half_F = halfRT_F;
 
 figure
 hold on
-title('Response Time (for each Subject)', 'FontSize', 14, 'FontWeight', 'bold')
+title('Response Time (for each subject)', 'FontSize', 14, 'FontWeight', 'bold')
+subtitle('overall / first half / last half로 나누어 계산')
 xlabel('Subject')
 ylabel('RT')
 
@@ -398,7 +404,7 @@ hold off
 %% RT boxplot 생성 - all sub, corr/incorr 2 boxes
 figure('position',[1645 857 829 594]);
 hold on
-title('Response Time (for Correct and Incorrect Trials)',FontSize=14,FontWeight='bold')
+title('Response Time (for Correctness)',FontSize=14,FontWeight='bold')
 xlabel('Correctness')
 ylabel('RT(s)')
 
@@ -412,7 +418,7 @@ ha = boxplot([nanmean(corr_RT) nanmean(incorr_RT)],group, 'Labels', labels);
 
 figure('position',[1645 857 829 594]);
 hold on
-title('Response Time (for Correct and Incorrect Trials) by Group(P/F)',FontSize=14,FontWeight='bold')
+title('Response Time (for Correctness) by Group(P/F)',FontSize=14,FontWeight='bold')
 xlabel('Correctness')
 ylabel('RT(s)')
 xlim([0 5]);ylim([0 1.3]);
@@ -436,7 +442,7 @@ boxplot([pass_corr_RT pass_incorr_RT fail_corr_RT fail_incorr_RT], group, 'Label
 figure('position',[1300,700,1200,800]);
 
 hold on
-title('Response Time for Correct and Incorrect Trials by Subject',FontSize=14,FontWeight='bold')
+title('Response Time for Correctness by Subject',FontSize=14,FontWeight='bold')
 xlabel('Subject')
 ylabel('RT(s)')
 set(h(1:2,:),'LineStyle','-');
