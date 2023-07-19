@@ -498,91 +498,110 @@ legend('Subject Average','Location','northeast')
 
 hold off
 
-
 %% Context별 accuracy와 RT를 lap별로, 피험자별로 확인할 수 있는 그래프 
 % 1. Context - accuracy
+
+
 Forest_accu=[];City_accu=[];Forest_RT=[];City_RT=[];
 for i=1:length(pass_group)
     varName = sprintf('SUB_%.15g',Subs(pass_group(i)));
-    FA = mean(DataGroup.PASS.(varName).Correct(find(DataGroup.PASS.(varName).Context==1)),2)*100;
+    FA = mean(DataGroup.PASS.(varName).Correct(find(DataGroup.PASS.(varName).Context==1)))*100;
     CA = mean(DataGroup.PASS.(varName).Correct(find(DataGroup.PASS.(varName).Context==2)))*100;
     FR = mean(DataGroup.PASS.(varName).RT(find(DataGroup.PASS.(varName).Context==1)));
     CR = mean(DataGroup.PASS.(varName).RT(find(DataGroup.PASS.(varName).Context==2)));    
 
-Forest_accu = [Forest_accu FA];
-City_accu = [City_accu CA];
-Forest_RT = [Forest_RT FR];
-City_RT = [City_RT CR];
+Forest_accu = [Forest_accu; FA];
+City_accu = [City_accu; CA];
+Forest_RT = [Forest_RT; FR];
+City_RT = [City_RT; CR];
 
 end
 
-
-
-% bidirectional plot
+% dual box plot
 figure
 hold on
-subplot(2,1,1)
-bh = barh([-City_accu' Forest_accu']);
-set(bh(2),'FaceColor','g')
-set(gca,'YDir','reverse')
-title('Context-Dependent Accuracy Differences', 'FontSize', 14, 'FontWeight', 'bold')
-ylabel('Subject')
-xlabel('Accuracy(%)')
-legend({'City','Forest'},'Location','bestoutside')
-
-
-subplot(2,1,2)
-bh = barh([-City_RT' Forest_RT']);
-set(bh(2),'FaceColor','g')
-set(gca,'YDir','reverse')
-title('Context-Dependent RT Differences', 'FontSize', 14, 'FontWeight', 'bold')
-ylabel('Subject')
-xlabel('RT(s)')
-legend({'City','Forest'},'Location','bestoutside')
-hold off
-
-
-% line plot
-figure
-subplot(2,1,1)
-hold on
-plot(Forest_accu,'g')
-plot(City_accu,'b')
-title('Context-Dependent Accuracy Differences', 'FontSize', 14, 'FontWeight', 'bold')
-xlabel('Subject')
+boxplot([Forest_accu, City_accu])
+set(gca,'XTickLabel',{'Forest','City'})
+title('Forest vs City',FontSize=14,FontWeight='bold')
+xlabel('Context')
 ylabel('Accuracy(%)')
-legend({'Forest','City'},'Location','bestoutside')
-xlim([0 13])
-
-subplot(2,1,2)
-hold on
-plot(Forest_RT,'g')
-plot(City_RT,'b')
-hold off
-title('Context-Dependent RT Differences', 'FontSize', 14, 'FontWeight', 'bold')
-xlabel('Subject')
-ylabel('RT(s)')
-legend({'Accuracy','RT'},'Location','bestoutside')
-xlim([0 13])
-
-
-% Forest에서 city 뺀거, 그 차이를 넣어야하나??
-figure
-hold on
-% yyaxis left
-plot(Forest_accu - City_accu,'r')
-ylabel('Accuracy(%)')
-
-% yyaxis right
-plot(Forest_RT - City_RT,'k')
-ylabel('RT(s)')
-
-title('Context-Dependent Accuracy Differences', 'FontSize', 14, 'FontWeight', 'bold')
-xlabel('Subject')
-legend({'Accuracy','RT'},'Location','bestoutside')
+ylim([65 105]); xlim([0.5 2.5])
+% connect the corresponding rows of Forest_accu and City_accu with lines and points
+% % hold on
+% % x = repmat([1;2],1,size(Forest_accu,1));
+% % y = [Forest_accu'; City_accu'];
+% % plot(x,y,'-o')
 
 
 
+
+% 
+% 
+% % bidirectional plot
+% figure
+% hold on
+% subplot(2,1,1)
+% bh = barh([-City_accu' Forest_accu']);
+% set(bh(2),'FaceColor','g')
+% set(gca,'YDir','reverse')
+% title('Context-Dependent Accuracy Differences', 'FontSize', 14, 'FontWeight', 'bold')
+% ylabel('Subject')
+% xlabel('Accuracy(%)')
+% legend({'City','Forest'},'Location','bestoutside')
+% 
+% 
+% subplot(2,1,2)
+% bh = barh([-City_RT' Forest_RT']);
+% set(bh(2),'FaceColor','g')
+% set(gca,'YDir','reverse')
+% title('Context-Dependent RT Differences', 'FontSize', 14, 'FontWeight', 'bold')
+% ylabel('Subject')
+% xlabel('RT(s)')
+% legend({'City','Forest'},'Location','bestoutside')
+% hold off
+% 
+% 
+% % line plot
+% figure
+% subplot(2,1,1)
+% hold on
+% plot(Forest_accu,'g')
+% plot(City_accu,'b')
+% title('Context-Dependent Accuracy Differences', 'FontSize', 14, 'FontWeight', 'bold')
+% xlabel('Subject')
+% ylabel('Accuracy(%)')
+% legend({'Forest','City'},'Location','bestoutside')
+% xlim([0 13])
+% 
+% subplot(2,1,2)
+% hold on
+% plot(Forest_RT,'g')
+% plot(City_RT,'b')
+% hold off
+% title('Context-Dependent RT Differences', 'FontSize', 14, 'FontWeight', 'bold')
+% xlabel('Subject')
+% ylabel('RT(s)')
+% legend({'Accuracy','RT'},'Location','bestoutside')
+% xlim([0 13])
+% 
+% 
+% % Forest에서 city 뺀거, 그 차이를 넣어야하나??
+% figure
+% hold on
+% % yyaxis left
+% plot(Forest_accu - City_accu,'r')
+% ylabel('Accuracy(%)')
+% 
+% % yyaxis right
+% plot(Forest_RT - City_RT,'k')
+% ylabel('RT(s)')
+% 
+% title('Context-Dependent Accuracy Differences', 'FontSize', 14, 'FontWeight', 'bold')
+% xlabel('Subject')
+% legend({'Accuracy','RT'},'Location','bestoutside')
+% 
+% 
+% 
 
 
 
@@ -592,7 +611,7 @@ legend({'Accuracy','RT'},'Location','bestoutside')
 %% 
 %%%%%%%%%%%%%%%%%%%%%% Statistic test %%%%%%%%%%%%%%%%%%%%%%%%%%
 %result table 생성
-sz=[11 3]; vnam=["group","p-value","h-value"];vtype=["string","double","double"];
+sz=[12 3]; vnam=["group","p-value","h-value"];vtype=["string","double","double"];
 StatResults = table('size',sz,'VariableNames',vnam,'VariableTypes',vtype);
 % 1. overall_accuracy - PASS/FAIL group에 대한 Wilcoxon rank sum test
 [all_accu_p,all_accu_h] = ranksum(allAccuracy(pass_group), allAccuracy(fail_group_wo_epilepsy));
@@ -641,4 +660,15 @@ StatResults(10,:) = {"First-half_Bias-P/F",first_bias_p,first_bias_h};
 StatResults(11,:) = {"Last-half_Bias-P/F",last_bias_p,last_bias_h};
 
 
+% 12. Forest vs City - Accuracy Wilcoxon sign rank sum test
+[FC_accu_p, FC_accu_h] = signrank(Forest_accu, City_accu);
+StatResults(12,:) = {"Forest/Context_accuracy", FC_accu_p,FC_accu_h};
+
+
+
+
+figs = findobj('Type', 'figure');
+for i = 1:length(figs)
+    saveas(figs(i), ['D:\internship\Human fMRI analysis\소린 목요일 미팅자료\230720\plots\figure' num2str(i) '.png']);
+end
 
