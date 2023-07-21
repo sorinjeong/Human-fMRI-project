@@ -516,9 +516,30 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%여기서부턴 FAIL group은 분석에서 제외! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Lap별로 피험자들의 RT 변화를 볼 수 있는 그래프
+%% 피험자들의 RT 변화를 볼 수 있는 그래프
+% Change in RT over Trials
+pass_RT=overall_RT(:,pass_group);
+figure('Position',[874 447 1685 951])
+hold on
+plot(nanmean(pass_RT,2),'k-o', LineWidth=2);
+boxplot(pass_RT')
+title('Change in RT over Trials',FontSize=14,FontWeight='bold')
+xlabel('Trial')
+ylabel('RT(s)')
+xlim([0 33])
+legend('Subject Average','Location','northeast')
+
+% Add vertical lines
+for i = 1:7
+    ia=(i*4)+0.5;
+    line([ia ia], ylim, 'Color', [0.5 0.5 0.5], 'LineStyle', '-','HandleVisibility','off');
+end
+
+hold off
+
+
 % Change in RT over Laps
-RT_perLap=[];pass_RT=overall_RT; pass_RT(:,fail_group)=[];
+RT_perLap=[];
 for i=0:7; RT_perLap = [RT_perLap;nanmean((pass_RT((i*4)+1:(i+1)*4,:)))];end
 RT_pass_perLap = nanmean(RT_perLap,2);
 
@@ -534,15 +555,48 @@ legend('Subject Average','Location','northeast')
 
 hold off
 
-%% Lap별로 피험자들의 Accuracy 변화를 볼 수 있는 그래프
+%% 피험자들의 Accuracy 변화를 볼 수 있는 그래프
+% Change in Accuracy over Trials
+overall_accu=[];overall_accuss=overall_accu'
+for i=1:length(Subs)
+    varName = sprintf('SUB_%.15g',Subs(i));
+    overall_accu= [overall_accu DataGroup.Overall.(varName).Correct(:)];
+end
+pass_Accuracy=overall_accu(:,pass_group);
+figure('Position',[874 447 1685 951])
+hold on
+plot(nanmean(pass_Accuracy,2)*100,'k-o', LineWidth=2);
+% boxplot(pass_Accuracy')
+title('Change in Accuracy over Trials',FontSize=14,FontWeight='bold')
+xlabel('Trial')
+ylabel('Accuracy(%)')
+xlim([0 33]); ylim([20 110])
+legend('Subject Average','Location','northeast')
+
+% Add vertical lines
+for i = 1:7
+    ia=(i*4)+0.5;
+    line([ia ia], ylim, 'Color', [0.5 0.5 0.5], 'LineStyle', '-','HandleVisibility','off');
+end
+
+hold off
+
+% GPT가 알려준 4차원 배열만든 후 squeeze로 mean값 구해서 lap별 accuracy data 구하는 법
+% nLaps = 8; % number of laps
+% nTrialsPerLap = 4; % number of trials per lap
+% pass_Accuracy_reshaped = reshape(pass_Accuracy, [nTrialsPerLap, nLaps, size(pass_Accuracy, 2)]);
+% lapAccuracy = squeeze(mean(pass_Accuracy_reshaped, 1));
+% 
+% % Plot the box plot of lap accuracy
+% figure;
+% boxplot(lapAccuracy');
+% title('Change in Accuracy over Laps');
+% xlabel('Lap');
+% ylabel('Accuracy (%)');
+
+
+
 % Change in accuracy over Laps
-
-% overall_accu=[];
-% for i=1:length(Subs)
-%     varName = sprintf('SUB_%.15g',Subs(i));
-%     overall_accu= [overall_accu DataGroup.Overall.(varName).Correct(:)];
-% end
-
 pass_accu_lap = accu_perlap(:,pass_group);
 accu_pass_perLap=nanmean(pass_accu_lap,2);
 
@@ -557,6 +611,13 @@ ylabel('Accuracy(%)')
 legend('Subject Average','Location','southeast')
 
 hold off
+
+
+
+
+
+
+
 
 %% Lap별로 피험자들의 Bias 변화를 볼 수 있는 그래프
 % Change in bias over Laps
@@ -712,7 +773,7 @@ hold off
 
 
 
-
+C
 
 
 %% 
