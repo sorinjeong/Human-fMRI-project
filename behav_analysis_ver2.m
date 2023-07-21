@@ -209,6 +209,40 @@ for j=1:length(h)
       set(lines, 'Color', 'r', 'LineWidth', 1);
     end
 end
+hold off
+
+
+
+
+figure
+hold on
+title('Accuracy (for each subject)', 'FontSize', 14, 'FontWeight', 'bold')
+subtitle('Overall Laps')
+xlabel('Subject')
+ylabel('Accuracy (%)')
+
+scatter(x, allAccuracy)
+hold off
+
+figure
+hold on
+title('Accuracy (for each subject)', 'FontSize', 14, 'FontWeight', 'bold')
+subtitle('first-half Laps')
+xlabel('Subject')
+ylabel('Accuracy (%)')
+
+scatter(x, halfAccuracy_F)
+hold off
+
+figure
+hold on
+title('Accuracy (for each subject)', 'FontSize', 14, 'FontWeight', 'bold')
+subtitle('last-half Laps')
+xlabel('Subject')
+ylabel('Accuracy (%)')
+
+scatter(x, halfAccuracy_L)
+hold off
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% Bias plot!! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -486,11 +520,11 @@ end
 % Change in RT over Laps
 RT_perLap=[];pass_RT=overall_RT; pass_RT(:,fail_group)=[];
 for i=0:7; RT_perLap = [RT_perLap;nanmean((pass_RT((i*4)+1:(i+1)*4,:)))];end
-RT_allSub_perLap = nanmean(RT_perLap,2);
+RT_pass_perLap = nanmean(RT_perLap,2);
 
 figure
 hold on
-plot(RT_allSub_perLap,'k-o');
+plot(RT_pass_perLap,'k-o');
 boxplot(RT_perLap')
 title('Change in RT over Laps',FontSize=14,FontWeight='bold')
 xlabel('Lap')
@@ -502,23 +536,45 @@ hold off
 
 %% Lap별로 피험자들의 Accuracy 변화를 볼 수 있는 그래프
 % Change in accuracy over Laps
-RT_perLap=[];pass_RT=overall_RT; pass_RT(:,fail_group)=[];
-for i=0:7; RT_perLap = [RT_perLap;nanmean((pass_RT((i*4)+1:(i+1)*4,:)))];end
-RT_allSub_perLap = nanmean(RT_perLap,2);
+
+% overall_accu=[];
+% for i=1:length(Subs)
+%     varName = sprintf('SUB_%.15g',Subs(i));
+%     overall_accu= [overall_accu DataGroup.Overall.(varName).Correct(:)];
+% end
+
+pass_accu_lap = accu_perlap(:,pass_group);
+accu_pass_perLap=nanmean(pass_accu_lap,2);
 
 figure
 hold on
-plot(RT_allSub_perLap,'k-o');
-boxplot(RT_perLap')
+plot(accu_pass_perLap,'k-o');
+boxplot(pass_accu_lap')
 title('Change in Accuracy over Laps',FontSize=14,FontWeight='bold')
 xlabel('Lap')
-ylabel('RT(s)')
+ylabel('Accuracy(%)')
 
-legend('Subject Average','Location','northeast')
+legend('Subject Average','Location','southeast')
 
 hold off
 
+%% Lap별로 피험자들의 Bias 변화를 볼 수 있는 그래프
+% Change in bias over Laps
 
+pass_bias_lap = abs(bias_perlap(:,pass_group));
+bias_pass_perLap=nanmean(pass_bias_lap,2);
+
+figure
+hold on
+plot(bias_pass_perLap,'k-o');
+boxplot(pass_bias_lap')
+title('Change in Bias over Laps',FontSize=14,FontWeight='bold')
+xlabel('Lap')
+ylabel('Bias')
+ylim([-0.050 1.05])
+legend('Subject Average','Location','northeast')
+
+hold off
 
 
 
