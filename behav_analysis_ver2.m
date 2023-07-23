@@ -6,6 +6,9 @@ load('Allsub_NumLogTable.mat');T=total_NumLogTable;clear("total_NumLogTable");
 SubInfoFile = readtable('OCAT subject info (pilot).xlsx','ReadRowNames',false);
 SubInfoFile = renamevars(SubInfoFile(2:19,[1 3 4 5]),["Var1","Var3","Var4","Var5"],["Session","PASS","Sex","Age"]);
 
+%%T에 Pass/Fail 정보 넣기
+T=addvars(T,repelem(SubInfoFile.PASS(:),32),'NewVariableNames','PASS');
+
 %% session별 나누기
 Subs = unique(T.Session,"rows","sorted");
 
