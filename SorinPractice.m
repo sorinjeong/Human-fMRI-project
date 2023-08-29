@@ -1,6 +1,6 @@
 % O-CAT data practice
 %Input
-NumOfSubs = 1;
+NumOfSubs = 18;
 
 %% subject numbering , folder root
 for subname = 1:NumOfSubs
@@ -19,7 +19,6 @@ Responses(Responses==2) = 0; Responses=Responses';
 % Plot example
 figure();
 plotI(Responses, ones(1,length(Responses))); hold on;
-title(['LearningCurve: ' Session],'FontSize',14,'FontWeight','bold')
 xlabel('Trial Number');
 ylabel('Pr(Correct Response)')
 plot(pdata(:,2),'k-','LineWidth',1.2); hold on;
@@ -27,9 +26,19 @@ plot(pdata(:,3),'r-','LineWidth',1.2); hold on;
 plot(pdata(:,4),'k-','LineWidth',1.2);
 l=line([cdata cdata],[0 1]); l.Color='b'; l.LineWidth=1.8;
 
+% Add the subtitle
+if ismember((fi+84), P)
+    subtitle = 'PASS';
+else
+    subtitle = 'FAIL';
+end
+t = title(['LearningCurve: ' Session ' (' subtitle ')'],'FontSize',14,'FontWeight','bold');
+
+% Remove the top and right axes lines
+box off;
 
 
-
+%save
 addpath(genpath('D:\leelab\Human fMRI projects\MATLAB\23.08.29_LearningCurve'))
 saveas(gcf,['D:\leelab\Human fMRI projects\MATLAB\23.08.29_LearningCurve\Figures\' Session],'png');
 hold off; close

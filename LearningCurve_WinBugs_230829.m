@@ -13,7 +13,7 @@ function [pdata, cback] = LearningCurve_WinBugs_230829(Responses,Chance)
 % cdata : learning trial
 
 %% Set Path
-addpath(genpath(['C:\Users\Leelab\Documents\MATLAB']));
+addpath(genpath('C:\Users\Leelab\Documents\MATLAB'));
 addpath(genpath('D:\WinBUGS14'));
 
 %%
