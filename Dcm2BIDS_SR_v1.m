@@ -19,13 +19,11 @@ raw_func_folder = raw_sbj_folder(find(contains({raw_sbj_folder.name}, "TASK5")))
 
 
 %% make output directory
-output_dir = [preprocessed_path sbjName];
-if exist("output_dir")
-    mkdir([output_dir '\anat'])
-    mkdir([output_dir '\fmap\mag'])
-    mkdir([output_dir '\fmap\phase'])
-    mkdir([output_dir '\func'])
-end
+output_dir = fullfile(preprocessed_path, sbjName);
+    mkdir(fullfile(output_dir, "anat"))
+    mkdir(fullfile(output_dir, "fmap","mag"))
+    mkdir(fullfile(output_dir, "fmap","phase"))
+    mkdir(fullfile(output_dir, "func"))
 
 
 %% converting T1 image
