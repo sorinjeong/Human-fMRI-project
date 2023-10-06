@@ -5,8 +5,9 @@ preprocessed_path = 'D:\leelab\Human fMRI projects\0O-CAT\fMRI_ocat_data\1004pra
 % sbjNum = [85, 90, 96, 100];
 sbjNum = [102];
 sbjName = strcat('SUB',string(sbjNum));
-raw_sbj_path = fullfile(raw_data_path, sbjName, 'study*', 'series_*');
-raw_sbj_folder = dir(raw_sbj_path);
+raw_sbj_path = dir(fullfile(raw_data_path, sbjName, 'study*', 'series_*'));
+raw_sbj_folder = {raw_sbj_path.name};
+raw_sbj_path = raw_sbj_path.folder;
 % raw_sbj_dir = fullfile(raw_sbj_path, {raw_sbj_folder.name});
 
 
@@ -16,6 +17,16 @@ raw_fmap_mag_folder = raw_sbj_folder(find(contains({raw_sbj_folder.name}, "AP"),
 raw_fmap_phase_folder = raw_sbj_folder(find(contains({raw_sbj_folder.name}, "AP"),1,"last"));
 raw_func_folder = raw_sbj_folder(find(contains({raw_sbj_folder.name}, "TASK5")));
 
+
+category = ["T1" "AP" "TASK5"];rawdata_folders=[];
+for i=1:length(category)
+foldername = raw_sbj_folder(find(contains(raw_sbj_folder,category(i))));
+if i==2
+rawdata_folders= [rawdata_folders; foldername(1); foldername(2)];
+else
+rawdata_folders= [rawdata_folders; foldername];
+end
+end
 
 
 %% make output directory
@@ -80,8 +91,10 @@ matlabbatch{4}.spm.util.import.dicom.convopts.icedims = 0;
 
 
 
-
-
+tbl = struct2table(raw_sbj_folder)
+tbl={horzcat(tbl.folder,tbl.name)}
+tbl(:,[2 1])
+mergevars(tbl,[2 1])
 
 
 
