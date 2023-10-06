@@ -17,10 +17,22 @@ raw_fmap_mag_folder = raw_sbj_folder(find(contains({raw_sbj_folder.name}, "AP"),
 raw_fmap_phase_folder = raw_sbj_folder(find(contains({raw_sbj_folder.name}, "AP"),1,"last"));
 raw_func_folder = raw_sbj_folder(find(contains({raw_sbj_folder.name}, "TASK5")));
 
+dir(fullfile(raw_sbj_path.folder,'*T1*'))
+
 
 category = ["T1" "AP" "TASK5"];rawdata_folders=[];
 for i=1:length(category)
 foldername = raw_sbj_folder(find(contains(raw_sbj_folder,category(i))));
+if i==1
+raw_T1_folder = string(strcat(raw_sbj_path, '\', foldername));
+raw_T1_files = dir(raw_T1_folder).name
+raw_T1_filelist = 
+
+dir(['*.IMA'])
+
+d= uigetdir(raw_sbj_path, foldername)
+uigetfile('*.IMA', 'Select Multiple Files', raw_T1_folder, 'MultiSelect','on')
+
 if i==2
 rawdata_folders= [rawdata_folders; foldername(1); foldername(2)];
 else
