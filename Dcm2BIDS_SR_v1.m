@@ -28,8 +28,7 @@ if ~exist("output_dir")
 end
 
 %% converting T1 image
-raw_files = dir(fullfile(raw_T1_folder.folder, raw_T1_folder.name));
-sbj_T1_images = fullfile({raw_files.folder}, {raw_files.name});
+sbj_T1_images = {dir(fullfile(raw_T1_folder.folder, raw_T1_folder.name)).name};
 
 matlabbatch{1}.spm.util.import.dicom.data = sbj_T1_images;
 matlabbatch{1}.spm.util.import.dicom.root = 'flat';
@@ -40,8 +39,7 @@ matlabbatch{1}.spm.util.import.dicom.convopts.meta = 0;
 matlabbatch{1}.spm.util.import.dicom.convopts.icedims = 0;
 
 %% converting field map - magnitude
-raw_files = dir(fullfile(raw_fmap_mag_folder.folder, raw_fmap_mag_folder.name));
-sbj_fmap_mag = fullfile({raw_files.folder}, {raw_files.name});
+sbj_fmap_mag = {dir(fullfile(raw_fmap_mag_folder.folder, raw_fmap_mag_folder.name)).name};
 
 matlabbatch{2}.spm.util.import.dicom.data = sbj_fmap_mag;
 matlabbatch{2}.spm.util.import.dicom.root = 'flat';
@@ -52,8 +50,7 @@ matlabbatch{2}.spm.util.import.dicom.convopts.meta = 0;
 matlabbatch{2}.spm.util.import.dicom.convopts.icedims = 0;
 
 %% converting field map - phase
-raw_files = dir(fullfile(raw_fmap_phase_folder.folder, raw_fmap_phase_folder.name));
-sbj_fmap_phase = fullfile({raw_files.folder}, {raw_files.name});
+sbj_fmap_phase = {dir(fullfile(raw_fmap_phase_folder.folder, raw_fmap_phase_folder.name)).name};
 
 matlabbatch{3}.spm.util.import.dicom.data = sbj_fmap_phase;
 matlabbatch{3}.spm.util.import.dicom.root = 'flat';
@@ -64,8 +61,7 @@ matlabbatch{3}.spm.util.import.dicom.convopts.meta = 0;
 matlabbatch{3}.spm.util.import.dicom.convopts.icedims = 0;
 
 %% converting MR image
-raw_files = dir(fullfile(raw_func_folder.folder, raw_func_folder.name));
-sbj_MR_images = fullfile({raw_files.folder}, {raw_files.name});
+sbj_MR_images = {dir(fullfile(raw_func_folder.folder, raw_func_folder.name)).name};
 
 matlabbatch{4}.spm.util.import.dicom.data = sbj_MR_images;
 matlabbatch{4}.spm.util.import.dicom.root = 'flat';
@@ -81,4 +77,11 @@ matlabbatch{4}.spm.util.import.dicom.convopts.icedims = 0;
     spm_jobman('initcfg');
     spm_jobman('run',batch);
     clear batch
+
+
+
+
+
+
+
 
