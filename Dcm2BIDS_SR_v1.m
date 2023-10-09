@@ -23,48 +23,48 @@ FolderStruct.mag = strcat(raw_sbj_path,'\', raw_fmap_mag_folder);
 FolderStruct.phase = strcat(raw_sbj_path,'\', raw_fmap_phase_folder);
 FolderStruct.func = strcat(raw_sbj_path,'\', raw_func_folder);
 
-
-d = uigetdir(raw_T1_folder, 'Select a folder');
-files = dir(fullfile(d, '*.IMA'));
-
-
-filelist=struct;
-category=["T1","mag","phase","func"];
-for f = 1 : 4
-filePattern = fullfile(FolderStruct{1,f}, '*.IMA'); % Change to whatever pattern you need.
-theFiles = dir(filePattern);
-for k = 1 : length(theFiles)
-    baseFileName = theFiles(k).name;
-    fullFileName = {fullfile(theFiles(k).folder, baseFileName)};
-    filelist.category(f) = fullFileName;
-end
-end
-
-
-raw_T1_file = 
-
-dir(fullfile(raw_sbj_path.folder,'*T1*'))
-
-
-category = ["T1" "AP" "TASK5"];rawdata_folders=[];
-for i=1:length(category)
-foldername = raw_sbj_folder(find(contains(raw_sbj_folder,category(i))));
-if i==1
-raw_T1_folder = string(strcat(raw_sbj_path, '\', foldername));
-raw_T1_files = dir(raw_T1_folder).name
-raw_T1_filelist = 
-
-dir(['*.IMA'])
-
-d= uigetdir(raw_sbj_path, foldername)
-uigetfile('*.IMA', 'Select Multiple Files', raw_T1_folder, 'MultiSelect','on')
-
-if i==2
-rawdata_folders= [rawdata_folders; foldername(1); foldername(2)];
-else
-rawdata_folders= [rawdata_folders; foldername];
-end
-end
+% 
+% d = uigetdir(raw_T1_folder, 'Select a folder');
+% files = dir(fullfile(d, '*.IMA'));
+% 
+% 
+% filelist=struct;
+% category=["T1","mag","phase","func"];
+% for f = 1 : 4
+% filePattern = fullfile(FolderStruct{1,f}, '*.IMA'); % Change to whatever pattern you need.
+% theFiles = dir(filePattern);
+% for k = 1 : length(theFiles)
+%     baseFileName = theFiles(k).name;
+%     fullFileName = {fullfile(theFiles(k).folder, baseFileName)};
+%     filelist.category(f) = fullFileName;
+% end
+% end
+% 
+% 
+% raw_T1_file = 
+% 
+% dir(fullfile(raw_sbj_path.folder,'*T1*'))
+% 
+% 
+% category = ["T1" "AP" "TASK5"];rawdata_folders=[];
+% for i=1:length(category)
+% foldername = raw_sbj_folder(find(contains(raw_sbj_folder,category(i))));
+% if i==1
+% raw_T1_folder = string(strcat(raw_sbj_path, '\', foldername));
+% raw_T1_files = dir(raw_T1_folder).name
+% raw_T1_filelist = 
+% 
+% dir(['*.IMA'])
+% 
+% d= uigetdir(raw_sbj_path, foldername)
+% uigetfile('*.IMA', 'Select Multiple Files', raw_T1_folder, 'MultiSelect','on')
+% 
+% if i==2
+% rawdata_folders= [rawdata_folders; foldername(1); foldername(2)];
+% else
+% rawdata_folders= [rawdata_folders; foldername];
+% end
+% end
 
 
 %% make output directory
@@ -77,9 +77,10 @@ if ~exist("output_dir")
 end
 
 %% converting T1 image
-sbj_T1_images = {dir(fullfile(raw_T1_folder.folder, raw_T1_folder.name)).name};
+% sbj_T1_images = {dir(fullfile(raw_T1_folder.folder, raw_T1_folder.name)).name};
+filePattern = fullfile(FolderStruct{1,1}, '*.IMA'); 
 
-matlabbatch{1}.spm.util.import.dicom.data = sbj_T1_images;
+matlabbatch{1}.spm.util.import.dicom.data = {dir(filePattern)};
 matlabbatch{1}.spm.util.import.dicom.root = 'flat';
 matlabbatch{1}.spm.util.import.dicom.outdir = {fullfile(output_dir, "anat")};
 matlabbatch{1}.spm.util.import.dicom.protfilter = '.*';
@@ -88,9 +89,10 @@ matlabbatch{1}.spm.util.import.dicom.convopts.meta = 0;
 matlabbatch{1}.spm.util.import.dicom.convopts.icedims = 0;
 
 %% converting field map - magnitude
-sbj_fmap_mag = {dir(fullfile(raw_fmap_mag_folder.folder, raw_fmap_mag_folder.name)).name};
+% sbj_fmap_mag = {dir(fullfile(raw_fmap_mag_folder.folder, raw_fmap_mag_folder.name)).name};
+filePattern = fullfile(FolderStruct{1,2}, '*.IMA'); 
 
-matlabbatch{2}.spm.util.import.dicom.data = sbj_fmap_mag;
+matlabbatch{2}.spm.util.import.dicom.data = {dir(filePattern)};
 matlabbatch{2}.spm.util.import.dicom.root = 'flat';
 matlabbatch{2}.spm.util.import.dicom.outdir = {fullfile(output_dir, "fmap","mag")};
 matlabbatch{2}.spm.util.import.dicom.protfilter = '.*';
@@ -99,9 +101,10 @@ matlabbatch{2}.spm.util.import.dicom.convopts.meta = 0;
 matlabbatch{2}.spm.util.import.dicom.convopts.icedims = 0;
 
 %% converting field map - phase
-sbj_fmap_phase = {dir(fullfile(raw_fmap_phase_folder.folder, raw_fmap_phase_folder.name)).name};
+% sbj_fmap_phase = {dir(fullfile(raw_fmap_phase_folder.folder, raw_fmap_phase_folder.name)).name};
+filePattern = fullfile(FolderStruct{1,3}, '*.IMA'); 
 
-matlabbatch{3}.spm.util.import.dicom.data = sbj_fmap_phase;
+matlabbatch{3}.spm.util.import.dicom.data = {dir(filePattern)};
 matlabbatch{3}.spm.util.import.dicom.root = 'flat';
 matlabbatch{3}.spm.util.import.dicom.outdir = {fullfile(output_dir, "fmap","phase")};
 matlabbatch{3}.spm.util.import.dicom.protfilter = '.*';
@@ -110,9 +113,10 @@ matlabbatch{3}.spm.util.import.dicom.convopts.meta = 0;
 matlabbatch{3}.spm.util.import.dicom.convopts.icedims = 0;
 
 %% converting MR image
-sbj_MR_images = {dir(fullfile(raw_func_folder.folder, raw_func_folder.name)).name};
+% sbj_MR_images = {dir(fullfile(raw_func_folder.folder, raw_func_folder.name)).name};
+filePattern = fullfile(FolderStruct{1,4}, '*.IMA'); 
 
-matlabbatch{4}.spm.util.import.dicom.data = sbj_MR_images;
+matlabbatch{4}.spm.util.import.dicom.data = {dir(filePattern)};
 matlabbatch{4}.spm.util.import.dicom.root = 'flat';
 matlabbatch{4}.spm.util.import.dicom.outdir = {fullfile(output_dir, "func")};
 matlabbatch{4}.spm.util.import.dicom.protfilter = '.*';
