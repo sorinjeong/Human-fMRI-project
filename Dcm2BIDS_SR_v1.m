@@ -12,10 +12,36 @@ raw_sbj_path = raw_sbj_path.folder;
 
 
 %% raw data folder: T1 / field-mag / field-phase / func
-raw_T1_folder = raw_sbj_folder(find(contains({raw_sbj_folder.name}, "T1")));
-raw_fmap_mag_folder = raw_sbj_folder(find(contains({raw_sbj_folder.name}, "AP"),1,"first"));
-raw_fmap_phase_folder = raw_sbj_folder(find(contains({raw_sbj_folder.name}, "AP"),1,"last"));
-raw_func_folder = raw_sbj_folder(find(contains({raw_sbj_folder.name}, "TASK5")));
+raw_T1_folder = raw_sbj_folder{find(contains(raw_sbj_folder, "T1"))};
+raw_fmap_mag_folder = raw_sbj_folder{find(contains(raw_sbj_folder, "AP"),1,"first")};
+raw_fmap_phase_folder = raw_sbj_folder{find(contains(raw_sbj_folder, "AP"),1,"last")};
+raw_func_folder = raw_sbj_folder{find(contains(raw_sbj_folder, "TASK5"))};
+
+FolderStruct = table;
+FolderStruct.T1 = strcat(raw_sbj_path,'\', raw_T1_folder);
+FolderStruct.mag = strcat(raw_sbj_path,'\', raw_fmap_mag_folder);
+FolderStruct.phase = strcat(raw_sbj_path,'\', raw_fmap_phase_folder);
+FolderStruct.func = strcat(raw_sbj_path,'\', raw_func_folder);
+
+
+d = uigetdir(raw_T1_folder, 'Select a folder');
+files = dir(fullfile(d, '*.IMA'));
+
+
+filelist=struct;
+category=["T1","mag","phase","func"];
+for f = 1 : 4
+filePattern = fullfile(FolderStruct{1,f}, '*.IMA'); % Change to whatever pattern you need.
+theFiles = dir(filePattern);
+for k = 1 : length(theFiles)
+    baseFileName = theFiles(k).name;
+    fullFileName = {fullfile(theFiles(k).folder, baseFileName)};
+    filelist.category(f) = fullFileName;
+end
+end
+
+
+raw_T1_file = 
 
 dir(fullfile(raw_sbj_path.folder,'*T1*'))
 
