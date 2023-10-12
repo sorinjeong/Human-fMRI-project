@@ -1,4 +1,6 @@
 addpath(genpath('C:\spm'));addpath(genpath('D:\leelab\Human fMRI projects\0O-CAT\fMRI_ocat_data'));
+% addpath('C:\spm\spm12\external\fieldtrip\compat\matlablt2017b');
+%%
 raw_data_path = 'D:\leelab\Human fMRI projects\0O-CAT\fMRI_ocat_data\brain_raw';
 preprocessed_path = 'D:\leelab\Human fMRI projects\0O-CAT\fMRI_ocat_data\1012practice';
 
