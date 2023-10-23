@@ -19,15 +19,23 @@ sbjNum = [85:102];
 % sbjNum = [102];
 sbjName = strcat('SUB',string(sbjNum));
 
+
 for sub = 1: length(sbjName)
+
     % convert subject number start from 1
     if sub<10
     sbj = strcat("sub-0",string(sub)); 
     else
     sbj = strcat("sub-",string(sub));
     end
+
+    %change subject name of upstrem folder SUB85 to sub-01
+    foo = fullfile(raw_data_path,string(sbjName(sub)));
+    mkdir(foo)
+    movefile(foo,fullfile(raw_data_path,string(sbj)))
+
 % raw data folder
-raw_sbj_path = fullfile(raw_data_path, sbjName(sub), 'study*', 'series_*');
+raw_sbj_path = fullfile(raw_data_path, sbj, 'study*', 'series_*');
 raw_sbj_folders = dir(raw_sbj_path);
 for i=1:length(raw_sbj_folders)
 fo = fullfile(raw_sbj_folders(i).folder, raw_sbj_folders(i).name);
