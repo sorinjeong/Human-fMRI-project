@@ -11,11 +11,11 @@ spm('defaults','FMRI');
 spm_jobman('initcfg');
 
 %%
-raw_data_path = '\\147.47.203.148\LeeStorage2\EPhysRawData\fmri_ocat_analysis\O-CAT_fMRIdata_backup\brain_raw';
-preprocessed_path = 'C:\Users\leelab\Desktop\fMRI\OCAT\OCAT_DIR';
+raw_data_path = '\\147.47.203.148\LeeStorage2\EPhysRawData\fmri_ocat_analysis\O-CAT_fMRIdata_backup\brain_raw\start1';
+preprocessed_path = 'C:\Users\leelab\Desktop\fMRI\OCAT\OCAT_DIR'; addpath(preprocessed_path);
 
 %% set subject's root directory
-sbjNum = [85:102];
+sbjNum = 85:102;
 % sbjNum = [102];
 sbjName = strcat('SUB',string(sbjNum));
 
@@ -29,13 +29,16 @@ for sub = 1: length(sbjName)
     sbj = strcat("sub-",string(sub));
     end
 
-    %change subject name of upstrem folder SUB85 to sub-01
-    foo = fullfile(raw_data_path,string(sbjName(sub)));
-    mkdir(foo)
-    movefile(foo,fullfile(raw_data_path,string(sbj)))
+%     %change subject name of upstrem folder SUB85 to sub-01
+%     foo = fullfile(raw_data_path,string(sbjName(sub)));
+%     mkdir(fullfile(raw_data_path,"start1", string(sbj)));
+%     copyfile(foo,fullfile(raw_data_path,"start1", string(sbj)));
+% end
+% raw_data_path = fullfile(raw_data_path,"start1");
+% for sub = 1: length(sbjName)
 
 % raw data folder
-raw_sbj_path = fullfile(raw_data_path, sbj, 'study*', 'series_*');
+raw_sbj_path = fullfile(raw_data_path, string(sbj), 'study*', 'series_*');
 raw_sbj_folders = dir(raw_sbj_path);
 for i=1:length(raw_sbj_folders)
 fo = fullfile(raw_sbj_folders(i).folder, raw_sbj_folders(i).name);
@@ -56,7 +59,7 @@ raw_func_dir = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "TASK5")));
 %% make output directory
 output_dir = fullfile(preprocessed_path,sbj);
 if ~exist(output_dir,"dir")
-    mkdir(output_dir);c
+    mkdir(output_dir);
     mkdir(output_dir+'\anat');
     mkdir(output_dir+'\fmap\mag');
     mkdir(output_dir+'\fmap\phase');
