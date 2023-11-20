@@ -3,35 +3,36 @@ addpath(genpath('\\147.47.203.154\LeeStorage1\E-Phys Analysis\fMRI_ocat\OCAT_DIR
 
 %%
 file_path_in = '../data/data_fmri_raw';
-file_path_out = '../data/data_dicm2nii_1120'; 
+file_path_out = '../data/data_dicm2nii_1120_3'; 
 
 %% set subject's root directory
 n_sbj = 31;
 
 %% new file name
-new_prefixes = {'_T1w', '_magnitude1', '_magnitude2', '_phase', '_bold'};
+new_prefixes = {'_T1w', '_bold'};
 
-for sbj_i = 1: n_sbj
+parfor sbj_i = 1: n_sbj
     c_sbj =  strcat("sub-",num2str(sbj_i, '%02.f'));
     
     %% path_in == raw data folder: T1 / field-mag / field-phase / func
     raw_sbj_folders = dir(fullfile(file_path_in, string(c_sbj), 'study*', 'series_*'));
     path_in = {};
     path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "T1"),1,"last")); % T1 image
+    path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "TASK"),1,"last")); % MR image
     path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "AP"),1,"first")); % field map - magnitude
     path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "AP"),1,"last")); % field map - phase
-    path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "TASK"),1,"last")); % MR image
+    
     %% make output directory
     path_sbj_out = fullfile(file_path_out,c_sbj,'ses-01');
      path_out = {};
      path_out{end+1} = fullfile(path_sbj_out,'anat');
-     path_out{end+1} = fullfile(path_sbj_out,'fmap','mag');
-     path_out{end+1} = fullfile(path_sbj_out,'fmap','phase');
      path_out{end+1} = fullfile(path_sbj_out,'func');
+     path_out{end+1} = fullfile(path_sbj_out,'fmap');
+     path_out{end+1} = fullfile(path_sbj_out,'fmap');
      
         if ~exist(path_sbj_out,"dir")
             mkdir(path_sbj_out);
-            for i=1:4
+            for i=1:3
                 mkdir(path_out{i});
             end
         end
@@ -42,6 +43,12 @@ for sbj_i = 1: n_sbj
     outputDir = path_out{1,pth};  
    
     dicm2nii(dicomDir, outputDir, 'nii');
+    
+    % matfile 이름 변경
+    files_mat = dir(fullfile(outputDir, '*.mat'));
+    old_matfile = files_mat.name;
+    new_matfile = [char(c_sbj), '_', old_matfile];
+    movefile(fullfile(outputDir, old_matfile), fullfile(outputDir, new_matfile));
     
     %파일 확장자별로 불러오기
     files_nii = dir(fullfile(outputDir, '*.nii'));
@@ -58,28 +65,29 @@ for sbj_i = 1: n_sbj
             [~, ~, ext] = fileparts(old_name);
         
             % 새 파일 이름 생성
-            if pth == 2
-                if contains(old_name, 'e1')
-                    new_name = [char(c_sbj), '_ses-01', '_task-OCAT', new_prefixes{2}, ext];
-                else
-                    new_name = [char(c_sbj), '_ses-01', '_task-OCAT', new_prefixes{3}, ext];
-                end
-            elseif pth == 1
-                new_name = [char(c_sbj), '_ses-01', '_task-OCAT', new_prefixes{pth}, ext];
+            if pth < 3
+            new_name = [char(c_sbj), '_ses-01', '_task-OCAT', new_prefixes{pth}, ext];
             else
-                new_name = [char(c_sbj), '_ses-01', '_task-OCAT', new_prefixes{pth+1}, ext];
+            new_name = [char(c_sbj),'_ses-01', '_task-OCAT_', old_name];    
             end
-            
             % 파일 이름 변경
             movefile(fullfile(outputDir, old_name), fullfile(outputDir, new_name));
+            
+        % 만약 파일이 JSON 파일이라면
+        if strcmp(ext, '.json')
+        % JSON 파일 읽기
+        data = jsondecode(fileread(fullfile(outputDir, new_name)));
+
+        % 'TaskName' 설정
+        data.TaskName = 'OCAT';
+
+        % JSON 파일 쓰기
+        fid = fopen(fullfile(outputDir, new_name), 'w');
+        if fid == -1, error('Cannot create JSON file'); end
+        fwrite(fid, jsonencode(data), 'char');
+        fclose(fid);
         end
-        
-    % matfile 이름 변경
-    files_mat = dir(fullfile(outputDir, '*.mat'));
-    old_matfile = files_mat.name;
-    new_matfile = [char(c_sbj), old_matfile];
-    movefile(fullfile(outputDir, old_matfile), fullfile(outputDir, new_matfile));
-        
+        end
     end
 end
 
