@@ -4,27 +4,27 @@ addpath('C:\Users\Leelab\Documents\MATLAB\spm12');
 addpath('C:\Users\Leelab\Documents\MATLAB\spm12\external\fieldtrip'); % Add the FieldTrip directory back to the MATLAB path.
 ft_defaults; % Reset the FieldTrip defaults.
 
-addpath(genpath('\\147.47.203.148\LeeStorage2\EPhysRawData\fmri_ocat_analysis'));
+addpath(genpath('\\147.47.203.154\LeeStorage1\E-Phys Analysis\fMRI_ocat\OCAT_DIR'));
 
 %%
 spm('defaults','FMRI');
 spm_jobman('initcfg');
 
 %%
-raw_data_path = '\\147.47.203.148\LeeStorage2\EPhysRawData\fmri_ocat_analysis\brain_raw_strt1';
-preprocessed_path = 'C:\Users\leelab\Desktop\fMRI\OCAT\OCAT_DIR_newID'; addpath(preprocessed_path);
+file_path_in = '../data/data_fmri_raw';
+file_path_out = '../data/data_fmri_nii'; 
 
 %% set subject's root directory
-sbjNum = 19:20;
+n_sbj = 31;
 
 
-for sub = 19: 20
+for sbj_i = 1: n_sbj
 
     % convert subject number start from 1
-    sbj = strcat("sub-",num2str(sub, '%02.f'));
+    n_sbj = strcat("sub-",num2str(sbj_i, '%02.f'));
 
 % raw data folder
-raw_sbj_path = fullfile(raw_data_path, string(sbj), 'study*', 'series_*');
+raw_sbj_path = fullfile(file_path_in, string(n_sbj), 'study*', 'series_*');
 raw_sbj_folders = dir(raw_sbj_path);
 for i=1:length(raw_sbj_folders)
 fo = fullfile(raw_sbj_folders(i).folder, raw_sbj_folders(i).name);
@@ -32,13 +32,13 @@ fi = dir(fullfile(fo, '*.IMA'));  % Find .IMA files
 end
 
 %% raw data folder: T1 / field-mag / field-phase / func
-raw_T1_dir = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "T1")));
+raw_T1_dir = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "T1"),1,"last"));
 raw_fmap_mag_dir = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "AP"),1,"first"));
 raw_fmap_phase_dir = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "AP"),1,"last"));
 raw_func_dir = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "TASK"),1,"last"));
 
 %% make output directory
-output_dir = fullfile(preprocessed_path,sbj);
+output_dir = fullfile(file_path_out,n_sbj);
 if ~exist(output_dir,"dir")
     mkdir(output_dir);
     mkdir(output_dir+'\anat');
@@ -46,7 +46,7 @@ if ~exist(output_dir,"dir")
     mkdir(output_dir+'\fmap\phase');
     mkdir(output_dir+'\func');
 end
-% addpath(genpath(output_dir));
+% addpath(genpath(output_dir));C
 
 %% converting T1 image
 folder = fullfile(raw_T1_dir(1).folder, raw_T1_dir.name);
@@ -112,13 +112,13 @@ dataset_description = struct(...
     'Name', 'Object-Context Association Task',...
     'BIDSVersion', '1.0.2',...
     'License', 'CC0',...
-    'Authors', {{'Sorin Jeong', 'Zi Yeon Kim'}},...
+    'Authors', {{'Sorin Jeong', 'Zyeon Kim'}},...
     'Acknowledgements', 'We extend our thanks to Ji-Sun Kim and Jae-Min Seol for their assistance in data acquisition and analysis. We also want to express our gratitude to all the participants of this study.',...
     'HowToAcknowledge', 'Please cite this paper.');
 
 % save as JSON file
 jsonStr = jsonencode(dataset_description);
-fid = fopen([preprocessed_path '\dataset_description.json'], 'w');
+fid = fopen([file_path_out '\dataset_description.json'], 'w');
 if fid == -1, error('Cannot create JSON file'); end
 fwrite(fid, jsonStr, 'char');
 fclose(fid);

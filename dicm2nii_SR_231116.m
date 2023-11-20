@@ -15,10 +15,10 @@ for sbj_i = 1: n_sbj
     %% path_in == raw data folder: T1 / field-mag / field-phase / func
     raw_sbj_folders = dir(fullfile(file_path_in, string(c_sbj), 'study*', 'series_*'));
     path_in = {};
-    path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "T1"),1,"last"));
-    path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "AP"),1,"first"));
-    path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "AP"),1,"last"));
-    path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "TASK"),1,"last"));
+    path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "T1"),1,"last")); % T1 image
+    path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "AP"),1,"first")); % field map - magnitude
+    path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "AP"),1,"last")); % field map - phase
+    path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "TASK"),1,"last")); % MR image
     %% make output directory
     path_sbj_out = fullfile(file_path_out,c_sbj);
      path_out = {};
@@ -37,8 +37,7 @@ for sbj_i = 1: n_sbj
 %% converting image to nifti
     for pth = 1:length(path_in)
     dicomDir = fullfile(path_in{1,pth}.folder, path_in{1,pth}.name);
-    outputDir = path_out{1,pth};
-   
+    outputDir = path_out{1,pth};  
    
     dicm2nii(dicomDir, outputDir, 'nii');
     end
