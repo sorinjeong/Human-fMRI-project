@@ -6,9 +6,9 @@ file_path_in = '../data/data_fmri_raw_Num';
 file_path_out = '../data/data_fmri_bids'; 
 
 %% set subject's root directory
-n_sbj = 18;
+n_sbj = 31;
 
-for sbj_i = 2: n_sbj
+for sbj_i = 1: n_sbj
     c_sbj = num2str(sbj_i, '%02.f');
     
     %% path_in == raw data folder: T1 / field-mag / field-phase / func
@@ -19,21 +19,7 @@ for sbj_i = 2: n_sbj
     path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "AP"),1,"first")); % field map - magnitude
     path_in{end+1} = raw_sbj_folders(find(contains({raw_sbj_folders.name}, "AP"),1,"last")); % field map - phase
 
-    % %% make output directory
-    % path_sbj_out = fullfile(file_path_out,c_sbj,'ses-01');
-    %  path_out = {};
-    %  path_out{end+1} = fullfile(path_sbj_out,'anat');
-    %  path_out{end+1} = fullfile(path_sbj_out,'func');
-    %  path_out{end+1} = fullfile(path_sbj_out,'fmap');
-    %  path_out{end+1} = fullfile(path_sbj_out,'fmap');
-    % 
-    %     if ~exist(path_sbj_out,"dir")
-    %         mkdir(path_sbj_out);
-    %         for i=1:3
-    %             mkdir(path_out{i});
-    %         end
-    %     end
-    % 
+
 %% converting image to nifti
     for pth = 1:length(path_in)
     dicomDir = fullfile(path_in{1,pth}.folder, path_in{1,pth}.name);
