@@ -14,8 +14,9 @@ sbj_info_file = readtable('../../OCAT_DIR/data/data_fmri_bids/participants.tsv',
 %% 
 n_sbj = 31;
 
+all_sbj_events = [];
 for sbj_i = 1: n_sbj
-    c_sbj = num2str(sbj_i, '%02.f');
+    c_sbj = strcat('sub-', num2str(sbj_i, '%02.f'));
 
 %% make output directory
    path_out = {};
@@ -198,7 +199,7 @@ title([c_sbj ': RT & Correctness'],"FontSize",18,"FontWeight","bold")
 % RT plot
 plot(event_table,"RT",'Color','#0072BD', 'LineWidth',1.8,'Marker','.','MarkerSize',20);
 % Timeout threshold
-yline(1.5,'-.','Timeout','LabelHorizontalAlignment', 'center' ,'Color',"#0072BD",'LineWidth',1.2);
+yline(1.5,'-.','Timeout (>= 1.5s)','LabelHorizontalAlignment', 'center' ,'Color',"#0072BD",'LineWidth',1.2);
 
 xlabel('Trial','FontSize',15,'FontWeight','bold')
 ylabel('RT','FontSize',15,'FontWeight','bold')
@@ -223,7 +224,7 @@ img = imread('correctness_legend.jpg');
 image(img,'XData',[32 34],'YData',[3 0],'Clipping','off')
 
 %timeout
-area([1:height(event_table);1:height(event_table)], [event_table.isTimeout;event_table.isTimeout], 'FaceColor',"#EDB120");
+area([1:height(event_table)], [event_table.isTimeout, event_table.isTimeout], 'FaceColor',"#EDB120");
 yticks([])
 
 hold off
