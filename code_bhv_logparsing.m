@@ -64,7 +64,15 @@ var_name = ["Lap", "TrialStart", "Trial","Lap_Trial", "Context_txt", "Context_Nu
 "Choice_txt","Correct_Num","Correct_txt","isTimeout" "RT", "ObjOff", "TrialEnd"];
 
 event_struct = struct;
-for v=1:length(var_name); event_struct.(var_name{v})=[];end
+for v = 1:length(var_name)
+    if contains(var_name{v}, '_txt')
+        event_struct.(var_name{v}) = {};
+    else
+        event_struct.(var_name{v}) = [];
+    end
+end
+
+
 type_log = find(contains(sbj_events.Var3(:),'Type'));
 for i = 6:10
     event_struct.(var_name{i}) = num2str(sbj_events.Var4(type_log), i-5) - '0';
@@ -87,7 +95,7 @@ for i=1:height(sbj_events)
    % Choice
     else
         if contains(event_name(i), "Choice"+("A"|"B"))
-        event_struct.Choice_txt(end+1) = string(extractAfter(event_name(i),"Choice"));
+        event_struct.Choice_txt{end+1} = string(extractAfter(event_name(i),"Choice"));
    % correctness, RT, isTimeout
         elseif event_name(i)=="Decision"
         %correct Timeout error
@@ -127,11 +135,11 @@ end
 
 % Choice txt to Number
 event_struct.Choice_Num = NaN(height(event_struct.Choice_txt), 1);  % Initialize Choice_Num with NaN
-event_struct.Choice_Num(event_struct.Choice_txt == "A") = 1;
-event_struct.Choice_Num(event_struct.Choice_txt == "B") = 2;
+event_struct.Choice_Num(strcmp(event_struct.Choice_txt, "A")) = 1;
+event_struct.Choice_Num(strcmp(event_struct.Choice_txt, "B")) = 2;
 
 % Context Num to txt
-event_struct.Context_txt = replace(string(event_struct.Context_Num), {"1", "2"}, {"F", "C"});
+event_struct.Context_txt = replace(num2str(event_struct.Context_Num), {"1", "2"}, {"F", "C"});
 
 %% Making a Table
 event_struct = orderfields(event_struct,var_name);
