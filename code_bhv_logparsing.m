@@ -77,15 +77,17 @@ event_name = string(sbj_events.Var1(:));
 time_lap_start = sbj_events(event_name=="LapStart",[2 4]);
 for i=1:height(sbj_events)
     if event_name(i)=="TrialStart"
-        event_struct.TrialStart{end} = sbj_events{i,2};
+        event_struct.TrialStart(end+1) = sbj_events{i,2};
     elseif event_name(i)=="Trial"
-        event_struct.Trial{end} = sbj_events{i,2};
-        event_struct.Lap_Trial{end} = mod(length(event_struct.Trial), 4) + 1;
-        event_struct.Lap{end} = time_lap_start(find(event_struct.TrialStart{end} > time_lap_start,1,'last'));
+        event_struct.Trial(end+1) = sbj_events{i,2};
+        event_struct.Lap_Trial(end+1) = mod(length(event_struct.Trial), 4) + 1;
+        lapidx = find(event_struct.TrialStart(end) > time_lap_start.Var2(1), 1, 'last');
+        if ~isempty(lapidx); event_struct.Lap(end+1) = time_lap_start.Var4(lapidx);end
+
    % Choice
     else
         if contains(event_name(i), "Choice"+("A"|"B"))
-        event_struct.Choice_txt{end} = string(extractAfter(event_name(i),"Choice"));
+        event_struct.Choice_txt(end+1) = string(extractAfter(event_name(i),"Choice"));
    % correctness, RT, isTimeout
         elseif event_name(i)=="Decision"
         %correct Timeout error
@@ -94,9 +96,9 @@ for i=1:height(sbj_events)
                 end
 
              %correctness
-             event_struct.Correct_Num{end} = sbj_events{i,2};
+             event_struct.Correct_Num(end+1) = sbj_events{i,2};
              %RT
-             event_struct.RT{end} = sbj_events{i,4};
+             event_struct.RT(end+1) = sbj_events{i,4};
 
             %txt, timeout
            switch sbj_events{i,2}
@@ -113,13 +115,13 @@ for i=1:height(sbj_events)
     
         %rest of fields    
         elseif ismember(event_name(i),var_name) && ~strcmp(event_name(i), 'Trial')
-             event_struct.(event_name(i)){end+1,1} = sbj_events{i,2};
+             event_struct.(event_name(i)){end+1} = sbj_events{i,2};
         end
     end
 
     %choice missing (choiceOn과 objOff 이벤트 개수와 choice 개수가 다를 경우 missing 삽입)
     if length(event_struct.ChoiceOn) == length(event_struct.ObjOff) && length(event_struct.ChoiceOn) ~= length(event_struct.Choice_txt)
-    event_struct.Choice_txt(end+1,1) = {missing};
+    event_struct.Choice_txt{end+1} = {missing};
     end
 end
 
