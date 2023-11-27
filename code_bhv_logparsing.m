@@ -85,17 +85,17 @@ event_name = string(sbj_events.Var1(:));
 time_lap_start = sbj_events(event_name=="LapStart",[2 4]);
 for i=1:height(sbj_events)
     if event_name(i)=="TrialStart"
-        event_struct.TrialStart(end+1) = sbj_events{i,2};
+        event_struct.TrialStart(end+1,1) = sbj_events{i,2};
     elseif event_name(i)=="Trial"
-        event_struct.Trial(end+1) = sbj_events{i,2};
-        event_struct.Lap_Trial(end+1) = mod(length(event_struct.Trial), 4) + 1;
+        event_struct.Trial(end+1,1) = sbj_events{i,2};
+        event_struct.Lap_Trial(end+1,1) = mod(length(event_struct.Trial), 4) + 1;
         lapidx = find(event_struct.TrialStart(end) > time_lap_start.Var2(1), 1, 'last');
-        if ~isempty(lapidx); event_struct.Lap(end+1) = time_lap_start.Var4(lapidx);end
+        if ~isempty(lapidx); event_struct.Lap(end+1,1) = time_lap_start.Var4(lapidx);end
 
    % Choice
     else
         if contains(event_name(i), "Choice"+("A"|"B"))
-        event_struct.Choice_txt{end+1} = string(extractAfter(event_name(i),"Choice"));
+        event_struct.Choice_txt{end+1,1} = string(extractAfter(event_name(i),"Choice"));
    % correctness, RT, isTimeout
         elseif event_name(i)=="Decision"
         %correct Timeout error
@@ -104,9 +104,9 @@ for i=1:height(sbj_events)
                 end
 
              %correctness
-             event_struct.Correct_Num(end+1) = sbj_events{i,2};
+             event_struct.Correct_Num(end+1,1) = sbj_events{i,2};
              %RT
-             event_struct.RT(end+1) = sbj_events{i,4};
+             event_struct.RT(end+1,1) = sbj_events{i,4};
 
             %txt, timeout
            switch sbj_events{i,2}
@@ -123,13 +123,13 @@ for i=1:height(sbj_events)
     
         %rest of fields    
         elseif ismember(event_name(i),var_name) && ~strcmp(event_name(i), 'Trial')
-             event_struct.(event_name(i)){end+1} = sbj_events{i,2};
+             event_struct.(event_name(i)){end+1,1} = sbj_events{i,2};
         end
     end
 
     %choice missing (choiceOn과 objOff 이벤트 개수와 choice 개수가 다를 경우 missing 삽입)
     if length(event_struct.ChoiceOn) == length(event_struct.ObjOff) && length(event_struct.ChoiceOn) ~= length(event_struct.Choice_txt)
-    event_struct.Choice_txt{end+1} = {missing};
+    event_struct.Choice_txt{end+1,1} = {missing};
     end
 end
 
@@ -139,7 +139,7 @@ event_struct.Choice_Num(strcmp(event_struct.Choice_txt, "A")) = 1;
 event_struct.Choice_Num(strcmp(event_struct.Choice_txt, "B")) = 2;
 
 % Context Num to txt
-event_struct.Context_txt = replace(num2str(event_struct.Context_Num), {"1", "2"}, {"F", "C"});
+event_struct.Context_txt = replace(string(event_struct.Context_Num), ["1", "2"], ["F", "C"]);
 
 %% Making a Table
 event_struct = orderfields(event_struct,var_name);
@@ -150,12 +150,12 @@ event_table = struct2table(event_struct);
 writetable(event_table,[path_out{1} '\' c_sbj '_event_table.csv']);
 % total table
     %TR
-    writetable(event_TR,[path_out{2} '\event_TR.csv'],'Sheet',c_sbj);
+    writetable(event_TR,[path_out{2} '\event_TR.xlsx'],'Sheet',c_sbj);
     %PV
-    writetable(event_pre_PV,[path_out{2} '\event_pre_PV.csv'],'Sheet',c_sbj);
-    writetable(event_post_PV,[path_out{2} '\event_post_PV.csv'],'Sheet',c_sbj);
+    writetable(event_pre_PV,[path_out{2} '\event_pre_PV.xlsx'],'Sheet',c_sbj);
+    writetable(event_post_PV,[path_out{2} '\event_post_PV.xlsx'],'Sheet',c_sbj);
     %events
-    writetable(event_table,[path_out{2} '\event_table.csv'],'Sheet',c_sbj);
+    writetable(event_table,[path_out{2} '\event_table.xlsx'],'Sheet',c_sbj);
 
 
 % correct_regressor; object가 켜진 시간, for GLM
