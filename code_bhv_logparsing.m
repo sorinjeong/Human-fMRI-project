@@ -27,10 +27,11 @@ for sbj_i = 1: n_sbj
      
     if ~exist(log_path_out,"dir")
       mkdir(log_path_out);mkdir(plot_path_out);
-      for i=1:length(path_out)
+      for i=2:length(path_out)
          mkdir(path_out{i});
       end
     end
+    mkdir(path_out{1});
 
     %% remove time from sbj events table
     sbj_events = file_list{sbj_i};
@@ -91,8 +92,12 @@ for i=1:height(sbj_events)
     elseif event_name(i)=="Trial"
         event_struct.Trial(end+1,1) = sbj_events{i,2};
         event_struct.Lap_Trial(end+1,1) = mod(length(event_struct.Trial), 4) + 1;
-        lapidx = find(event_struct.TrialStart(end) > time_lap_start.Var2(1), 1, 'last');
-        if ~isempty(lapidx); event_struct.Lap(end+1,1) = time_lap_start.Var4(lapidx);end
+        lapidx = find(event_struct.TrialStart(end) > time_lap_start.Var2(:), 1, 'last');
+        if ~isempty(lapidx) && event_struct.TrialStart(end) > time_lap_start.Var2(lapidx)
+         event_struct.Lap(end+1,1) = time_lap_start.Var4(lapidx);
+        end
+        
+
 
    % Choice
     else
