@@ -30,7 +30,7 @@ for i = 1:length(subfolders)
     combined_file = readtable(fullfile(new_folder_path, ['sub-' num2str(i, '%02.f') '_combined.csv']));
     
     % data_bhv_raw의 i번째 파일 로드
-    fileToRead1= dir(fullfile(data_bhv_raw_path, '*.csv'));
+    fileToRead1= dir(fullfile(data_bhv_raw_path, '*Time_Behavior.csv'));
     data_bhv_raw_file = readtable(fileToRead1(i).name);
     
 
@@ -39,15 +39,22 @@ for i = 1:length(subfolders)
     value_to_add = data_bhv_raw_file.Var2(first_MR_row);
     combined_file.Var2 = combined_file.Var2 + value_to_add;
 
-    % for 루프를 사용하여 .csv 파일의 각 행마다 돌면서 Var4값 대체
-    for j = 1:height(data_bhv_raw_file)
-        idx = strcmp(string(combined_file.Var1), string(data_bhv_raw_file.Var1{j})) & double(combined_file.Var2) == double(data_bhv_raw_file.Var2(j));
-        if any(idx)
-            data_bhv_raw_file.Var4(j) = combined_file.Var4(idx);
-        end
+
+    % Var1 값이 같은 행을 찾습니다.
+    idx = find(contains(combined_file.Var1,"Button"));
+combined_file(idx,:)=[];
+    idx = find(contains(data_bhv_raw_file.Var1,combined_file.Var1));
+    for j = 1:length(idx)
+    % Var4 값을 변경합니다.
+    data_bhv_raw_file.Var4(idx(j))= combined_file.Var4(j);
+   
     end
 
+
     % 수정된 data_bhv_raw 파일 저장
-    writetable(data_bhv_raw_file, fullfile(pv_data_bhv_raw_path, [fileToRead1(i).name '.csv']));
+    writetable(data_bhv_raw_file, fullfile(pv_data_bhv_raw_path, fileToRead1(i).name));
 end
+
+
+
 
