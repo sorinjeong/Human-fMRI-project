@@ -75,8 +75,9 @@ end
 
 
 type_log = find(contains(sbj_events.Var3(:),'Type'));
+type_log = num2str(sbj_events.Var4(type_log), i-5) - '0';
 for i = 6:10
-    event_struct.(var_name{i}) = num2str(sbj_events.Var4(type_log), i-5) - '0';
+    event_struct.(var_name{i}) = type_log(:,i-5);
 end
 
 
@@ -193,6 +194,7 @@ hold on
 colororder({'#0072BD','#000000'})
 
 % RT plot : left
+X=1:height(event_table);
 yyaxis left
 title([c_sbj ': RT & Correctness'],"FontSize",18,"FontWeight","bold")
 
@@ -214,9 +216,11 @@ pbaspect([2 1 1]);
 yyaxis right
 Y=event_table.Correct_Num';
 Y(1,Y == 2) = 1;
-stairs(Y);
 
-area(repmat(1:height(event_table), 2, 1), repmat(Y, 2, 1), 'FaceColor', 'k');
+stairs(Y);
+coloringX = [X;X];
+coloringY = [Y;Y];
+CorPlot = area(coloringX([2:end end]),coloringY(1:end), 'FaceColor', 'k');
 ylim([0 10]);
 
 %legend
@@ -224,7 +228,8 @@ img = imread('correctness_legend.jpg');
 image(img,'XData',[32 34],'YData',[3 0],'Clipping','off')
 
 %timeout
-area([1:height(event_table)], [event_table.isTimeout, event_table.isTimeout], 'FaceColor',"#EDB120");
+coloringTO = [event_table.isTimeout'; event_table.isTimeout'];
+area(coloringX([2:end end]), coloringTO(1:end), 'FaceColor',"#EDB120");
 yticks([])
 
 hold off
