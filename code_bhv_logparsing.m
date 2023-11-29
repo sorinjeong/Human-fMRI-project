@@ -11,9 +11,11 @@ flag_log = dir(fullfile(log_path_in,'*Behavior.csv'));
 file_list = arrayfun(@(x) readtable(fullfile(x.folder, x.name)), flag_log, 'uni',0);
 sbj_info_file = readtable('../../OCAT_DIR/data/data_fmri_bids/participants.tsv','FileType','text');
  
-%% 
-n_sbj = 31;
+%% INPUT!!
+n_sbj = 31; % enter the number of subjects
+is_save_output = 0; % if you want to save the output, type 1
 
+%% Start for loop
 all_sbj_events = [];
 for sbj_i = 1: n_sbj
     c_sbj = strcat('sub-', num2str(sbj_i, '%02.f'));
@@ -46,7 +48,7 @@ for sbj_i = 1: n_sbj
     sbj_events.Var2(idx) = sbj_events.Var2(idx) - first_event_MR;
 
     event_TR = sbj_events(event_MR,:);
-    writetable(event_TR,[path_out{1} '\' c_sbj '_event_TR.csv']);
+    if is_save_output == 1; writetable(event_TR,[path_out{1} '\' c_sbj '_event_TR.csv']);end
     % remove MR row
     sbj_events(event_MR,:) = [];
 
@@ -56,9 +58,10 @@ for sbj_i = 1: n_sbj
     event_pre_PV = sbj_events(PV_boundary(1):PV_boundary(2),:);
     event_post_PV = sbj_events(PV_boundary(3):PV_boundary(4),:);
 
+    if is_save_output == 1
     writetable(event_pre_PV,[path_out{1} '\' c_sbj '_event_pre_PV.csv']);
     writetable(event_post_PV,[path_out{1} '\' c_sbj '_event_post_PV.csv']);
-
+    end
 
 %% Define variable names
 var_name = ["Lap", "TrialStart", "Trial","Lap_Trial", "Context_txt", "Context_Num", ...
@@ -153,6 +156,7 @@ event_struct = orderfields(event_struct,var_name);
 event_table = struct2table(event_struct);
 
 %% save the table
+if is_save_output == 1
 %individual
 writetable(event_table,[path_out{1} '\' c_sbj '_event_table.csv']);
 % total table
@@ -163,15 +167,16 @@ writetable(event_table,[path_out{1} '\' c_sbj '_event_table.csv']);
     writetable(event_post_PV,[path_out{2} '\event_post_PV.xlsx'],'Sheet',c_sbj);
     %events
     writetable(event_table,[path_out{2} '\event_table.xlsx'],'Sheet',c_sbj);
-
+end
 
 % correct_regressor; object가 켜진 시간, for GLM
 corr = event_struct.ObjOn(event_struct.Correct_Num == 1);
 incorr = event_struct.ObjOn(event_struct.Correct_Num ~= 1);
 
+if is_save_output == 1
 save([path_out{3} '\' c_sbj '_corr'],"corr",'-mat')
 save([path_out{3} '\' c_sbj '_incorr'] ,"incorr",'-mat')
-
+end
 
 
 %% Table for Analysis == event_table_NumOnly
@@ -187,8 +192,12 @@ for i = 1:length(var_name_num)
 end
 
 event_numeric = struct2table(event_numeric);
+
+
 % save /a subject
-writetable(event_table,[path_out{1} '\' c_sbj '_event_numeric_table.csv']);
+if is_save_output == 1
+    writetable(event_table,[path_out{1} '\' c_sbj '_event_numeric_table.csv']);
+end
 % save /all subjects
 all_sbj_events = [all_sbj_events;event_numeric];
 
@@ -237,14 +246,20 @@ coloringTO = [event_table.isTimeout'; event_table.isTimeout'];
 area(coloringX([2:end end]), coloringTO(1:end), 'FaceColor',"#EDB120");
 yticks([])
 
-hold off
+
+if is_save_output == 1
 saveas(gcf,[path_out{4} '\' c_sbj '_Performance.png'])
+end
+
+hold off
 close(f)
 
 
 end
-writetable(all_sbj_events,[path_out{2} '\all_sbj_events.csv']);
 
+if is_save_output == 1
+writetable(all_sbj_events,[path_out{2} '\all_sbj_events.csv']);
+end
 
 
 
