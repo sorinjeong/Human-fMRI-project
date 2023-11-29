@@ -280,6 +280,9 @@ end
 disp(['Completed processing for subject: ', c_sbj]);
 end
 
+combi= strcat(string(all_sbj_events.Context_txt),num2str(all_sbj_events.Obj_ID));
+all_sbj_events=addvars(all_sbj_events,combi,repmat([1;2;3;4],(height(all_sbj_events)/4),1),repmat([1;2;1;2],(height(all_sbj_events)/4),1),'NewVariableNames',{'Combination','StopPoint','1324'});
+
 if is_save_output == 1
 writetable(all_sbj_events,[path_out{2} '\all_sbj_events.csv']);
 save([path_out{2} '\all_sbj_events'] ,"all_sbj_events",'-mat');
