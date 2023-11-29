@@ -1,4 +1,4 @@
-clear all; clc;
+clear all; clc; close all;
 addpath(genpath('Z:\E-Phys Analysis\fMRI_ocat\OCAT_BHV'));
 
 %% set path
@@ -13,7 +13,7 @@ sbj_info_file = readtable('../../OCAT_DIR/data/data_fmri_bids/participants.tsv',
  
 %% INPUT!!
 n_sbj = 31; % enter the number of subjects
-is_save_output = 0; % if you want to save the output, type 1
+is_save_output = 1; % if you want to save the output, type 1
 is_open_plot = 1; % if you want to open the performance plot, type 1
 
 %% Start for loop
@@ -141,14 +141,13 @@ for i=1:height(sbj_events)
 
     %choice missing (choiceOn과 objOff 이벤트 개수와 choice 개수가 다를 경우 missing 삽입)
     if length(event_struct.ChoiceOn) == length(event_struct.ObjOff) && length(event_struct.ChoiceOn) ~= length(event_struct.Choice_txt)
-    event_struct.Choice_txt{end+1,1} = {missing};
+    event_struct.Choice_txt{end+1,1} = missing;
     end
 end
 
 % Choice txt to Number
 event_struct.Choice_Num = NaN(height(event_struct.Choice_txt), 1);  % Initialize Choice_Num with NaN
-event_struct.Choice_Num(strcmp(event_struct.Choice_txt, "A")) = 1;
-event_struct.Choice_Num(strcmp(event_struct.Choice_txt, "B")) = 2;
+event_struct.Choice_Num = cellfun(@(x) find(strcmpi(x, {'A', 'B'}), 1), event_struct.Choice_txt, 'UniformOutput', false);
 
 % Context Num to txt
 event_struct.Context_txt = replace(string(event_struct.Context_Num), ["1", "2"], ["F", "C"]);
@@ -265,7 +264,7 @@ yticks([])
 
     % Save the plot for the current subject
     if is_save_output == 1
-        saveas(gca, [path_out{4} '\individual' c_sbj '_Performance.png']);
+        saveas(gca, [path_out{4} '\individual\' c_sbj '_Performance.png']);
     end
     
     % Save the plot for every 4 subjects
@@ -323,9 +322,9 @@ disp(['Subjects processed: sub-01 to ', c_sbj]);
 %     % Save the figure
 %     saveas(f, fullfile(path_out{4}, figName));
 % end
-% 
-% 
-% 
+
+
+
 
 
 
