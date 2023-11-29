@@ -19,6 +19,7 @@ is_save_output = 0; % if you want to save the output, type 1
 all_sbj_events = [];
 for sbj_i = 1: n_sbj
     c_sbj = strcat('sub-', num2str(sbj_i, '%02.f'));
+    disp(['Current subject: ', c_sbj]);
 
 %% make output directory
    path_out = {};
@@ -254,12 +255,21 @@ end
 hold off
 close(f)
 
-
+disp(['Completed processing for subject: ', c_sbj]);
 end
 
 if is_save_output == 1
 writetable(all_sbj_events,[path_out{2} '\all_sbj_events.csv']);
 end
+
+%% display messages
+if is_save_output == 1
+    disp('All tasks completed.');
+    disp(['Outputs saved in: ', log_path_out]);
+else
+    disp('All tasks completed. No outputs were saved.');
+end
+disp(['Subjects processed: sub-01 to ', c_sbj]);
 
 
 
