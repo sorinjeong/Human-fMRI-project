@@ -14,6 +14,7 @@ sbj_info_file = readtable('../../OCAT_DIR/data/data_fmri_bids/participants.tsv',
 %% INPUT!!
 n_sbj = 31; % enter the number of subjects
 is_save_output = 0; % if you want to save the output, type 1
+is_open_plot = 1; % if you want to open the performance plot, type 1
 
 %% Start for loop
 all_sbj_events = [];
@@ -204,9 +205,23 @@ all_sbj_events = [all_sbj_events;event_numeric];
 
 
 %% %%%%%%% performance plot (accuracy, RT) %%%%%%%%%
-f = figure('Position', [1500 500 1000 600]);
-hold on
-colororder({'#0072BD','#000000'})
+
+    % Create a new figure for every 4 subjects
+    if mod(sbj_i-1, 4) == 0
+        if is_open_plot == 1
+            f = figure('Position', [1500 500 1000 600]);
+        else
+            f = figure('Position', [1500 500 1000 600], 'Visible', 'off');
+        end
+    end
+    
+    % Select the subplot
+    subplot(2, 2, mod(sbj_i-1, 4)+1);
+
+
+    % Generate the plot for the current subject
+        hold on
+        colororder({'#0072BD','#000000'})
 
 % RT plot : left
 X=1:height(event_table);
@@ -248,12 +263,20 @@ area(coloringX([2:end end]), coloringTO(1:end), 'FaceColor',"#EDB120");
 yticks([])
 
 
-if is_save_output == 1
-saveas(gcf,[path_out{4} '\' c_sbj '_Performance.png'])
-end
+    % Save the plot for the current subject
+    if is_save_output == 1
+        saveas(gca, [path_out{4} '\individual' c_sbj '_Performance.png']);
+    end
+    
+    % Save the plot for every 4 subjects
+    if mod(sbj_i, 4) == 0 && is_save_output == 1
+        saveas(gcf, [path_out{4} '\Group_' num2str(sbj_i/4) '_Performance.png']);
+    end
 
 hold off
-close(f)
+if is_open_plot == 0
+    close(f)
+end
 
 disp(['Completed processing for subject: ', c_sbj]);
 end
@@ -283,13 +306,26 @@ disp(['Subjects processed: sub-01 to ', c_sbj]);
 
 
 
+%% 현재 켜져있는 figure 창 순서대로 저장하기 
+% sub-01to04 이런식으로 4개씩 이름 지정
 
-
-
-
-
-
-
+% % Loop over all open figures by figure number
+% for i = 1:8
+%     % Get the figure handle
+%     f = figure(i);
+% 
+%     % Calculate the subject range for the current figure
+%     sbj_range = ((i-1)*4+1):i*4;
+% 
+%     % Create the figure name
+%     figName = ['sub-' sprintf('%02d', sbj_range(1)) 'to' sprintf('%02d', sbj_range(end)) '_Performance.png'];
+% 
+%     % Save the figure
+%     saveas(f, fullfile(path_out{4}, figName));
+% end
+% 
+% 
+% 
 
 
 
