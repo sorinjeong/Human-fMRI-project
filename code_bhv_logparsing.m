@@ -17,7 +17,7 @@ is_save_output = 1; % if you want to save the output, type 1
 is_open_plot = 1; % if you want to open the performance plot, type 1
 
 %% Start for loop
-all_sbj_events = [];
+all_sbj_events = [];num_sbj_events=[];
 for sbj_i = 1: n_sbj
     c_sbj = strcat('sub-', num2str(sbj_i, '%02.f'));
     disp(['Current subject: ', c_sbj]);
@@ -197,11 +197,11 @@ event_numeric = struct2table(event_numeric);
 
 % save /a subject
 if is_save_output == 1
-    writetable(event_table,[path_out{1} '\' c_sbj '_event_numeric_table.csv']);
+    writetable(event_numeric,[path_out{1} '\' c_sbj '_event_numeric_table.csv']);
 end
 % save /all subjects
-all_sbj_events = [all_sbj_events;event_numeric];
-
+num_sbj_events = [num_sbj_events;event_numeric];
+all_sbj_events = [all_sbj_events;event_table];
 
 %% %%%%%%% performance plot (accuracy, RT) %%%%%%%%%
 
@@ -213,7 +213,7 @@ all_sbj_events = [all_sbj_events;event_numeric];
             f = figure('Position', [1500 500 1000 600], 'Visible', 'off');
         end
     end
-    
+
     % Select the subplot
     subplot(2, 2, mod(sbj_i-1, 4)+1);
 
@@ -266,7 +266,7 @@ yticks([])
     if is_save_output == 1
         saveas(gca, [path_out{4} '\individual\' c_sbj '_Performance.png']);
     end
-    
+
     % Save the plot for every 4 subjects
     if mod(sbj_i, 4) == 0 && is_save_output == 1
         saveas(gcf, [path_out{4} '\Group_' num2str(sbj_i/4) '_Performance.png']);
@@ -282,6 +282,9 @@ end
 
 if is_save_output == 1
 writetable(all_sbj_events,[path_out{2} '\all_sbj_events.csv']);
+save([path_out{2} '\all_sbj_events'] ,"all_sbj_events",'-mat');
+writetable(num_sbj_events,[path_out{2} '\num_sbj_events.csv']);
+save([path_out{2} '\num_sbj_events'] ,"num_sbj_events",'-mat');
 end
 
 %% display messages
