@@ -196,7 +196,7 @@ for i = 1:length(fail_idx)
     ax.XTickLabel{fail_idx(i)} = '';
 end
 
-hold off
+box on; hold off
 
    if is_save_output == 1
         saveas(gca, fullfile(path_out{1}, 'Accuracy_for each subject_line.png'));
@@ -238,7 +238,7 @@ h = flipud(h);
       lines = findobj(h(fail_idx), 'Type', 'Line');
       set(lines, 'Color', 'r', 'LineWidth', 1);
 
-hold off
+box on; hold off
 
    if is_save_output == 1
         saveas(gca, fullfile(path_out{1}, 'Accuracy_for each subject_box.png'));
@@ -254,7 +254,7 @@ hold off
 % ylabel('Accuracy')
 % set(gca, 'XTick', x)
 % scatter(x, y_all)
-% hold off
+% box on; hold off
 % 
 % figure
 % hold on
@@ -264,7 +264,7 @@ hold off
 % ylabel('Accuracy')
 % set(gca, 'XTick', x)
 % scatter(x, y_half_f)
-% hold off
+% box on; hold off
 % 
 % figure
 % hold on
@@ -274,7 +274,7 @@ hold off
 % ylabel('Accuracy')
 % set(gca, 'XTick', x)
 % scatter(x, y_half_s)
-% hold off
+% box on; hold off
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%% Bias plot!! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -336,7 +336,7 @@ end
 % Draw threshold at y=0
 line(xlim,[0 0],'Color','k','LineStyle','--','HandleVisibility','off')
 
-hold off
+box on; hold off
 
    if is_save_output == 1
         saveas(gca, fullfile(path_out{2}, 'Bias_for each subject_line.png'));
@@ -379,7 +379,7 @@ lines = findobj(h(fail_idx), 'Type', 'Line');
 set(lines, 'Color', 'r', 'LineWidth', 2);
 
 
-hold off
+box on; hold off
 
    if is_save_output == 1
         saveas(gca, fullfile(path_out{2}, 'Bias_for each subject_box.png'));
@@ -445,7 +445,7 @@ for i = 1:7
     line([ia ia], ylim, 'Color', [0.5 0.5 0.5], 'LineStyle', '-','HandleVisibility','off');
 end
 
-hold off
+box on; hold off
 
    if is_save_output == 1
         saveas(gca, fullfile(path_out{3}, 'RT_change_box_trial.png'));
@@ -484,7 +484,7 @@ ylabel('RT(s)')
 
 legend('Subject Average','Location','northeast')
 
-hold off
+box on; hold off
 
    if is_save_output == 1
         saveas(gca, fullfile(path_out{3}, 'RT_change_box_lap.png'));
@@ -511,7 +511,7 @@ title('Change in Accuracy over Trials',FontSize=14,FontWeight='bold')
 xlabel('Trial')
 ylabel('Accuracy')
 xlim([0 33]); ylim([0 1])
-legend('Subject Average','Location','northeast')
+legend('Subject Average','Location','southeast')
 
 % Add vertical lines
 for i = 1:7
@@ -519,7 +519,7 @@ for i = 1:7
     line([ia ia], ylim, 'Color', [0.5 0.5 0.5], 'LineStyle', '-','HandleVisibility','off');
 end
 
-hold off
+box on; hold off
 
 
    if is_save_output == 1
@@ -530,9 +530,73 @@ hold off
 
 
 
+% Change in accuracy over Laps _ **230828 더 예쁘게 
+pass_accu_lap = box.per_lap_accu(:,pass_idx);
+accu_pass_perLap=nanmean(pass_accu_lap,2);
+
+figure
+hold on
+plot(accu_pass_perLap,'Color','#F5564E','Marker','o','MarkerFaceColor','#F5564E','LineWidth',1.6);
+h = boxplot(pass_accu_lap');
+set(h,{'linew'},{1.6})
+set(h,{'Color'},{[0.9608 0.3373 0.3059]})
+ylim([0 1])
+
+% Change the transparency of the box plot
+h = findobj(gca,'Tag','Box');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),[0.9608 0.3373 0.3059],'FaceAlpha',0.5);
+end
+
+% Change the color and line width of the outliers
+h = findobj(gca,'Tag','Outliers');
+set(h,{'MarkerSize'},{1.6})
+set(h,{'MarkerEdgeColor'},{[0.2314 0.2471 0.2745]})
+
+% Change the color and line width of the median line
+h = findobj(gca,'Tag','Median');
+set(h,{'Color'},{[0.396, 0.263, 0.129]})
+set(h,{'LineWidth'},{3})
+
+set(gca, 'box', 'off')
+
+
+title('Change in Accuracy over Laps','FontSize',14,'FontWeight','bold')
+xlabel('Lap')
+ylabel('Accuracy')
+
+legend('Subject Average','Location','southeast')
+
+box on; hold off
+
+   if is_save_output == 1
+        saveas(gca, fullfile(path_out{1}, 'Accuracy_change_box_lap.png'));
+    end
 
 
 
+
+%% Lap별로 피험자들의 Bias 변화를 볼 수 있는 그래프
+% Change in bias over Laps
+
+pass_bias_lap = abs(box.per_lap_bias(:,pass_idx));
+bias_pass_perLap=nanmean(pass_bias_lap,2);
+
+figure
+hold on
+plot(bias_pass_perLap,'k-o');
+boxplot(pass_bias_lap')
+title('Change in Bias over Laps',FontSize=14,FontWeight='bold')
+xlabel('Lap')
+ylabel('Bias')
+ylim([-0.050 1.05])
+legend('Subject Average','Location','northeast')
+
+box on; hold off
+
+   if is_save_output == 1
+        saveas(gca, fullfile(path_out{2}, 'Bias_change_box_lap.png'));
+    end
 
 
 
