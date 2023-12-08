@@ -3,18 +3,19 @@ addpath(genpath('Z:\E-Phys Analysis\fMRI_ocat\OCAT_BHV'));
 
 %% set path
 log_path_in = '../data/data_bhv_raw';
-log_path_out = '../data/data_bhv_log_table_new'; 
-plot_path_out = '../data/data_bhv_plot_new';
+log_path_out = '../data/data_bhv_log_table'; 
+plot_path_out = '../data/data_bhv_plot';
 
 %% import the log file
 flag_log = dir(fullfile(log_path_in,'*Behavior.csv'));
 file_list = arrayfun(@(x) readtable(fullfile(x.folder, x.name)), flag_log, 'uni',0);
 sbj_info_file = readtable('../../OCAT_DIR/data/data_fmri_bids/participants.tsv','FileType','text');
+sbj_info_file = removevars(sbj_info_file,["Weight","Size"]);
 
 %% INPUT!!
 n_sbj = 31; % enter the number of subjects
 is_save_output = 1; % if you want to save the output, type 1
-is_open_plot = 1; % if you want to open the performance plot, type 1
+is_open_plot = 0; % if you want to open the performance plot, type 1 / off -> No 4-group figure
 
 %% Start for loop
 all_sbj_events = [];num_sbj_events=[];
@@ -196,11 +197,11 @@ incorr_match = event_struct.ObjOn(event_struct.Correct_Num ~= 1 & event_struct.A
 incorr_nonmatch = event_struct.ObjOn(event_struct.Correct_Num ~= 1 & event_struct.Association ==0);
 
 if is_save_output == 1
-save([path_out{3} '\' c_sbj '_corr_match.m'],"corr_match",'-mat')
-save([path_out{3} '\' c_sbj '_corr_nonmatch.m'],"corr_nonmatch",'-mat')
+save([path_out{3} '\' c_sbj '_corr_match.mat'],"corr_match",'-mat')
+save([path_out{3} '\' c_sbj '_corr_nonmatch.mat'],"corr_nonmatch",'-mat')
 
-save([path_out{3} '\' c_sbj '_incorr_match.m'],"incorr_match",'-mat')
-save([path_out{3} '\' c_sbj '_incorr_nonmatch.m'],"incorr_nonmatch",'-mat')
+save([path_out{3} '\' c_sbj '_incorr_match.mat'],"incorr_match",'-mat')
+save([path_out{3} '\' c_sbj '_incorr_nonmatch.mat'],"incorr_nonmatch",'-mat')
 
 end
 
@@ -219,12 +220,18 @@ end
     onset_post_DMTS_forest = table2array(post_DMTS_obj((post_DMTS_obj.Var4(:)==ffcc_array{1} | post_DMTS_obj.Var4(:)==ffcc_array{2}),2));
     onset_post_DMTS_city = table2array(post_DMTS_obj((post_DMTS_obj.Var4(:)==ffcc_array{3} | post_DMTS_obj.Var4(:)==ffcc_array{4}),2));
     
+    % 모든 변수들을 cell array로 묶기
+    names = {'corr_match', 'corr_nonmatch', 'incorr_match', 'incorr_nonmatch', 'onset_pre_DMTS_forest', 'onset_pre_DMTS_city', 'onset_post_DMTS_forest', 'onset_post_DMTS_city'};
+    onsets = {corr_match, corr_nonmatch, incorr_match, incorr_nonmatch, onset_pre_DMTS_forest, onset_pre_DMTS_city, onset_post_DMTS_forest, onset_post_DMTS_city};
+    durations = {4, 4, 4, 4, 4, 4, 4, 4}; % 모든 duration은 4초
+
     if is_save_output == 1
-        save(fullfile(path_out{3}, [c_sbj, '_onset_pre_DMTS_forest.m']),"onset_pre_DMTS_forest",'-mat')
-        save(fullfile(path_out{3}, [c_sbj, '_onset_pre_DMTS_city.m']),"onset_pre_DMTS_city",'-mat')
-        save(fullfile(path_out{3}, [c_sbj, '_onset_post_DMTS_forest.m']),"onset_post_DMTS_forest",'-mat')
-        save(fullfile(path_out{3}, [c_sbj, '_onset_post_DMTS_city.m']),"onset_post_DMTS_city",'-mat')
+        save(fullfile(path_out{3}, [c_sbj, '_onset_pre_DMTS_forest.mat']),"onset_pre_DMTS_forest",'-mat')
+        save(fullfile(path_out{3}, [c_sbj, '_onset_pre_DMTS_city.mat']),"onset_pre_DMTS_city",'-mat')
+        save(fullfile(path_out{3}, [c_sbj, '_onset_post_DMTS_forest.mat']),"onset_post_DMTS_forest",'-mat')
+        save(fullfile(path_out{3}, [c_sbj, '_onset_post_DMTS_city.mat']),"onset_post_DMTS_city",'-mat')
         writetable(sbj_info_file,[path_out{2} '\sbj_info.xlsx']);
+        save(fullfile(path_out{3},'multiple_conditions.mat'), 'names', 'onsets', 'durations');
     end
 
 %% Table for Analysis == event_table_NumOnly
@@ -315,13 +322,13 @@ yticks([])
     end
 
     % Save the plot for every 4 subjects
-    if mod(sbj_i, 4) == 0 && is_save_output == 1
+    if mod(sbj_i, 4) == 0 && is_save_output == 1 && is_open_plot == 1
         saveas(gcf, [path_out{4} '\Group_' num2str(sbj_i/4) '_Performance.png']);
     end
 
 hold off
 if is_open_plot == 0
-    close(f)
+    close all
 end
 
 disp(['Completed processing for subject: ', c_sbj]);
