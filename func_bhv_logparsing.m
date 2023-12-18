@@ -229,7 +229,9 @@ incorr_nonmatch = cell2mat(event_struct.ObjOn(event_struct.Correct_Num ~= 1 & ev
     %% learning curve 용 correct .mat file 제작 Responses -> 0 : incorrect trial + timeout, 1: correct trial
     Responses = event_struct.Correct_Num;
     Responses(Responses==2) = 0;     
+   if is_save_output == 1
     save(fullfile(path_out{5},[c_sbj, '_Responses.mat']), 'Responses');
+   end
    
     %% Movement Regressor 저장
 %% Path containing data
