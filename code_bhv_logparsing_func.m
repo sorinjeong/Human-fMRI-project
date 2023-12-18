@@ -33,35 +33,6 @@ all_sbj_events = [all_sbj_events;all_sbj_events_temp];
 end
 
 %%
-% Calculate the number of subplots needed
-numFigs = numel(fig);
-numSubplots = ceil(numFigs / 4);
-
-% Loop over each subplot
-for i = 1:numSubplots
-    % Create a new figure for the subplot
-    f = figure('Name', sprintf('sub-%02dto%02d_Performance.png', (i-1)*4+1, min(i*4, numFigs)));
-    
-    % Loop over each figure in the current subplot
-    for j = 1:4
-        % Calculate the current figure index
-        figIdx = (i-1)*4 + j;
-        
-        % If the current figure index is less than or equal to the total number of figures
-        if figIdx <= numFigs
-            % Copy the contents of the current figure to the subplot
-            s = subplot(2, 2, j, 'Parent', f);
-            ax = findall(fig{figIdx}, 'type', 'axes');
-            copyobj(allchild(ax), s);
-        end
-    end
-    
-    % Save the subplot figure
-    saveas(f, fullfile(path{3}, get(f, 'Name')));
-end
-
-
-%%
 combi= strcat(string(all_sbj_events.Context_txt),num2str(all_sbj_events.Obj_ID));
 all_sbj_events=addvars(all_sbj_events,combi,repmat([1;2;3;4],(height(all_sbj_events)/4),1),repmat([1;2;1;2],(height(all_sbj_events)/4),1),'NewVariableNames',{'Combination','StopPoint','1324'});
 

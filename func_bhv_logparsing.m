@@ -287,16 +287,14 @@ all_sbj_events_temp = [all_sbj_events_temp;event_table];
 %% %%%%%%% performance plot (accuracy, RT) %%%%%%%%%
     % Create a new figure for every 4 subjects   
         if is_open_plot == 1
-            f1 = figure('Position', [1500 500 1000 600]);
+            figure('Position', [1500 500 1000 600]);
         else
-            f1 = figure('Position', [1500 500 1000 600], 'Visible', 'off');
+            figure('Position', [1500 500 1000 600], 'Visible', 'off');
         end
 
       %%% Set the current figure to f1
-        fn=1; %individual plot = 1 (figure(f1)) / group plot = 2 (figure(f2))
-        figure(f1)
         hold on
-        graph = func_perform_graph(event_table, c_sbj, fn);
+        graph = func_perform_graph(event_table, c_sbj);
         f1=graph;
         % Save the plot for the current subject
         if is_save_output == 1
@@ -304,35 +302,6 @@ all_sbj_events_temp = [all_sbj_events_temp;event_table];
         end
         hold off
     fig{sbj_i}=f1;
-% %        close(f1)
-%         
-% %      %%% Set the current figure to f2
-% %     fn=2; %individual plot = 1 (figure(f1)) / group plot = 2 (figure(f2))
-% %     figure(f2);     
-% %     subplot(2, 2, mod(sbj_i-1, 4)+1);
-% %     hold on
-% %     graph = func_perform_graph(event_table, c_sbj, fn);
-% 
-% 
-% %% 현재 켜져있는 figure 창 순서대로 저장하기 
-% % sub-01to04 이런식으로 4개씩 이름 지정
-%  subplot(2, 2, mod(sbj_i-1, 4)+1);
-% % Loop over all open figures by figure number
-% for i = 1:8
-%     % Get the figure handle
-%     f = figure(i);
-% 
-%     % Calculate the subject range for the current figure
-%     sbj_range = ((i-1)*4+1):i*4;
-% 
-%     % Create the figure name
-%     figName = ['sub-' sprintf('%02d', sbj_range(1)) 'to' sprintf('%02d', sbj_range(end)) '_Performance.png'];
-% 
-%     % Save the figure
-%     saveas(f, fullfile(path_out{4}, figName));
-% end
-% 
-% hold off
 
 end
 
