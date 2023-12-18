@@ -47,6 +47,7 @@ box off;
 saveas(gcf,[path_out '\' c_sbj '_learning_curve'],'png');
 hold off; close
 
+disp(['Completed processing for subject: ', c_sbj]);
 end
 
 writetable(cdata_table,[path_out '\AcquisitionOnset.xlsx']);

@@ -14,7 +14,7 @@ function [pdata, cback] = LearningCurve_WinBugs(Responses,Chance)
 
 %% Set Path
 path_code= 'Z:\E-Phys Analysis\fMRI_ocat\OCAT_BHV\code\Learning Analysis';
-addpath(genpath([path_code '\Learning Analysis']));%addpath(genpath('D:\WinBUGS14'));
+addpath(genpath([path_code '\Learning Analysis']));
 addpath(genpath([path_code '\matbugs-master']));
 %%
 if nargin == 1
