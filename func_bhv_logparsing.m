@@ -24,6 +24,7 @@ sbj_info_file = removevars(sbj_info_file,["Weight","Size"]);
    path_out{end+1} = fullfile(path{2},'total');
    path_out{end+1} = fullfile(path{2},'GLM');
    path_out{end+1} = fullfile(path{3},'performance');
+   path_out{end+1} = fullfile(path{5},'Responses');
      
     if ~exist(path{2},"dir")
       mkdir(path{2});mkdir(path{3});
@@ -225,6 +226,11 @@ incorr_nonmatch = cell2mat(event_struct.ObjOn(event_struct.Correct_Num ~= 1 & ev
         save(fullfile(path_out{3},[c_sbj, '_multiple_conditions.mat']), 'names', 'onsets', 'durations');
     end
     
+    %% learning curve 용 correct .mat file 제작 Responses -> 0 : incorrect trial + timeout, 1: correct trial
+    Responses = event_struct.Correct_Num;
+    Responses(Responses==2) = 0;     
+    save(fullfile(path_out{5},[c_sbj, '_Responses.mat']), 'Responses');
+   
     %% Movement Regressor 저장
 %% Path containing data
 % path for confounding factors
