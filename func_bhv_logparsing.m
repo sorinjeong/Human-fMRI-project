@@ -1,4 +1,4 @@
-function [all_sbj_events_temp,num_sbj_events_temp,fig]=func_bhv_logparsing(path,task_name,sbj_i,is_save_output,is_open_plot)
+function [all_sbj_events_temp,num_sbj_events_temp,fig,sbj_info_file_temp]=func_bhv_logparsing(path,task_name,sbj_i,is_save_output,is_open_plot,sbj_info_file_temp)
 all_sbj_events_temp=[];num_sbj_events_temp = [];
 
 % set defaults
@@ -12,8 +12,6 @@ if ~exist('is_open_plot','var'), error('is_open_plot is missing!'); end
 %% import the log file
 flag_log = dir(fullfile(path{1},'*Behavior.csv'));
 file_list = arrayfun(@(x) readtable(fullfile(x.folder, x.name)), flag_log, 'uni',0);
-sbj_info_file = readtable('../../OCAT_DIR/data/data_fmri_bids/participants.tsv','FileType','text');
-sbj_info_file = removevars(sbj_info_file,["Weight","Size"]);
 
 %% For Loop!!
     c_sbj = strcat('sub-', num2str(sbj_i, '%02.f'));
@@ -75,7 +73,7 @@ sbj_info_file = removevars(sbj_info_file,["Weight","Size"]);
     RT_mean = mean(DMTS_RT);
 
     % 'DMTS_RT'라는 새로운 변수를 sbj_info_file 테이블에 추가하고, 그 변수의 sbj_i행에 평균값을 넣습니다.
-    sbj_info_file.DMTS_RT(sbj_i) = RT_mean;
+    sbj_info_file_temp.DMTS_RT(sbj_i) = RT_mean;
 
     %% object #4,5,6,7 only!
     pre_DMTS_obj = event_pre_PV((event_pre_PV.Var4(:)==4 | event_pre_PV.Var4(:)==5 |event_pre_PV.Var4(:)==6 |event_pre_PV.Var4(:)==7),:);
@@ -203,7 +201,7 @@ incorr_nonmatch = cell2mat(event_struct.ObjOn(event_struct.Correct_Num ~= 1 & ev
     ffcc_array = num2cell(combi_FFCC);
     combi_FFCC = strjoin(string(combi_FFCC));
     disp(['combi_FFCC: ', combi_FFCC]);
-    sbj_info_file.Combi_FFCC{sbj_i} = combi_FFCC;
+    sbj_info_file_temp.Combi_FFCC{sbj_i} = combi_FFCC;
     
     onset_pre_DMTS_forest = table2array(pre_DMTS_obj((pre_DMTS_obj.Var4(:)==ffcc_array{1} | pre_DMTS_obj.Var4(:)==ffcc_array{2}),2));
     onset_pre_DMTS_city = table2array(pre_DMTS_obj((pre_DMTS_obj.Var4(:)==ffcc_array{3} | pre_DMTS_obj.Var4(:)==ffcc_array{4}),2));
@@ -222,12 +220,11 @@ incorr_nonmatch = cell2mat(event_struct.ObjOn(event_struct.Correct_Num ~= 1 & ev
 %         save(fullfile(path_out{3}, [c_sbj, '_onset_pre_DMTS_city.mat']),"onset_pre_DMTS_city",'-mat')
 %         save(fullfile(path_out{3}, [c_sbj, '_onset_post_DMTS_forest.mat']),"onset_post_DMTS_forest",'-mat')
 %         save(fullfile(path_out{3}, [c_sbj, '_onset_post_DMTS_city.mat']),"onset_post_DMTS_city",'-mat')
-        writetable(sbj_info_file,[path_out{2} '\sbj_info.xlsx']);
         save(fullfile(path_out{3},[c_sbj, '_multiple_conditions.mat']), 'names', 'onsets', 'durations');
     end
     
     %% learning curve 용 correct .mat file 제작 Responses -> 0 : incorrect trial + timeout, 1: correct trial
-    Responses = event_struct.Correct_Num;
+    Responses = event_struct.Correct_Num';
     Responses(Responses==2) = 0;     
    if is_save_output == 1
     save(fullfile(path_out{5},[c_sbj, '_Responses.mat']), 'Responses');

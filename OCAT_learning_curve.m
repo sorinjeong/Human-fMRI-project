@@ -1,15 +1,18 @@
 % O-CAT data 231218
-clear all; clc;
+clear all; clc; close all;
 
 %% set path 
 path_in= '../../data/data_learning_curve/Responses';
 path_out='../../data/data_learning_curve';
+sbj_info_path = '../../data/data_bhv_log_table/total/sbj_info.xlsx';
 addpath(genpath(path_out));
 
-%Input
+%% Input
 n_sbj = 31;
 cdata_table = table('Size',[n_sbj 2], 'VariableTypes',["string" "double"],'VariableNames',["Session","acquisition_onset"]);
 
+%% sbj_info_file
+sbj_info_table = readtable(sbj_info_path);
 
 
 %% subject numbering , folder root
@@ -48,7 +51,12 @@ saveas(gcf,[path_out '\' c_sbj '_learning_curve'],'png');
 hold off; close
 
 disp(['Completed processing for subject: ', c_sbj]);
+disp(['acquisition_onset: ', string(cdata)]);
 end
 
-writetable(cdata_table,[path_out '\AcquisitionOnset.xlsx']);
+sbj_info_table.acquisition_onset = cdata_table.acquisition_onset;
+writetable(sbj_info_table,sbj_info_path);
 
+% acquisition_onset을 double .mat file로 저장
+acquisition_onset_double = double(cdata_table.acquisition_onset);
+save([path_out '\acquisition_onset.mat'], 'acquisition_onset_double');
