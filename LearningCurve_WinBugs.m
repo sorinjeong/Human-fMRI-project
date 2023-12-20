@@ -21,8 +21,7 @@ addpath(genpath([path_code '\matbugs-master']));
 
 if ~exist('Responses','var'),  error('Responses is missing!'); end
 if ~exist('conf_interval','var'), conf_interval=0.95; end %confience interval
-if nargin == 2; BackgroundProb=0.5; disp('Use default: chance level: 0.5');elseif nargin == 3; BackgroundProb = Chance; end % Chance level
-fprintf('Use default: conf_interval: %.0f%%\n', conf_interval*100);
+if nargin == 2; BackgroundProb=0.5;elseif nargin == 3; BackgroundProb = Chance; end % Chance level
 
 
 MaxResponses=1*ones(1,length(Responses));

@@ -1,5 +1,6 @@
 % O-CAT data 231218
 clear all; clc; close all;
+cd ('Z:\E-Phys Analysis\fMRI_ocat\OCAT_BHV\code\Learning Analysis');
 
 %% set path 
 path_in= '../../data/data_learning_curve/Responses';
@@ -10,9 +11,10 @@ addpath(genpath(path_out));
 %% Input
 n_sbj = 31;
 cdata_table = table('Size',[n_sbj 2], 'VariableTypes',["string" "double"],'VariableNames',["Session","acquisition_onset"]);
-conf_interval = 0.90; % Set the confidence level (for 95%, type 0.95)
+conf_interval = 0.95; % Set the confidence level (for 95%, type 0.95)
+fprintf('conf_interval: %.0f%%\n', conf_interval*100);
 
-path_out=fullfile(path_out,strcat('conf_interval_',(conf_interval*100)));
+path_out = fullfile(path_out, sprintf('conf_interval_%.0f', conf_interval*100));
 mkdir(path_out);
 %% sbj_info_file
 sbj_info_table = readtable(sbj_info_path);
@@ -28,7 +30,7 @@ load(fullfile(path_in, [c_sbj '_Responses.mat']));
 cdata_table.Session(sbj_i) = c_sbj;cdata_table.acquisition_onset(sbj_i) = cdata;
 
 % Plot
-figure();
+f=figure('Position', [1500 500 800 600]);
 plotI(Responses, ones(1,length(Responses))); hold on;
 xlabel('Trial Number');
 ylabel('Pr(Correct Response)')
@@ -47,18 +49,20 @@ title(['LearningCurve: ' c_sbj],'FontSize',14,'FontWeight','bold');
 % Remove the top and right axes lines
 box off;
 
-
 % save
-saveas(gcf,[path_out '\' c_sbj '_learning_curve'],'png');
+saveas(f,[path_out '\' c_sbj '_learning_curve'],'png');
 hold off; close
 
 disp(['Completed processing for subject: ', c_sbj]);
 disp(['acquisition_onset: ', string(cdata)]);
 end
 
-sbj_info_table.acquisition_onset = cdata_table.acquisition_onset;
+fieldname = sprintf('acquisition_onset_%.0f', conf_interval*100);
+sbj_info_table.(fieldname) = cdata_table.acquisition_onset;
 writetable(sbj_info_table,sbj_info_path);
 
 % acquisition_onset을 double .mat file로 저장
 acquisition_onset_double = double(cdata_table.acquisition_onset);
 save([path_out '\acquisition_onset.mat'], 'acquisition_onset_double');
+
+save(fullfile(path_out, [fieldname '.mat']),'acquisition_onset_double');
