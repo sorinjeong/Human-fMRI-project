@@ -1,4 +1,4 @@
-function [pdata, cback] = LearningCurve_WinBugs(Responses,Chance)
+function [pdata, cback] = LearningCurve_WinBugs(Responses,conf_interval,Chance)
 %Bayesian implementation of Dynamic Analysis of Learning algorithm in 
 %Smith et al., 2004
 %run this script within Matlab
@@ -7,6 +7,7 @@ function [pdata, cback] = LearningCurve_WinBugs(Responses,Chance)
 %% Input data
 % Responses : behavior data, binary format
 % BackgroundProb : chance level, default : 0.5
+% conf_interval : confidence interval, default : 95
 
 %% Output data
 % pdata : estimate learning curve & confidence interval of upper 95% and lower 5%
@@ -17,11 +18,13 @@ path_code= 'Z:\E-Phys Analysis\fMRI_ocat\OCAT_BHV\code\Learning Analysis';
 addpath(genpath([path_code '\Learning Analysis']));
 addpath(genpath([path_code '\matbugs-master']));
 %%
-if nargin == 1
-    BackgroundProb=0.5; % Chance level
-elseif nargin == 2
-    BackgroundProb = Chance;
-end
+
+if ~exist('Responses','var'),  error('Responses is missing!'); end
+if ~exist('conf_interval','var'), conf_interval=0.95; end %confience interval
+if nargin == 2; BackgroundProb=0.5; disp('Use default: chance level: 0.5');elseif nargin == 3; BackgroundProb = Chance; end % Chance level
+fprintf('Use default: conf_interval: %.0f%%\n', conf_interval*100);
+
+
 MaxResponses=1*ones(1,length(Responses));
 dataStruct = struct('n', Responses, 'T', length(Responses), 'ntot', MaxResponses, 'startp', BackgroundProb);
 
@@ -53,9 +56,17 @@ for t = 1:length(Responses)
         allsamples   = [samples.p(1,:,t) samples.p(2,:,t) samples.p(3,:,t)];
         sort_samples = sort(allsamples);
         total        = length(sort_samples);
+        
+     if conf_interval == 0.95
         ll           = sort_samples(fix(0.05*total));  %lower 95%interval
         ml           = sort_samples(fix(0.5*total));
         ul           = sort_samples(fix(0.95*total));
+     else
+        ll           = sort_samples(fix((1-conf_interval)*total));  %lower 95%interval
+        ml           = sort_samples(fix(0.5*total));
+        ul           = sort_samples(fix(conf_interval*total));         
+     end
+        
         pdata = [pdata; t ll ml ul];
 end
 

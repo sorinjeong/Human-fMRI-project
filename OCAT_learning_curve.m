@@ -10,10 +10,12 @@ addpath(genpath(path_out));
 %% Input
 n_sbj = 31;
 cdata_table = table('Size',[n_sbj 2], 'VariableTypes',["string" "double"],'VariableNames',["Session","acquisition_onset"]);
+conf_interval = 0.90; % Set the confidence level (for 95%, type 0.95)
 
+path_out=fullfile(path_out,strcat('conf_interval_',(conf_interval*100)));
+mkdir(path_out);
 %% sbj_info_file
 sbj_info_table = readtable(sbj_info_path);
-
 
 %% subject numbering , folder root
 for sbj_i = 1: n_sbj
@@ -22,7 +24,7 @@ for sbj_i = 1: n_sbj
 % Responses -> 0 : incorrect trial + timeout, 1: correct trial
 load(fullfile(path_in, [c_sbj '_Responses.mat']));
 
-[pdata, cdata] = LearningCurve_WinBugs(Responses);
+[pdata, cdata] = LearningCurve_WinBugs(Responses,conf_interval);
 cdata_table.Session(sbj_i) = c_sbj;cdata_table.acquisition_onset(sbj_i) = cdata;
 
 % Plot
