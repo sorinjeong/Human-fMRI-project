@@ -2,25 +2,37 @@ clear all; clc; close all;
 addpath(genpath('Z:\E-Phys Analysis\fMRI_ocat\OCAT_BHV'));
 cd('Z:\E-Phys Analysis\fMRI_ocat\OCAT_BHV\code');
 
-%% set path
-log_path_in = '../data/data_bhv_raw';
-log_path_out = '../data/data_bhv_log_table'; 
-plot_path_out = '../data/data_bhv_plot';
-curve_path_out = '../data/data_learning_curve';
-bids_path_in = 'D:\fMRI\OCAT_DIR\data\data_fmri_bids\derivatives';
-addpath(genpath(bids_path_in));
-
-path = {log_path_in,log_path_out,plot_path_out,bids_path_in,curve_path_out};
-
-%% subjects information file
-sbj_info_file = readtable('../../OCAT_DIR/data/data_fmri_bids/participants.tsv','FileType','text');
-sbj_info_file = removevars(sbj_info_file,["Weight","Size"]);
 
 %% INPUT!!
 task_name = 'OCAT'; %put the task name of your project
 n_sbj = 31; % enter the number of subjects
 is_save_output = 1; % if you want to save the output, type 1
 is_open_plot = 1; % if you want to open the performance plot, type 1 / off -> No 4-group figure
+create_dir = 1; % if you want to create the new directory (path), type 1 / default = 0
+
+%% set path
+log_path_in = '../data/data_bhv_raw';
+log_path_out = '../data/data_bhv_log_table'; 
+plot_path_out = '../data/data_bhv_plot';
+curve_path_out = '../data/data_learning_curve';
+bids_path_in = 'D:\fMRI\OCAT_DIR\data\data_fmri_bids';
+addpath(genpath(bids_path_in));
+
+
+dir(fullfile(bids_path_in,'sub-*','func','*_run-01_events*.txt'))
+
+
+path = {log_path_in,log_path_out,plot_path_out,bids_path_in,curve_path_out};
+if create_dir ==1
+for i=1:length(path)
+         mkdir(path{i});
+end
+end
+%% subjects information file
+sbj_info_file = readtable('../../OCAT_DIR/data/data_fmri_bids/participants.tsv','FileType','text');
+sbj_info_file = removevars(sbj_info_file,["Weight","Size"]);
+
+
 
 %% Start for loop
 all_sbj_events = [];num_sbj_events=[];sbj_info_file_temp=sbj_info_file;
@@ -28,7 +40,7 @@ for sbj_i = 1: n_sbj
     c_sbj = strcat('sub-', num2str(sbj_i, '%02.f'));
     disp(['Current subject: ', c_sbj]);
 
- [all_sbj_events_temp,num_sbj_events_temp,fig,sbj_info_file_temp] = func_bhv_logparsing(path,task_name,sbj_i,is_save_output,is_open_plot,sbj_info_file_temp);
+ [all_sbj_events_temp,num_sbj_events_temp,fig,sbj_info_file_temp] = func_bhv_logparsing(path,task_name,sbj_i,is_save_output,is_open_plot,create_dir,sbj_info_file_temp);
    
 disp(['Completed processing for subject: ', c_sbj]);
 num_sbj_events = [num_sbj_events;num_sbj_events_temp];
