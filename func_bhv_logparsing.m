@@ -187,8 +187,35 @@ event_table = struct2table(event_struct);
 
 pre_temp_table = array2table(nan(height(pre_DMTS),length(var_name)));pre_temp_table.Properties.VariableNames = cellstr(var_name);
 pre_temp_table(:,[1,2,3,10,11]) = pre_DMTS(:,[1,2,3,4,2]);
+
 post_temp_table = array2table(nan(height(pre_DMTS),length(var_name)));post_temp_table.Properties.VariableNames = cellstr(var_name);
 post_temp_table(:,[1,2,3,10,11]) = post_DMTS(:,[1,2,3,4,2]);
+
+% ObjID가 어느 context에 속하는지 여부 찾아서 Context_Num, Context_txt, Association 열 채우기
+
+tables = {pre_temp_table, post_temp_table};
+
+for t = 1:length(tables)
+    current_table = tables{t};
+    unique_values = unique(current_table.Var10);
+
+    % 각 고유값에 대해 첫 번째 일치하는 행 찾기
+    for value = unique_values'
+        % event_table.Var10이 value와 일치하고 event_table.Var9가 1인 첫 번째 행 찾기
+        matching_row = find(event_table.Var10 == value & event_table.Var9 == 1, 1, 'first');
+        if ~isempty(matching_row)
+            current_table.Var5(current_table.Var10 == value) = event_table.Var5(matching_row);
+            current_table.Var6(current_table.Var10 == value) = event_table.Var6(matching_row);
+            current_table.Var9(current_table.Var10 == value) = event_table.Var9(matching_row);
+        end
+    end
+    tables{t} = current_table;
+end
+
+% 결과를 pre_DMTS_table과 post_DMTS_table에 저장
+pre_temp_table = tables{1};
+post_temp_table = tables{2};
+
 
 event_table = [pre_temp_table; event_table; post_temp_table];
 
