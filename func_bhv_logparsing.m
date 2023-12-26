@@ -1,4 +1,4 @@
-function [all_sbj_events_temp,num_sbj_events_temp,fig,sbj_info_file_temp]=func_bhv_logparsing(path,task_name,sbj_i,is_save_output,is_open_plot,sbj_info_file_temp)
+function  [all_sbj_events_temp,num_sbj_events_temp,fig,sbj_info_file_temp] = func_bhv_logparsing(path,task_name,sbj_i,is_save_output,is_open_plot,create_dir,sbj_info_file_temp)
 all_sbj_events_temp=[];num_sbj_events_temp = [];
 
 % set defaults
@@ -21,16 +21,16 @@ file_list = arrayfun(@(x) readtable(fullfile(x.folder, x.name)), flag_log, 'uni'
    path_out{end+1} = fullfile(path{2},'individual',c_sbj);
    path_out{end+1} = fullfile(path{2},'total');
    path_out{end+1} = fullfile(path{2},'GLM');
-   path_out{end+1} = fullfile(path{3},'performance');
+   path_out{end+1} = fullfile(path{3},'performance','individual');
    path_out{end+1} = fullfile(path{4},c_sbj,'func');
    path_out{end+1} = fullfile(path{5},'Responses');
      
-   
-      for i=1:length(path_out)
+   if create_dir ==1
+      for i=2:length(path_out)
          mkdir(path_out{i});
       end
-  
-
+   end
+mkdir(path_out{1});
     %% remove time from sbj events table
     sbj_events = file_list{sbj_i};
     sbj_events(contains(sbj_events.Var1(:),'time'),:) = [];
@@ -341,7 +341,7 @@ all_sbj_events_temp = [all_sbj_events_temp;event_table];
         f1=graph;
         % Save the plot for the current subject
         if is_save_output == 1
-            saveas(f1, [path_out{4} '\individual\' c_sbj '_Performance.png']);
+            saveas(f1, [path_out{4} '\' c_sbj '_Performance.png']);
         end
         hold off
     fig{sbj_i}=f1;
