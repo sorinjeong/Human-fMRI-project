@@ -219,7 +219,7 @@ end
 pre_temp_table = tables{1};
 post_temp_table = tables{2};
 
-event_table = vertcat(pre_temp_table, event_table, post_temp_table);
+full_event_table = vertcat(pre_temp_table, event_table, post_temp_table);
 
 %% save the table
 if is_save_output == 1
@@ -235,7 +235,7 @@ writetable(event_table,[path_out{1} '\' c_sbj '_event_table.csv']);
     writetable(event_table,[path_out{2} '\event_table.xlsx'],'Sheet',c_sbj);
     
 % bids .tsv
-writetable(event_table, [path_out{5} '\' c_sbj '_task-ocat_run-01_events'], 'Delimiter', '\t', 'FileType', 'text');
+writetable(full_event_table, [path_out{5} '\' c_sbj '_task-ocat_run-01_events'], 'Delimiter', '\t', 'FileType', 'text');
 end
 
 % correct_regressor; object가 켜진 시간, for GLM
@@ -337,7 +337,7 @@ all_sbj_events_temp = [all_sbj_events_temp;event_table];
 
       %%% Set the current figure to f1
         hold on
-        graph = func_perform_graph(event_table, c_sbj);
+        graph = func_perform_graph(event_table , c_sbj);
         f1=graph;
         % Save the plot for the current subject
         if is_save_output == 1
