@@ -181,6 +181,7 @@ event_struct.Context_txt = replace(string(event_struct.Context_Num), ["1", "2"],
 
 %% Making a Table
 event_struct = orderfields(event_struct,var_name);
+event_struct.Lap_Trial(end)=[];
 event_table = struct2table(event_struct);
 
 %% put pre-DMTS into event table
@@ -197,16 +198,16 @@ tables = {pre_temp_table, post_temp_table};
 
 for t = 1:length(tables)
     current_table = tables{t};
-    unique_values = unique(current_table.Var10);
+    unique_values = unique(current_table.Obj_ID);
 
     % 각 고유값에 대해 첫 번째 일치하는 행 찾기
     for value = unique_values'
         % event_table.Var10이 value와 일치하고 event_table.Var9가 1인 첫 번째 행 찾기
-        matching_row = find(event_table.Var10 == value & event_table.Var9 == 1, 1, 'first');
+        matching_row = find(event_table.Obj_ID == value & event_table.Association == 1, 1, 'first');
         if ~isempty(matching_row)
-            current_table.Var5(current_table.Var10 == value) = event_table.Var5(matching_row);
-            current_table.Var6(current_table.Var10 == value) = event_table.Var6(matching_row);
-            current_table.Var9(current_table.Var10 == value) = event_table.Var9(matching_row);
+            current_table.Var5(current_table.Obj_ID == value) = event_table.Context_txt(matching_row);
+            current_table.Var6(current_table.Obj_ID == value) = event_table.Context_Num(matching_row);
+            current_table.Var9(current_table.Obj_ID == value) = event_table.Association(matching_row);
         end
     end
     tables{t} = current_table;
