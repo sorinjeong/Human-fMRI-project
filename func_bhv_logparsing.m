@@ -78,16 +78,12 @@ file_list = arrayfun(@(x) readtable(fullfile(x.folder, x.name)), flag_log, 'uni'
     % pre는 Lap== 0; trial -1 ~ -15 // post는 Lap==9, trial -16 ~ -30
     pre_DMTS=event_pre_PV(strcmp(event_pre_PV.Var1(:),'PreObjOn'),:);
     pre_DMTS.Var1=zeros(height(pre_DMTS),1); % Lap ==0
-    pre_DMTS.Var2=cell2mat(pre_DMTS.Var2);
     pre_DMTS.Var3=[-1:-1:-1*height(pre_DMTS)]'; % trial== -1:-15
-    pre_DMTS.Var4=cell2mat(pre_DMTS.Var4);
 
         
     post_DMTS=event_post_PV(strcmp(event_post_PV.Var1(:),'PreObjOn'),:);
     post_DMTS.Var1=9*ones(height(post_DMTS),1); % Lap ==9
-    post_DMTS.Var2=cell2mat(post_DMTS.Var2);
     post_DMTS.Var3=[-16:-1:(-1*(height(post_DMTS)+15))]'; % trial== -1:-15
-    post_DMTS.Var4=cell2mat(post_DMTS.Var4);
         
     %% object #4,5,6,7 only!
     pre_DMTS_obj = pre_DMTS((pre_DMTS.Var4(:)~=12),:);
@@ -203,6 +199,7 @@ tables = {pre_temp_table, post_temp_table};
 
 for t = 1:length(tables)
     current_table = tables{t};
+    current_table.Context_txt=string(current_table.Context_txt);
     unique_values = unique(current_table.Obj_ID);
 
     % 각 고유값에 대해 첫 번째 일치하는 행 찾기
@@ -210,7 +207,7 @@ for t = 1:length(tables)
         % event_table.Var10이 value와 일치하고 event_table.Var9가 1인 첫 번째 행 찾기
         matching_row = find(event_table.Obj_ID == value & event_table.Association == 1, 1, 'first');
         if ~isempty(matching_row)
-            current_table.Context_txt(current_table.Obj_ID == value) = event_table.Context_txt(matching_row);
+            current_table.Context_txt(current_table.Obj_ID == value) = string(event_table.Context_txt(matching_row));
             current_table.Context_Num(current_table.Obj_ID == value) = event_table.Context_Num(matching_row);
             current_table.Association(current_table.Obj_ID == value) = event_table.Association(matching_row);
         end
@@ -223,7 +220,14 @@ pre_temp_table = tables{1};
 post_temp_table = tables{2};
 
 
-event_table = [pre_temp_table; event_table; post_temp_table];
+var_name_num = ["ObjOn", "Choice_On", "Choice_Num", "ObjOff","TrialEnd"];
+
+for i = 1:length(var_name_num)
+   event_table.(var_name_num(i)) = cell2mat(event_table.(var_name_num(i)));
+end
+event_table.Choice_txt = string(event_table.Choice_txt);
+
+event_table = vertcat(pre_temp_table, event_table, post_temp_table);
 
 %% save the table
 if is_save_output == 1
