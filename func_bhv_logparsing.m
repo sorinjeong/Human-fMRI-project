@@ -169,13 +169,13 @@ for i=1:height(sbj_events)
 
     %choice missing (choiceOn과 objOff 이벤트 개수와 choice 개수가 다를 경우 missing 삽입)
     if length(event_struct.ChoiceOn) == length(event_struct.ObjOff) && length(event_struct.ChoiceOn) ~= length(event_struct.Choice_txt)
-    event_struct.Choice_txt{end+1,1} = missing;
+    event_struct.Choice_txt{end+1,1} = "missing";
     end
 end
 
 % Choice txt to Number
 event_struct.Choice_Num = NaN(height(event_struct.Choice_txt), 1);  % Initialize Choice_Num with NaN
-event_struct.Choice_Num = cellfun(@(x) find(strcmpi(x, {'A', 'B'}), 1), event_struct.Choice_txt, 'UniformOutput', true);
+event_struct.Choice_Num = cellfun(@(x) find(strcmpi(x, {'A', 'B'}), 1), event_struct.Choice_txt, 'UniformOutput', false);
 
 % Context Num to txt
 event_struct.Context_txt = replace(string(event_struct.Context_Num), ["1", "2"], ["F", "C"]);
@@ -186,20 +186,20 @@ event_struct.Lap_Trial(end)=[];
 event_table = struct2table(event_struct);
 
 %% put pre-DMTS into event table
+event_table.ObjOn = cell2mat(event_table.ObjOn);
+varTypes = varfun(@class, event_table, 'OutputFormat', 'table');
 
-pre_temp_table = array2table(nan(height(pre_DMTS),length(var_name)));pre_temp_table.Properties.VariableNames = cellstr(var_name);
+pre_temp_table = create_temp_table(pre_DMTS, event_table, varTypes);
+post_temp_table = create_temp_table(post_DMTS, event_table, varTypes);
+
 pre_temp_table(:,[1,2,3,10,11]) = pre_DMTS(:,[1,2,3,4,2]);
-
-post_temp_table = array2table(nan(height(pre_DMTS),length(var_name)));post_temp_table.Properties.VariableNames = cellstr(var_name);
 post_temp_table(:,[1,2,3,10,11]) = post_DMTS(:,[1,2,3,4,2]);
 
 % ObjID가 어느 context에 속하는지 여부 찾아서 Context_Num, Context_txt, Association 열 채우기
-
 tables = {pre_temp_table, post_temp_table};
 
 for t = 1:length(tables)
     current_table = tables{t};
-    current_table.Context_txt=string(current_table.Context_txt);
     unique_values = unique(current_table.Obj_ID);
 
     % 각 고유값에 대해 첫 번째 일치하는 행 찾기
@@ -218,6 +218,8 @@ end
 % 결과를 pre_DMTS_table과 post_DMTS_table에 저장
 pre_temp_table = tables{1};
 post_temp_table = tables{2};
+
+% varTypes = varfun(@class, event_table, 'OutputFormat', 'table');
 
 
 var_name_num = ["ObjOn", "ChoiceOn", "Choice_Num", "ObjOff","TrialEnd"];
