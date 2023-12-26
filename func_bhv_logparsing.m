@@ -189,8 +189,8 @@ event_table = struct2table(event_struct);
 event_table.ObjOn = cell2mat(event_table.ObjOn);
 varTypes = varfun(@class, event_table, 'OutputFormat', 'table');
 
-pre_temp_table = create_temp_table(pre_DMTS, event_table, varTypes);
-post_temp_table = create_temp_table(post_DMTS, event_table, varTypes);
+pre_temp_table = func_create_temp_table(pre_DMTS, event_table, varTypes);
+post_temp_table = func_create_temp_table(post_DMTS, event_table, varTypes);
 
 pre_temp_table(:,[1,2,3,10,11]) = pre_DMTS(:,[1,2,3,4,2]);
 post_temp_table(:,[1,2,3,10,11]) = post_DMTS(:,[1,2,3,4,2]);
@@ -218,16 +218,6 @@ end
 % 결과를 pre_DMTS_table과 post_DMTS_table에 저장
 pre_temp_table = tables{1};
 post_temp_table = tables{2};
-
-% varTypes = varfun(@class, event_table, 'OutputFormat', 'table');
-
-
-var_name_num = ["ObjOn", "ChoiceOn", "Choice_Num", "ObjOff","TrialEnd"];
-
-for i = 1:length(var_name_num)
-   event_table.(var_name_num(i)) = cell2mat(event_table.(var_name_num(i)));
-end
-event_table.Choice_txt = string(event_table.Choice_txt);
 
 event_table = vertcat(pre_temp_table, event_table, post_temp_table);
 
