@@ -22,15 +22,14 @@ file_list = arrayfun(@(x) readtable(fullfile(x.folder, x.name)), flag_log, 'uni'
    path_out{end+1} = fullfile(path{2},'total');
    path_out{end+1} = fullfile(path{2},'GLM');
    path_out{end+1} = fullfile(path{3},'performance');
+   path_out{end+1} = fullfile(path{4},c_sbj,'func');
    path_out{end+1} = fullfile(path{5},'Responses');
      
-    if ~exist(path{2},"dir")
-      mkdir(path{2});mkdir(path{3});
-      for i=2:length(path_out)
+   
+      for i=1:length(path_out)
          mkdir(path_out{i});
       end
-    end
-    mkdir(path_out{1});
+  
 
     %% remove time from sbj events table
     sbj_events = file_list{sbj_i};
@@ -75,10 +74,21 @@ file_list = arrayfun(@(x) readtable(fullfile(x.folder, x.name)), flag_log, 'uni'
     % 'DMTS_RT'라는 새로운 변수를 sbj_info_file 테이블에 추가하고, 그 변수의 sbj_i행에 평균값을 넣습니다.
     sbj_info_file_temp.DMTS_RT(sbj_i) = RT_mean;
 
+    %% DMTS event onset --> event table에 추가
+    % pre는 Lap== 0; trial -1 ~ -15 // post는 Lap==9, trial -16 ~ -30
+    pre_DMTS=event_pre_PV(strcmp(event_pre_PV.Var1(:),'PreObjOn'),:);
+    pre_DMTS.Var1=zeros(height(pre_DMTS),1); % Lap ==0
+    pre_DMTS.Var3=[-1:-1:-1*height(pre_DMTS)]'; % trial== -1:-15
+        
+    post_DMTS=event_post_PV(strcmp(event_post_PV.Var1(:),'PreObjOn'),:);
+    post_DMTS.Var1=9*ones(height(post_DMTS),1); % Lap ==9
+    post_DMTS.Var3=[-16:-1:(-1*(height(post_DMTS)+15))]'; % trial== -1:-15
+        
     %% object #4,5,6,7 only!
-    pre_DMTS_obj = event_pre_PV((event_pre_PV.Var4(:)==4 | event_pre_PV.Var4(:)==5 |event_pre_PV.Var4(:)==6 |event_pre_PV.Var4(:)==7),:);
-    post_DMTS_obj = event_post_PV((event_post_PV.Var4(:)==4 | event_post_PV.Var4(:)==5 |event_post_PV.Var4(:)==6 |event_post_PV.Var4(:)==7),:);
-
+    pre_DMTS_obj = pre_DMTS((pre_DMTS.Var4(:)~=12),:);
+    post_DMTS_obj = post_DMTS((post_DMTS.Var4(:)~=12),:);
+    
+    
 %% Define variable names
 var_name = ["Lap", "TrialStart", "Trial","Lap_Trial", "Context_txt", "Context_Num", ...
 "Direction", "Location","Association", "Obj_ID", "ObjOn","ChoiceOn", "Choice_Num", ...
@@ -101,6 +111,7 @@ end
     for j = 6:10
     event_struct.(var_name{j}) = type_log(:,j-5);
     end
+event_struct.Lap_Trial(1,1)=1;
 
 
 
@@ -113,7 +124,7 @@ for i=1:height(sbj_events)
         event_struct.TrialStart(end+1,1) = sbj_events{i,2};
     elseif event_name(i)=="Trial"
         event_struct.Trial(end+1,1) = sbj_events{i,2};
-        event_struct.Lap_Trial(end+1,1) = mod(length(event_struct.Trial), 4) + 1;
+        event_struct.Lap_Trial(end+1,1) = mod(length(event_struct.Trial), 4)+1;
         lap_idx = find(event_struct.TrialStart(end) > time_lap_start.Var2(:), 1, 'last');
         if ~isempty(lap_idx) && event_struct.TrialStart(end) > time_lap_start.Var2(lap_idx)
          event_struct.Lap(end+1,1) = time_lap_start.Var4(lap_idx);
@@ -172,6 +183,15 @@ event_struct.Context_txt = replace(string(event_struct.Context_Num), ["1", "2"],
 event_struct = orderfields(event_struct,var_name);
 event_table = struct2table(event_struct);
 
+%% put pre-DMTS into event table
+
+pre_temp_table = array2table(nan(height(pre_DMTS),length(var_name)));pre_temp_table.Properties.VariableNames = cellstr(var_name);
+pre_temp_table(:,[1,2,3,10,11]) = pre_DMTS(:,[1,2,3,4,2]);
+post_temp_table = array2table(nan(height(pre_DMTS),length(var_name)));post_temp_table.Properties.VariableNames = cellstr(var_name);
+post_temp_table(:,[1,2,3,10,11]) = post_DMTS(:,[1,2,3,4,2]);
+
+event_table = [pre_temp_table; event_table; post_temp_table];
+
 %% save the table
 if is_save_output == 1
 %individual
@@ -184,6 +204,9 @@ writetable(event_table,[path_out{1} '\' c_sbj '_event_table.csv']);
     writetable(event_post_PV,[path_out{2} '\event_post_PV.xlsx'],'Sheet',c_sbj);
     %events
     writetable(event_table,[path_out{2} '\event_table.xlsx'],'Sheet',c_sbj);
+    
+% bids .tsv
+writetable(event_table,[path_out{5} '\' c_sbj '_task-ocat_run-01_events.tsv']);
 end
 
 % correct_regressor; object가 켜진 시간, for GLM
@@ -212,28 +235,22 @@ incorr_nonmatch = cell2mat(event_struct.ObjOn(event_struct.Correct_Num ~= 1 & ev
     names = {'corr_match', 'corr_nonmatch', 'incorr_match', 'incorr_nonmatch', 'onset_pre_DMTS_forest', 'onset_pre_DMTS_city', 'onset_post_DMTS_forest', 'onset_post_DMTS_city'};
     onsets = {corr_match, corr_nonmatch, incorr_match, incorr_nonmatch, onset_pre_DMTS_forest, onset_pre_DMTS_city, onset_post_DMTS_forest, onset_post_DMTS_city};
     durations = {4, 4, 4, 4, 4, 4, 4, 4}; % 모든 duration은 4초
-    
-    multiple_conditions = {names, onsets, durations};
 
     if is_save_output == 1
-%         save(fullfile(path_out{3}, [c_sbj, '_onset_pre_DMTS_forest.mat']),"onset_pre_DMTS_forest",'-mat')
-%         save(fullfile(path_out{3}, [c_sbj, '_onset_pre_DMTS_city.mat']),"onset_pre_DMTS_city",'-mat')
-%         save(fullfile(path_out{3}, [c_sbj, '_onset_post_DMTS_forest.mat']),"onset_post_DMTS_forest",'-mat')
-%         save(fullfile(path_out{3}, [c_sbj, '_onset_post_DMTS_city.mat']),"onset_post_DMTS_city",'-mat')
-        save(fullfile(path_out{3},[c_sbj, '_multiple_conditions.mat']), 'names', 'onsets', 'durations');
+       save(fullfile(path_out{3},[c_sbj, '_multiple_conditions.mat']), 'names', 'onsets', 'durations');
     end
     
     %% learning curve 용 correct .mat file 제작 Responses -> 0 : incorrect trial + timeout, 1: correct trial
     Responses = event_struct.Correct_Num';
     Responses(Responses==2) = 0;     
    if is_save_output == 1
-    save(fullfile(path_out{5},[c_sbj, '_Responses.mat']), 'Responses');
+    save(fullfile(path_out{6},[c_sbj, '_Responses.mat']), 'Responses');
    end
    
     %% Movement Regressor 저장
 %% Path containing data
 % path for confounding factors
-conf_file = dir(fullfile(path{4}, c_sbj,'func', ['*task-', task_name, '*confounds*.tsv']));   % find the file
+conf_file = dir(fullfile(path{4},'derivatives', c_sbj,'func', ['*task-', task_name, '*confounds*.tsv']));   % find the file
 
 %% create "R" variable from movement_regressor matrix and save
     movereg_names = {'trans_x', 'trans_y', 'trans_z', 'rot_x', 'rot_y', 'rot_z'};
