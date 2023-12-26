@@ -7,10 +7,10 @@ log_path_in = '../data/data_bhv_raw';
 log_path_out = '../data/data_bhv_log_table'; 
 plot_path_out = '../data/data_bhv_plot';
 curve_path_out = '../data/data_learning_curve';
-derivatives_path_in = 'D:\fMRI\OCAT_DIR\data\data_fmri_bids\derivatives';
-addpath(genpath(derivatives_path_in));
+bids_path_in = 'D:\fMRI\OCAT_DIR\data\data_fmri_bids\derivatives';
+addpath(genpath(bids_path_in));
 
-path = {log_path_in,log_path_out,plot_path_out,derivatives_path_in,curve_path_out};
+path = {log_path_in,log_path_out,plot_path_out,bids_path_in,curve_path_out};
 
 %% subjects information file
 sbj_info_file = readtable('../../OCAT_DIR/data/data_fmri_bids/participants.tsv','FileType','text');
