@@ -220,7 +220,7 @@ pre_temp_table = tables{1};
 post_temp_table = tables{2};
 
 
-var_name_num = ["ObjOn", "Choice_On", "Choice_Num", "ObjOff","TrialEnd"];
+var_name_num = ["ObjOn", "ChoiceOn", "Choice_Num", "ObjOff","TrialEnd"];
 
 for i = 1:length(var_name_num)
    event_table.(var_name_num(i)) = cell2mat(event_table.(var_name_num(i)));
