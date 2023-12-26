@@ -235,7 +235,7 @@ writetable(event_table,[path_out{1} '\' c_sbj '_event_table.csv']);
     writetable(event_table,[path_out{2} '\event_table.xlsx'],'Sheet',c_sbj);
     
 % bids .tsv
-writetable(full_event_table, [path_out{5} '\' c_sbj '_task-ocat_run-01_events'], 'Delimiter', '\t', 'FileType', 'text');
+writetable(full_event_table, [path_out{5} '\' c_sbj '_task-ocat_run-01_events.tsv'], 'Delimiter', '\t', 'FileType', 'text');
 end
 
 % correct_regressor; object가 켜진 시간, for GLM
