@@ -175,7 +175,7 @@ end
 
 % Choice txt to Number
 event_struct.Choice_Num = NaN(height(event_struct.Choice_txt), 1);  % Initialize Choice_Num with NaN
-event_struct.Choice_Num = cellfun(@(x) find(strcmpi(x, {'A', 'B'}), 1), event_struct.Choice_txt, 'UniformOutput', false);
+event_struct.Choice_Num = cellfun(@(x) find(strcmpi(x, {'A', 'B'}), 1), event_struct.Choice_txt, 'UniformOutput', true);
 
 % Context Num to txt
 event_struct.Context_txt = replace(string(event_struct.Context_Num), ["1", "2"], ["F", "C"]);
