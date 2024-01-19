@@ -23,20 +23,8 @@ for i = 1:length(sbj_id_list)
     
     sbj_dir = fullfile(path_in, c_sbj);
     current_beta_out = fullfile(path_out,c_sbj);mkdir(current_beta_out);
-%     current_file_in = fullfile(file_in.folder,file_in.name);
 
-        % Here lines differ for 3D vs. 4D %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % This is for 4D multiple files
-    % get herder information to read a 4D file
-%     scan_files=[];
-%     tmpHdr = spm_vol( current_file_in );
-%     f_list_length = size(tmpHdr, 1);  % number of 3d volumes
-%     for jx = 1:f_list_length
-%         scan_files{jx,1} = [current_file_in ',' num2str(1) ] ; % add numbers in the end
-%         % End of difference for 3D vs. 4D %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     end
-%     
-%% smoothing
+%% Version : smoothing O --> if you want to add a smoothing step, run the code starting from this block
 
 %     file_in = dir(fullfile(sbj_dir,'func',[c_sbj '*preproc_bold.nii']));
 %     current_file_in = cellstr(fullfile(file_in.folder,file_in.name));

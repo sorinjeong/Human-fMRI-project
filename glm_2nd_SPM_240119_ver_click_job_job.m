@@ -11,8 +11,8 @@ spm_jobman('initcfg');
 % cfg_basicio BasicIO - Unknown
 %-----------------------------------------------------------------------
 %%
-path_in = 'D:\fMRI\OCAT_DIR\data\lev-1st_ver3'; % 1st level GLM - output file 
-path_out = 'D:\fMRI\OCAT_DIR\data\lev-2nd-ver4'; % save betas this folder
+path_in = 'D:\fMRI\OCAT_DIR\data\lev-1st_ver4'; % 1st level GLM - output file 
+path_out = 'D:\fMRI\OCAT_DIR\data\lev-2nd-ver5'; % save betas this folder
 addpath(path_in);
 condition_path = 'D:\fMRI\OCAT_DIR\data\data_for_glm';addpath(condition_path);
 load('regressor_all_all'); 
