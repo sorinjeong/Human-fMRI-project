@@ -246,15 +246,15 @@ if run_1st_glm == 1
         %% rename the beta, contrast files for each subject
         beta_files = dir(fullfile(current_beta_out, 'beta_*.nii'));
         for b = 1:length(beta_files)
-            old_name = beta_files(b).name;
-            new_name = [beta_files(b).name '_' names{b} '.nii'];
+            old_name = fullfile(current_beta_out,beta_files(b).name);
+            new_name = fullfile(current_beta_out, [beta_files(b).name '_' names{b} '.nii']);
             copyfile(old_name, new_name);
         end
 
         con_files = dir(fullfile(current_beta_out, 'con_*.nii'));
         for cn = 1:length(con_files)
-            old_name = con_files(cn).name;
-            new_name = [con_files(cn).name '_' contrast{1,2}{cn} '.nii'];
+            old_name = fullfile(current_beta_out,con_files(cn).name);
+            new_name = fullfile(current_beta_out,[con_files(cn).name '_' contrast{1,2}{cn} '.nii']);
             copyfile(old_name, new_name);
         end
         beta_contrast_table{i,1} = c_sbj;
@@ -264,7 +264,7 @@ if run_1st_glm == 1
     end
 end
 result_T = cell2table(beta_contrast_table, 'VariableNames', {'subject', 'condition','contrast'});
-writetable(result_T,'result_T');
+writetable(result_T,[path_out_1st '\result_T.xlsx']);
 
 %% %%%%%% 2nd level GLM! %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if run_2nd_glm ==1
