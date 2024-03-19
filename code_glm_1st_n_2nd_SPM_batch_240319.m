@@ -247,14 +247,14 @@ if run_1st_glm == 1
         beta_files = dir(fullfile(current_beta_out, 'beta_*.nii'));
         for b = 1:length(beta_files)
             old_name = fullfile(current_beta_out,beta_files(b).name);
-            new_name = fullfile(current_beta_out, [beta_files(b).name '_' names{b} '.nii']);
+            new_name = strcat(strrep(old_name, '.nii', '_'), names{b}, '.nii');
             copyfile(old_name, new_name);
         end
 
         con_files = dir(fullfile(current_beta_out, 'con_*.nii'));
         for cn = 1:length(con_files)
             old_name = fullfile(current_beta_out,con_files(cn).name);
-            new_name = fullfile(current_beta_out,[con_files(cn).name '_' contrast{1,2}{cn} '.nii']);
+            new_name = strcat(strrep(old_name, '.nii', '_'), contrast{1,2}{cn}, '.nii');
             copyfile(old_name, new_name);
         end
         beta_contrast_table{i,1} = c_sbj;
