@@ -21,9 +21,9 @@ date = '240320';
 % main: 1) 'obj_show', 2) 'choice', 3) 'obj_ITI', 4) 'moving'
 % ODT: 'ODT'
 
-phase = 'obj_ITI'; % input
+phase = 'moving'; % input
 if strcmp(main_or_ODT,'ODT'); phase ='ODT';end
-
+ 
 %% 1) Defining pathway and subjects
 
 % set-up directory
@@ -87,12 +87,15 @@ if run_1st_glm == 1
             post_scan_end = reg_for_glm{1,i}.(main_or_ODT).post_scan_num(2);
             scan_range = [pre_scan_start:pre_scan_end post_scan_start:post_scan_end];
         end
+        if scan_range(end)>nii_info.ImageSize(end)
+            scan_range(end) = nii_info.ImageSize(end);
+        end
         extracted_data = nii_data(:, :, :, scan_range);
 
 
         % create nifti file
         nii_info.ImageSize = size(extracted_data);
-        current_nifti = fullfile(path_out_1st,[c_sbj '_' (main_or_ODT),(phase) '_trimmed.nii']);
+        current_nifti = fullfile(path_out_1st,[c_sbj '_' (main_or_ODT) '_' (phase) '_trimmed.nii']);
         niftiwrite(extracted_data, current_nifti, nii_info);
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -169,6 +172,10 @@ if run_1st_glm == 1
             % ODT
         elseif strcmp(phase,'ODT')
             contrast{1,2}=cont_name_typ3;contrast{2,2}=cont_weight_typ3;
+            if isnan(names{end})
+            names(end) = []; onsets(end) = []; durations(end) = [];
+            end
+            durations{11, 1} = 4;
         end
 
         save(char(fullfile(root_path,date,(main_or_ODT),(phase),'contrast_v1.mat')),"contrast");
