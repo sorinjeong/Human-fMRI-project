@@ -14,15 +14,15 @@ run_1st_glm = 1; % if you want to run the 1st glm step, put 1
 run_2nd_glm = 0; % if you want to run the 2nd glm step, put 1
 main_or_ODT = 'main'; % if you want to analize MAIN task, put 'main' or for ODT, put 'ODT'
 threshold_type = 'FWE' ;% 'FWE' or 'FDR' or 'none'
-date = '240319_new3';
+date = '240320';
 % isROI = 1; % if you want to run the ROI analysis, put 1, or if not, put 0 for whole brain analysis
 
 %% phase of Interest
 % main: 1) 'obj_show', 2) 'choice', 3) 'obj_ITI', 4) 'moving'
 % ODT: 'ODT'
 
-phase = 'obj_show'; % input
-
+phase = 'obj_ITI'; % input
+if strcmp(main_or_ODT,'ODT'); phase ='ODT';end
 
 %% 1) Defining pathway and subjects
 
@@ -245,7 +245,7 @@ if run_1st_glm == 1
 
         %% rename the beta, contrast files for each subject
         beta_files = dir(fullfile(current_beta_out, 'beta_*.nii'));
-        for b = 1:length(beta_files)
+        for b = 1:length(beta_files)-1
             old_name = fullfile(current_beta_out,beta_files(b).name);
             new_name = strcat(strrep(old_name, '.nii', '_'), names{b}, '.nii');
             copyfile(old_name, new_name);
