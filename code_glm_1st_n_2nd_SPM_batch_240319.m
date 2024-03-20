@@ -12,7 +12,7 @@ addpath(genpath(root_path));
 add_smoothing = 0;% if you want to add a smoothing step, put 1
 run_1st_glm = 1; % if you want to run the 1st glm step, put 1
 run_2nd_glm = 0; % if you want to run the 2nd glm step, put 1
-main_or_ODT = 'ODT'; % if you want to analize MAIN task, put 'main' or for ODT, put 'ODT'
+main_or_ODT = 'main'; % if you want to analize MAIN task, put 'main' or for ODT, put 'ODT'
 threshold_type = 'FWE' ;% 'FWE' or 'FDR' or 'none'
 date = '240320';
 % isROI = 1; % if you want to run the ROI analysis, put 1, or if not, put 0 for whole brain analysis
@@ -21,7 +21,7 @@ date = '240320';
 % main: 1) 'obj_show', 2) 'choice', 3) 'obj_ITI', 4) 'moving'
 % ODT: 'ODT'
 
-phase = 'ODT'; % input
+phase = 'moving'; % input
 if strcmp(main_or_ODT,'ODT'); phase ='ODT';end
  
 %% 1) Defining pathway and subjects
