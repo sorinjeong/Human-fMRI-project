@@ -1,0 +1,58 @@
+####### freesurfer recon-all 끝난 파일로 HPC segmentation하는 코드 ######
+
+### HBT (Head / Body / Tail 로 구분하여 hpc mask - nifti file 추출해주기)
+
+#!/bin/bash
+# label 정보
+declare -A labels=(["HEAD"]=232 ["BODY"]=231 ["TAIL"]=226)
+
+# subjects
+subjects=(01 {04..20} {22..31})
+
+for subject in ${subjects[@]}; do
+  for hemisphere in lh rh; do
+    for label in "${!labels[@]}"; do
+      # 원본 파일 경로
+      input_path="/home/sorin/ocat_fmri_bids/derivatives/s-${subject}/mri/${hemisphere}.hippoAmygLabels-T1.v22.HBT.FSvoxelSpace.mgz"
+      # output 파일 경로
+      output_path="/home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/HBT/s-${subject}/${hemisphere}_${label}"
+      mkdir -p /home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/HBT/s-${subject}/
+      chmod -R 777 /home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/HBT
+      # mri_binarize 실행
+      mri_binarize --i $input_path --o ${output_path}.mgz --match ${labels[$label]}
+      # mri_convert 실행
+      mri_convert ${output_path}.mgz ${output_path}.nii
+    done
+  done
+done
+
+
+
+### FS60 (CA영역, molecular 영역 등 freesurfer 6.0버전으로 구분하여 hpc mask - nifti file 추출해주기)
+
+#!/bin/bash
+# label 정보
+declare -A labels=(["parasubiculum"]=203 ["presubiculum"]=204 ["subiculum"]=205 ["CA1"]=206 ["CA3"]=208 ["CA4"]=209 ["GC-DG"]=210 ["molecular_layer"]=214 ["HATA"]=211 ["fimbria"]=212 ["TAIL"]=226 ["fissure"]=215)
+
+# subjects
+subjects=(01 {04..20} {22..31})
+
+for subject in ${subjects[@]}; do
+  for hemisphere in lh rh; do
+    for label in "${!labels[@]}"; do
+      # 원본 파일 경로
+      input_path="/home/sorin/ocat_fmri_bids/derivatives/s-${subject}/mri/${hemisphere}.hippoAmygLabels-T1.v22.FS60.FSvoxelSpace.mgz"
+      # output 파일 경로
+      output_path="/home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/FS60/s-${subject}/${hemisphere}_${label}"
+      mkdir -p /home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/FS60/s-${subject}/
+      chmod -R 777 /home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/FS60
+      # mri_binarize 실행
+      mri_binarize --i $input_path --o ${output_path}.mgz --match ${labels[$label]}
+      # mri_convert 실행
+      mri_convert ${output_path}.mgz ${output_path}.nii
+    done
+  done
+
+
+  
+done
