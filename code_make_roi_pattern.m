@@ -1,3 +1,5 @@
+clear;clc;
+
 cd 'Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\code'
 addpath('C:\Users\User\Documents\MATLAB\');
 load('regressors_GLM_0405');
@@ -25,8 +27,8 @@ for sbj_i=1:numel(sbj_id_list)
             roi_beta = niftiread(curr_beta);
             roi_beta_2d = reshape(roi_beta,1001,300);
 
-        roi.(sbj_n).hpc.roi_name_list(m)=local_masks(m).name;
-        roi.(sbj_n).hpc.roi_pattern(m)=roi_beta_2d;
+        roi.(sprintf('s%.2d',sbj_n)).hpc.(TYPE).roi_name_list{m}=local_masks(m).name;
+        roi.(sprintf('s%.2d',sbj_n)).hpc.(TYPE).roi_pattern{m}=roi_beta_2d;
 
             
         end
