@@ -12,7 +12,7 @@ clear matlabbatch;
 
 load('regressors_GLM_0405');
 
-TYPE='HBT'; % 'HBT' or 'FS60'
+TYPE='FS60'; % 'HBT' or 'FS60'
 mask_path=['Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\data\ocat_fmri_bids\derivatives\HPC_subregion\' TYPE];
 
 
