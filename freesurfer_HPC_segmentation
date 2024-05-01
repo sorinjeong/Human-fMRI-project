@@ -90,3 +90,21 @@ for subject in ${subjects[@]}; do
     done
   done
 done
+
+
+
+test
+      input_path="/home/sorin/ocat_fmri_bids/derivatives/s-01/mri/#####################aparc+aseg.mgz"
+      output_path="/home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/extra/s-01/lh_EC"
+      mkdir -p /home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/extra/s-01/
+      chmod -R 777 /home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/extra
+
+      mri_binarize --i $input_path --o ${output_path}.mgz --match 1006
+
+      freeview /T1.mgz ${output_path}.mgz:colormap=lut
+
+
+
+
+
+
