@@ -1,3 +1,13 @@
+####1. bash script 생성
+####   - vi extract_hpc_HBT.sh / vi extract_hpc_FS60.sh / vi extract_extra_roi.sh 
+
+####2. i눌러 insert모드에서 위 코드 복붙, esc
+####3.  :wq 눌러 저장해주고, chmod로 권한 부여
+####4. ./ bash script명(extract_hpc_*.sh) 입력하여 실행
+
+
+
+
 ####### freesurfer recon-all 끝난 파일로 HPC segmentation하는 코드 ######
 
 ### HBT (Head / Body / Tail 로 구분하여 hpc mask - nifti file 추출해주기)
