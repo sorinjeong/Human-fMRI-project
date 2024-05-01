@@ -26,7 +26,7 @@ for subject in ${subjects[@]}; do
   done
 done
 
-
+##################################################################################################################################################################################################################
 
 ### FS60 (CA영역, molecular 영역 등 freesurfer 6.0버전으로 구분하여 hpc mask - nifti file 추출해주기)
 
@@ -52,7 +52,31 @@ for subject in ${subjects[@]}; do
       mri_convert ${output_path}.mgz ${output_path}.nii
     done
   done
+done
 
+##################################################################################################################################################################################################################
 
-  
+  ### EC, parahippocampal area (aparc+aseg.mgz에 label되어있는 EC와 parahippocampal cortex 추출해주기)
+
+#!/bin/bash
+# label 정보
+declare -A labels=(["lh_EC"]=1006 ["lh_pHPC"]=1016 ["rh_EC"]=2006 ["rh_pHPC"]=1016)
+
+# subjects
+subjects=(01 {04..20} {22..31})
+
+for subject in ${subjects[@]}; do
+    for label in "${!labels[@]}"; do
+      # 원본 파일 경로
+      input_path="/home/sorin/ocat_fmri_bids/derivatives/s-${subject}/mri/#####################aparc+aseg.mgz"
+      # output 파일 경로
+      output_path="/home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/extra/s-${subject}/${label}"
+      mkdir -p /home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/extra/s-${subject}/
+      chmod -R 777 /home/sorin/ocat_fmri_bids/derivatives/HPC_subregion/extra
+      # mri_binarize 실행
+      mri_binarize --i $input_path --o ${output_path}.mgz --match ${labels[$label]}
+      # mri_convert 실행
+      mri_convert ${output_path}.mgz ${output_path}.nii
+    done
+  done
 done
