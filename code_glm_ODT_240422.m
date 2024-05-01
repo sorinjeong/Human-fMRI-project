@@ -19,7 +19,7 @@ date = '240426_anat';
 %% 1) Defining pathway and subjects
 % load regressors
 load('regressors_ODT_4obj_0422');
-
+sbj_id_list=7;
     regressor = odt_reg;
 
 
