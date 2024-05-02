@@ -105,6 +105,22 @@ test
 
 
 
+##################### recon - all script!!!!! ####################################
+## raw T1w에서 recon all하는 코드!!!!
+
+# vi reconall_script.sh
+# 아래 코드 입력 후 ./reconall_script.sh 실행
 
 
+
+cd /mnt/d/fMRI
+export FREESURFER_HOME=/mnt/d/freesurfer
+export SUBJECTS_DIR=/mnt/d/fMRI/OCAT_DIR/data/ocat_fmri_bids
+source $FREESURFER_HOME/SetUpFreeSurfer.sh
+
+subjects=(01 {04..20} {22..31})
+
+for sub in ${subjects[@]}; do
+    recon-all -i $SUBJECTS_DIR/sub-${sub}/anat/sub-${sub}_T1w.nii.gz -all -s freesurfer/s-${sub}
+done
 
