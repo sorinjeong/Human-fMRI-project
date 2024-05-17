@@ -1,5 +1,5 @@
 clear; clc
-addpath('C:\Users\Leelab\Documents\MATLAB\spm12');
+addpath('C:\Users\Leelab\Documents\MATLAB\spm12');%69번컴은 leelab, 소린컴은 Leelab
 spm('Defaults', 'fMRI');
 spm_jobman('initcfg');
 clear matlabbatch;
@@ -11,15 +11,19 @@ TYPE='FS60'; % 'HBT' or 'FS60' or 'extra'
 mask_path=['Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\data\new_ocat_bids\derivatives\HPC_seg\' TYPE];
 beta_path='Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\data\new_ocat_glm\240512_new\ODT\1st_Level';
 
-%% ODT
-for sbj_i=2:numel(sbj_id_list)
+%% ODT epi to mask coregister
+        beta_names={'pre_forest_1','pre_forest_2','pre_city_1','pre_city_2','post_forest_1','post_forest_2','post_city_1','post_city_2','pre_target','post_target'};
+
+
+for sbj_i=1:numel(sbj_id_list)
+% sbj_i=1;
     sbj_n = sbj_id_list(sbj_i);
     betas=dir(fullfile(beta_path,sprintf('sub-%.2d',sbj_n),'beta_*.nii'));
 
     mask_sbj=fullfile(mask_path,sprintf('s-%.2d',sbj_n));
     masks=dir(fullfile(mask_sbj,'*.nii'));
     %% betas
-    roi_dir=fullfile(beta_path,'roi',sprintf('sub-%.2d',sbj_n));mkdir(roi_dir);
+%     roi_dir=fullfile(beta_path,'roi',sprintf('sub-%.2d',sbj_n));mkdir(roi_dir);
 
     for b=1:height(betas)-7 %movement regressors(6) and intercept(1)
         ref_beta=fullfile(betas(1).folder,betas(b).name);
@@ -29,8 +33,8 @@ for sbj_i=2:numel(sbj_id_list)
             curr_mask = fullfile(masks(1).folder,masks(m).name);
 
             clear matlabbatch;
-            matlabbatch{1}.spm.spatial.coreg.estwrite.ref = {strcat(ref_beta,',1')};
-            matlabbatch{1}.spm.spatial.coreg.estwrite.source = {strcat(curr_mask,',1')};
+            matlabbatch{1}.spm.spatial.coreg.estwrite.ref = {strcat(curr_mask,',1')};
+            matlabbatch{1}.spm.spatial.coreg.estwrite.source = {strcat(ref_beta,',1')};
             matlabbatch{1}.spm.spatial.coreg.estwrite.other = {''};
             matlabbatch{1}.spm.spatial.coreg.estwrite.eoptions.cost_fun = 'nmi';
             matlabbatch{1}.spm.spatial.coreg.estwrite.eoptions.sep = [4 2];
@@ -43,6 +47,18 @@ for sbj_i=2:numel(sbj_id_list)
 
             spm_jobman('run', matlabbatch)
 
+            %% move file
+
+            cor_mask=dir(fullfile(betas(1).folder,'coreg_*.nii'));
+
+            bn=beta_names(b);
+            roi_path=fullfile('Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\data\new_ocat_glm\240512_new\ODT\1st_Level\roi_mask_new', TYPE, bn,sprintf('sub-%.2d',sbj_n));
+            mkdir(roi_path{:})
+
+            movefile(fullfile(cor_mask(1).folder,cor_mask(1).name),fullfile(roi_path{:},strcat(extractBetween(cor_mask(1).name,"coreg_","_beta"),"_",masks(m).name)))
+
+
         end
     end
 end
+
