@@ -5,7 +5,7 @@
 clear; clc; close all;
 %set path
 cd('Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\code');
-root_path = 'Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\data\ocat_fmri_glm';
+root_path = 'Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\data\new_ocat_glm';
 % addpath(genpath(root_path));
 
 %% Input!!
@@ -14,23 +14,20 @@ run_1st_glm = 1; % if you want to run the 1st glm step, put 1
 run_2nd_glm = 0; % if you want to run the 2nd glm step, put 1
 main_or_ODT = 'ODT'; % if you want to analize MAIN task, put 'main' or for ODT, put 'ODT'
 threshold_type = 'FWE' ;% 'FWE' or 'FDR' or 'none'
-date = '240426_anat';
+date = '240529';
 
 %% 1) Defining pathway and subjects
 % load regressors
-load('regressors_ODT_4obj_0422');
-sbj_id_list=7;
+load('regressors_ODT_4obj_0513');
     regressor = odt_reg;
-
+% sbj_id_list=sort([sbj_id_list 7]);
 
 % set-up directory
-path_in_1st = fullfile('../data','ocat_fmri_bids','derivatives'); % fmriprep's output file (before smoothing)
+path_in_1st = fullfile('../data','new_ocat_bids','derivatives'); % fmriprep's output file (before smoothing)
 
     condition_path = fullfile(root_path, date,(main_or_ODT),'data_for_glm');mkdir(condition_path);addpath(condition_path);
     path_out_1st = fullfile(root_path, date,(main_or_ODT),'1st_Level');
-    path_out_2nd = fullfile(root_path,date,(main_or_ODT),'2nd_Level');
 if ~exist(path_out_1st,"dir"); mkdir(path_out_1st);end
-if ~exist(path_out_2nd,"dir"); mkdir(path_out_2nd);end
 
 % create subjects beta and contrast result
 beta_contrast_table = cell(length(sbj_id_list), 3);
@@ -49,23 +46,10 @@ if run_1st_glm == 1
         sbj_dir = fullfile(path_in_1st, c_sbj);
         current_beta_out = fullfile(path_out_1st,c_sbj);mkdir(current_beta_out);
 
-        % yes_add_smoothing
-        if add_smoothing == 1
-            file_in = dir(fullfile(sbj_dir,'func',[c_sbj '*preproc_bold.nii']));
-            current_file_in = fullfile(file_in.folder,file_in.name);
-            clear matlabbatch;
-            matlabbatch{1}.spm.spatial.smooth.data = {current_file_in};
-            matlabbatch{1}.spm.spatial.smooth.fwhm = [6 6 6];
-            matlabbatch{1}.spm.spatial.smooth.dtype = 0;
-            matlabbatch{1}.spm.spatial.smooth.im = 0;
-            matlabbatch{1}.spm.spatial.smooth.prefix = 's';
-
-            spm_jobman('run', matlabbatch)
-        end
 
         %% 4) 1st GLM - Extract Scan
         % read 4D-scan
-        file_in = dir(fullfile(sbj_dir,'func',['s' c_sbj '*preproc_bold.nii']));
+        file_in = dir(fullfile(sbj_dir,'func',[c_sbj '*preproc_bold.nii']));
         nii_info = niftiinfo(fullfile(file_in.folder,file_in.name));
         nii_data = niftiread(nii_info);
 
@@ -94,6 +78,7 @@ if run_1st_glm == 1
         names = regressor{1,i}.((main_or_ODT)).regress_name;
         onsets = regressor{1,i}.((main_or_ODT)).regress_onset;
         durations = regressor{1,i}.((main_or_ODT)).regress_duration;
+        durations= cell(10,1);durations(:)={0};
         save(fullfile(condition_path,[c_sbj, 'multi_regressor_ODT','.mat']), 'names', 'onsets', 'durations');
 
 
@@ -142,6 +127,8 @@ if run_1st_glm == 1
         save(fullfile(condition_path, [c_sbj, '_movements.mat']), 'R', 'R_names');
 
         %% 6) 1st GLM - fMRI model specification
+        addpath('C:\Users\Leelab\Documents\MATLAB\spm12')
+
         matlabbatch = [];
         matlabbatch{1}.spm.stats.fmri_spec.dir = {current_beta_out};
         matlabbatch{1}.spm.stats.fmri_spec.timing.units = 'secs';
