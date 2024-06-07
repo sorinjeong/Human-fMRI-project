@@ -252,6 +252,30 @@ for subject in ${subjects[@]}; do
 
 
 
+ ### vi extract_reward.sh
+
+
+#!/bin/bash
+# label 정보
+declare -A labels=(["lh-lateralorbitofrontal"]=1012 ["lh-medialorbitofrontal"]=1014 ["rh-lateralorbitofrontal"]=2012 ["rh-medialorbitofrontal"]=2014 ["Left-Caudate"]=11 ["Right-Caudate"]=50)
+
+# subjects
+subjects=(1 {4..20} {22..31})
+
+for subject in ${subjects[@]}; do
+    for label in "${!labels[@]}"; do
+      # 원본 파일 경로
+      input_path="/mnt/c/Users/User/Desktop/JSR/GLMlocal_v5/1stLevel/output/${subject}/mri/aparc+aseg.mgz"
+      # output 파일 경로
+      output_path="/mnt/c/Users/User/Desktop/JSR/GLMlocal_v5/1stLevel/rewarding/${subject}/${label}"
+      mkdir -p /mnt/c/Users/User/Desktop/JSR/GLMlocal_v5/1stLevel/rewarding/${subject}/
+      chmod -R 777 /mnt/c/Users/User/Desktop/JSR/GLMlocal_v5/1stLevel/rewarding
+      # mri_binarize 실행
+      mri_binarize --i $input_path --o ${output_path}.mgz --match ${labels[$label]}
+      # mri_convert 실행
+      mri_convert ${output_path}.mgz ${output_path}.nii
+    done
+  done
 
 
 
