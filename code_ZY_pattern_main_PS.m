@@ -171,58 +171,33 @@ end
 
 
 
-%% 지연 PS 랑 맞추기!!!
+%%
 
 fail_sbj=[5 6 15 22 30];
 
-same=struct;diff=struct;
+learn_idx= find(~ismember(sbj_id_list, fail_sbj));
+all_idx=1:numel(sbj_id_list);
 
-which_sbj='learn'; %'all', 'learn', 'fail'
 roi = {'Lt.Hp', 'Lt.PHC', 'Lt.CA23DG', 'Lt.CA1', ...
     'Rt.Hp', 'Rt.PHC',  'Rt.CA23DG','Rt.CA1', ...
     'Bi.Hp', 'Bi.PHC',  'Bi.CA23DG','Bi.CA1','Bi.EC'};
 % region indexing
 region_idx=find(ismember(hpc_name_all, roi));
-hpc_region=hpc_name_all(region_idx);
-
-% sbj indexing
-if strcmp(which_sbj,'learn')
-    sbj_idx= find(~ismember(sbj_id_list, fail_sbj));
-    ttl = "learned subjects (n=22)";
-
-elseif strcmp(which_sbj,'fail')
-    sbj_idx= find(ismember(sbj_id_list, fail_sbj));
-    ttl = "failed subjects (n=5)";
-else
-    sbj_idx= 1:numel(sbj_id_list);
-    ttl = "All subjects(n=27)";
-end
 
 
 
-for sbj_i=1:numel(sbj_idx)
-    sbj_n=sbj_idx(sbj_i);
-    %     for bl=1:4
-    for rg=1:numel(hpc_region)
-        rg_n=strrep(hpc_region{rg},'.','_');
-        %         same.(which_sbj).(sprintf('block%d',bl))(sbj_i,:)=same_category_all{1, sbj_n}(bl,region_idx);
-        %         diff.(which_sbj).(sprintf('block%d',bl))(sbj_i,:)=diff_asso_na_all{1, sbj_n}(bl,region_idx);
-        sameZY.(which_sbj).(rg_n)(sbj_i,:)=same_category_all{1, sbj_n}(:,region_idx(rg))';
-        diffZY.(which_sbj).(rg_n)(sbj_i,:)=diff_asso_na_all{1, sbj_n}(:,region_idx(rg))';
-        sameSR.(which_sbj).(rg_n)(sbj_i,:)=same_ctxt.block{1, sbj_n}(:,region_idx(rg))';
-        diffSR.(which_sbj).(rg_n)(sbj_i,:)=diff_ctxt.block{1, sbj_n}(:,region_idx(rg))';
 
 
-        same_half_ZY.(rg_n)(:,1)=mean(sameZY.(which_sbj).(rg_n)(:,1:2),2);
-        same_half_ZY.(rg_n)(:,2)=mean(sameZY.(which_sbj).(rg_n)(:,3:4),2);
-
-        diff_half_ZY.(rg_n)(:,1)=mean(diffZY.(which_sbj).(rg_n)(:,1:2),2);
-        diff_half_ZY.(rg_n)(:,2)=mean(diffZY.(which_sbj).(rg_n)(:,3:4),2);
-    end
-end
 
 
-%--> 이거로 69번 컴에서 graph pad prism 으로 plot그린거임 (block별, half 별)
+
+
+
+
+
+
+
+
 
 
 
