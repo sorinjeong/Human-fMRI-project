@@ -50,31 +50,16 @@
 
 %% Run lssGenerateBetasSPM.m
 clear; clc; close all;
-%% Input!
-main_or_ODT = 'main'; % if you want to analize MAIN task, put 'main' or for ODT, put 'ODT'
-threshold_type = 'FWE' ;% 'FWE' or 'FDR' or 'none'
-date = '240330';
-reg_mov_2or4 = 4; % if 4, moving regressor will contain [context(2)*order(first/remainder)], if 2, moving regressor will consider only context
-phase = 'obj_show'; % main: 1) 'obj_show', 2) 'choice', 3) 'moving'
-if strcmp(main_or_ODT,'ODT'); phase ='ODT';end
-
-%set path
-cd('Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\code');
-root_path = '../data/data_fmri_glm';
-addpath(genpath(root_path));
-
+%% path
+root_path = 'C:\Users\User\Desktop\JSR';%90번컴
+path_out_1st = fullfile(root_path, 'new_ocat_glm/main/1st_Level');
+addpath(genpath(path_out_1st));
 %% Get data
-path_out_1st = fullfile(root_path, date,(main_or_ODT),(phase),'1st_Level');
-load('regressors_GLM');
-if reg_mov_2or4 == 4
-    mov_ver = 'ver1';
-    regressor = reg_for_glm_ver1;
-elseif reg_mov_2or4 == 2
-    mov_ver = 'ver2';
-    regressor = reg_for_glm_ver2;
-end
+load('reg_new_glm_0619.mat');
+% regressor=new_reg;
+
 sbj_id_list
-regressor
+% regressor
 
 % preprocessed_path = 'C:\Users\zyeon\SynologyDrive\OCAT\data\brain_preprocessed';
 % behavior_path = 'C:\Users\zyeon\SynologyDrive\OCAT\data\behavior';
@@ -91,10 +76,14 @@ regressor
 
 for sbj_i = 1:length(sbj_id_list)
     delete(gcp('nocreate'))
+    c_sbj = sprintf('sub-%.2d', sbj_id_list(sbj_i)); disp(c_sbj)
+    load(fullfile(path_out_1st, ['../', c_sbj, '_main_regressor_240619.mat']));
+
+
 
     % change this for different Design Matrix
-    spmDir = fullfile(path_out_1st, sprintf('sub-%.2d',sbj_id_list(sbj_i)));
-    outDir = fullfile(path_out_1st, 'single_trial', sprintf('sub-%.2d',sbj_id_list(sbj_i)));
+    spmDir = fullfile(path_out_1st, c_sbj);
+    outDir = fullfile(path_out_1st, 'single_trial', c_sbj);
 
     % spmDir = ['C:\Users\zyeon\SynologyDrive\OCAT\Results_new\GLM\1stLevel\glm' num2str(glm_i) '\SUB' num2str(sbj_id_list(sbj_i))];
     % outDir = ['C:\Users\zyeon\SynologyDrive\OCAT\Results_new\GLM\1stLevel\SinggleTrial\glm' num2str(glm_i) '\SUB' num2str(sbj_id_list(sbj_i))];
@@ -102,14 +91,14 @@ for sbj_i = 1:length(sbj_id_list)
     % LSS settings
     % includeConditions = behav_regressor_glm{glm_i}{sbj_i}.regress_name;
     %         includeConditions = includeConditions(ismember(includeConditions, oc_list_name));
-    includeConditions = regressor{1,sbj_i}.((main_or_ODT)).regress_name;
+    includeConditions = names;
 
 
     settings.model = 2;            % 1- Rissman, 2- LSS
     settings.useTempFS = 0;        % 0- do not use temporary files, 1- use temporary files
     settings.overwrite = 0;        % 0- do not overwrite, 1- overwrite
 
-    lssGenerateBetasSpm(sprintf('sub-%.2d',sbj_id_list(sbj_i)), spmDir, outDir, includeConditions, settings)
+    lssGenerateBetasSpm(c_sbj, spmDir, outDir, includeConditions, settings)
 
 end  %-- end of for ct_sub
 
