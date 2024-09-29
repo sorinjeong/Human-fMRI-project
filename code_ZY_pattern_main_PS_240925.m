@@ -1,174 +1,174 @@
-% %% single trial naming
-% % clc;clear
-% 
-% % zcode_path='Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\code';
-% % addpath(zcode_path)
-% % root_path = 'C:\Users\User\Desktop\JSR';%90번컴
-% root_path = 'G:\JSR\240922_new_fmri'; %69번컴
-% addpath(fullfile(root_path, 'spm_prep_glm_0922')); addpath('G:\JSR\sbj39to41')
-% cd(fullfile(root_path, 'spm_prep_glm_0922','main'))
-% % zroot_path='Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\data\spm_prep_glm_0725';
-% % addpath(zroot_path)
-% 
-% load('../../bhv/data_bhv_log_table/total/num_sbj_events.mat')
-% load('regressors_GLM_0922_backup.mat')
-% load('../../bhv/learn_curv_info.mat');
-% roi_hpc_name=strrep(roi_hpc_name,'CA23DG','DGCA3');
-% 
-% % sbj_id_list=setdiff(sbj_id_list_41,[2,3,5,6,7,15,21,22,30,32,33,38]);
-% sbj_id_list=sbj_id_list_41;
-% tbl=num_sbj_events;
-% % setting
-% main_or_ODT = {'main'}; % {'main','pre-ODT','post-ODT'} for for loops
-% 
-% 
-% 
-% hpc_select=[1:5,7:17,19:24];
-% ctx_select=1:30;
-% 
-% %%
-% 
-% for m_o = main_or_ODT
-%     disp(m_o)
-% 
-%         singletrial_path = fullfile(root_path, 'spm_prep_glm_0922', m_o{:}, 'single_trial');
-%     
-%     %     for sbj_i=1:numel(sbj_id_list)
-%     %                 sbj_n=sprintf('sub_%d',sbj_id_list(sbj_i));disp(sbj_n)
-%     %     files=dir(fullfile(singletrial_path,sbj_n, '*_0*'));
-%     %     for i=1:height(files)
-%     %     delete(fullfile(files(1).folder,files(i).name))
-%     %     end
-%     %     end
-%     %     end
-%     
-%     %% rename_ trial
-%     if strcmp(m_o{:}, 'main')
-%         disp('rename_ trial')
-%         
-%         %         singletrial_path = fullfile(zroot_path, m_o{:},ver, 'single_trial');
-%         
-%         for sbj_i=1:numel(sbj_id_list)
-%             sbj_n=sprintf('sub_%d',sbj_id_list(sbj_i));disp(sbj_n)
-%             %             singletrial_path_out=fullfile(root_path, 'spm_prep_glm_0922', m_o{:},ver, 'single_trial',sbj_n);
-%             %             mkdir(singletrial_path_out)
-%             
-%             
-%             pp='obj_show';
-%             sbj_OC=dir(fullfile(singletrial_path,sbj_n,'betas','Sess001',strcat(pp,'_*')));
-%             roc=cellfun(@(x) extractBetween(x,strcat(pp,'_'),'_0'),{sbj_OC.name});
-%             d=reg_0922{1, sbj_i}.trial_detail;
-%             un=unique(roc);
-%             
-%             sidx=[];
-%             for r=1:numel(un)
-%                 idx=d.(un{r})';
-%                 sidx=[sidx idx];
-%             end
-%             [b,iii]=sort(sidx);
-%             if max(iii)==32
-%                 tbl.roc(tbl.session==sbj_id_list(sbj_i))=roc(iii);
-%                 for i=1:height(sbj_OC)
-%                     beta=fullfile(sbj_OC(i).folder,sbj_OC(i).name,'beta_0001.nii');
-%                     beta_rename=sprintf('%.2d_%s.nii',sidx(i), sbj_OC(i).name);
-%                     copyfile(beta, fullfile(singletrial_path,sbj_n, beta_rename));
-%                 end
-%             else
-%                 error('The total number of trials is not 32!');
-%             end
-%         end
-%         
-%     else
-%         %         singletrial_path = fullfile(root_path, 'spm_prep_glm_0922', m_o{:}, 'single_trial');
-%         for sbj_i=1:numel(sbj_id_list)
-%             sbj_n=sprintf('sub_%d',sbj_id_list(sbj_i));disp(sbj_n)
-%             pp=extractBefore(m_o{:},'-');
-%             sbj_OC=dir(fullfile(singletrial_path,sbj_n,'betas','Sess001',strcat(pp,'*')));
-%             obj=cellfun(@(x) extractBetween(x,strcat(pp,'_'),'_0'),{sbj_OC.name},'UniformOutput',false);
-%             %         obj=repelem(["f1","f2","c1","c2","target"],3);
-%             temp_onset=reg_0922{1, sbj_i}.ODT.(pp).regress_onset;
-%             if contains(obj{1},'city')
-%                 temp_onset=[temp_onset(3:4); temp_onset(1:2); temp_onset(5)]; %["f1","f2","c1","c2","target"] regressor 순서로 바꿔줌
-%             end
-%             [tr,tr_idx]=sort(cell2mat(temp_onset));
-%             
-%             %    temp=table2array(readtable('Z:\E-Phys Analysis\fMRI_ocat\OCAT_BHV\data\0716\data_bhv_log_table_38\total\event_table_MR_new.xlsx','Sheet',sprintf('sub-%d',sbj_id_list(sbj_i)),'Range', 'F:F'));
-%             %
-%             %       ODT_context.pre{sbj_i}=temp(1:15);
-%             %     ODT_context.post{sbj_i}=temp(48:end);
-%             %
-%             
-%             %             beta_rename={};
-%             %             for tridx=1:length(tr_idx)
-%             %                 beta_rename{tridx}=sprintf('%.2d_%s',tridx,sbj_OC(tr_idx(tridx)).name);
-%             %             end
-%             %             for i=1:numel(beta_rename)
-%             %                 beta=fullfile(sbj_OC(i).folder,sbj_OC(i).name,'beta_0001.nii');
-%             %                 copyfile(beta, fullfile(singletrial_path,sbj_n, strcat(beta_rename{i},'.nii')));
-%             %             end
-%             %
-%             
-%             
-%             beta_rename={};
-%             for tridx=1:length(tr_idx)
-%                 beta_rename{tridx}=sprintf('%.2d_%s',tridx,sbj_OC(tr_idx(tridx)).name);
-%                 beta=fullfile(sbj_OC(tr_idx(tridx)).folder,sbj_OC(tr_idx(tridx)).name,'beta_0001.nii');
-%                 copyfile(beta, fullfile(singletrial_path,sbj_n, strcat(beta_rename{tridx},'.nii')));
-%             end
-%             
-%             
-%             reg_0922{1, sbj_i}.ODT.(pp).object=obj(tr_idx);
-%             reg_0922{1, sbj_i}.ODT.(pp).object_idx=tr_idx;
-%         end
-%         save('regressors_GLM_0922.mat',"reg_0922","sbj_id_list_41",'roi_ctx_name','roi_hpc_name')
-%     end
-%     %     save(string(fullfile(root_path, 'spm_prep_glm_0922','regressors_GLM_0922.mat')),"reg_0922","sbj_id_list_41",'roi_ctx_name','roi_hpc_name')
-%     
-%     
-%     
-%     %% Trial detail
-%     % load("sbj_events.mat")
-%     
-%     if strcmp(m_o{:}, 'main')
-%         disp('trial detail')
-%         
-%         roc_cell=cell(1, ceil(length(tbl.roc)/32));
-%         for i = 1:length(roc_cell)
-%             startIdx = (i-1)*32 + 1;
-%             endIdx = min(i*32, length(tbl.roc));
-%             roc_cell{i} = tbl.roc(startIdx:endIdx);
-%         end
-%         
-%         % trial별 object 및 context 정보
-%         obj_num=cell(1, numel(sbj_id_list));
-%         context=cell(1, numel(sbj_id_list));
-%         for sbj_i=1:numel(sbj_id_list)
-%             
-%             startIdx = (sbj_id_list(sbj_i)-1)*32 + 1;
-%             endIdx = min(sbj_id_list(sbj_i)*32, height(tbl));
-%             obj_num{sbj_i} = tbl.Object(startIdx:endIdx)';
-%             for cont=1:32
-%                 if tbl.Association(cont) ==1
-%                     ctxt{cont} = tbl.Context(cont);
-%                 elseif tbl.Association(cont) ==0 && tbl.Context(cont) ==1
-%                     ctxt{cont} = 2;
-%                 elseif tbl.Association(cont) ==0 && tbl.Context(cont) ==2
-%                     ctxt{cont} = 1;
-%                 end
-%                 context{sbj_i}=ctxt;
-%             end
-%             
-%             reg_0922{1, sbj_i}.trial_detail.context=cell2mat(context{sbj_i});
-%             reg_0922{1, sbj_i}.trial_detail.object=obj_num{sbj_i};
-%         end
-%         save('regressors_GLM_0922.mat',"reg_0922","sbj_id_list_41",'roi_ctx_name','roi_hpc_name')
-%         
-%     end
-%     
-%     
-%     %% pattern structure
-%     disp('pattern structure')
-%     % load('roi_name.mat')
+%% single trial naming
+% clc;clear
+
+% zcode_path='Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\code';
+% addpath(zcode_path)
+% root_path = 'C:\Users\User\Desktop\JSR';%90번컴
+root_path = 'G:\JSR\240922_new_fmri'; %69번컴
+addpath(fullfile(root_path, 'spm_prep_glm_0922')); addpath('G:\JSR\sbj39to41')
+cd(fullfile(root_path, 'spm_prep_glm_0922','main'))
+% zroot_path='Z:\E-Phys Analysis\fMRI_ocat\OCAT_DIR\data\spm_prep_glm_0725';
+% addpath(zroot_path)
+
+load('../../bhv/data_bhv_log_table/total/num_sbj_events.mat')
+load('regressors_GLM_0922_backup.mat')
+load('../../bhv/learn_curv_info.mat');
+roi_hpc_name=strrep(roi_hpc_name,'CA23DG','DGCA3');
+
+% sbj_id_list=setdiff(sbj_id_list_41,[2,3,5,6,7,15,21,22,30,32,33,38]);
+sbj_id_list=sbj_id_list_41;
+tbl=num_sbj_events;
+% setting
+main_or_ODT = {'main'}; % {'main','pre-ODT','post-ODT'} for for loops
+
+
+
+hpc_select=[1:5,7:17,19:24];
+ctx_select=1:30;
+
+%%
+
+for m_o = main_or_ODT
+    disp(m_o)
+
+        singletrial_path = fullfile(root_path, 'spm_prep_glm_0922', m_o{:}, 'single_trial');
+    
+    %     for sbj_i=1:numel(sbj_id_list)
+    %                 sbj_n=sprintf('sub_%d',sbj_id_list(sbj_i));disp(sbj_n)
+    %     files=dir(fullfile(singletrial_path,sbj_n, '*_0*'));
+    %     for i=1:height(files)
+    %     delete(fullfile(files(1).folder,files(i).name))
+    %     end
+    %     end
+    %     end
+    
+    %% rename_ trial
+    if strcmp(m_o{:}, 'main')
+        disp('rename_ trial')
+        
+        %         singletrial_path = fullfile(zroot_path, m_o{:},ver, 'single_trial');
+        
+        for sbj_i=1:numel(sbj_id_list)
+            sbj_n=sprintf('sub_%d',sbj_id_list(sbj_i));disp(sbj_n)
+            %             singletrial_path_out=fullfile(root_path, 'spm_prep_glm_0922', m_o{:},ver, 'single_trial',sbj_n);
+            %             mkdir(singletrial_path_out)
+            
+            
+            pp='obj_show';
+            sbj_OC=dir(fullfile(singletrial_path,sbj_n,'betas','Sess001',strcat(pp,'_*')));
+            roc=cellfun(@(x) extractBetween(x,strcat(pp,'_'),'_0'),{sbj_OC.name});
+            d=reg_0922{1, sbj_i}.trial_detail;
+            un=unique(roc);
+            
+            sidx=[];
+            for r=1:numel(un)
+                idx=d.(un{r})';
+                sidx=[sidx idx];
+            end
+            [b,iii]=sort(sidx);
+            if max(iii)==32
+                tbl.roc(tbl.session==sbj_id_list(sbj_i))=roc(iii);
+                for i=1:height(sbj_OC)
+                    beta=fullfile(sbj_OC(i).folder,sbj_OC(i).name,'beta_0001.nii');
+                    beta_rename=sprintf('%.2d_%s.nii',sidx(i), sbj_OC(i).name);
+                    copyfile(beta, fullfile(singletrial_path,sbj_n, beta_rename));
+                end
+            else
+                error('The total number of trials is not 32!');
+            end
+        end
+        
+    else
+        %         singletrial_path = fullfile(root_path, 'spm_prep_glm_0922', m_o{:}, 'single_trial');
+        for sbj_i=1:numel(sbj_id_list)
+            sbj_n=sprintf('sub_%d',sbj_id_list(sbj_i));disp(sbj_n)
+            pp=extractBefore(m_o{:},'-');
+            sbj_OC=dir(fullfile(singletrial_path,sbj_n,'betas','Sess001',strcat(pp,'*')));
+            obj=cellfun(@(x) extractBetween(x,strcat(pp,'_'),'_0'),{sbj_OC.name},'UniformOutput',false);
+            %         obj=repelem(["f1","f2","c1","c2","target"],3);
+            temp_onset=reg_0922{1, sbj_i}.ODT.(pp).regress_onset;
+            if contains(obj{1},'city')
+                temp_onset=[temp_onset(3:4); temp_onset(1:2); temp_onset(5)]; %["f1","f2","c1","c2","target"] regressor 순서로 바꿔줌
+            end
+            [tr,tr_idx]=sort(cell2mat(temp_onset));
+            
+            %    temp=table2array(readtable('Z:\E-Phys Analysis\fMRI_ocat\OCAT_BHV\data\0716\data_bhv_log_table_38\total\event_table_MR_new.xlsx','Sheet',sprintf('sub-%d',sbj_id_list(sbj_i)),'Range', 'F:F'));
+            %
+            %       ODT_context.pre{sbj_i}=temp(1:15);
+            %     ODT_context.post{sbj_i}=temp(48:end);
+            %
+            
+            %             beta_rename={};
+            %             for tridx=1:length(tr_idx)
+            %                 beta_rename{tridx}=sprintf('%.2d_%s',tridx,sbj_OC(tr_idx(tridx)).name);
+            %             end
+            %             for i=1:numel(beta_rename)
+            %                 beta=fullfile(sbj_OC(i).folder,sbj_OC(i).name,'beta_0001.nii');
+            %                 copyfile(beta, fullfile(singletrial_path,sbj_n, strcat(beta_rename{i},'.nii')));
+            %             end
+            %
+            
+            
+            beta_rename={};
+            for tridx=1:length(tr_idx)
+                beta_rename{tridx}=sprintf('%.2d_%s',tridx,sbj_OC(tr_idx(tridx)).name);
+                beta=fullfile(sbj_OC(tr_idx(tridx)).folder,sbj_OC(tr_idx(tridx)).name,'beta_0001.nii');
+                copyfile(beta, fullfile(singletrial_path,sbj_n, strcat(beta_rename{tridx},'.nii')));
+            end
+            
+            
+            reg_0922{1, sbj_i}.ODT.(pp).object=obj(tr_idx);
+            reg_0922{1, sbj_i}.ODT.(pp).object_idx=tr_idx;
+        end
+        save('regressors_GLM_0922.mat',"reg_0922","sbj_id_list_41",'roi_ctx_name','roi_hpc_name')
+    end
+    %     save(string(fullfile(root_path, 'spm_prep_glm_0922','regressors_GLM_0922.mat')),"reg_0922","sbj_id_list_41",'roi_ctx_name','roi_hpc_name')
+    
+    
+    
+    %% Trial detail
+    % load("sbj_events.mat")
+    
+    if strcmp(m_o{:}, 'main')
+        disp('trial detail')
+        
+        roc_cell=cell(1, ceil(length(tbl.roc)/32));
+        for i = 1:length(roc_cell)
+            startIdx = (i-1)*32 + 1;
+            endIdx = min(i*32, length(tbl.roc));
+            roc_cell{i} = tbl.roc(startIdx:endIdx);
+        end
+        
+        % trial별 object 및 context 정보
+        obj_num=cell(1, numel(sbj_id_list));
+        context=cell(1, numel(sbj_id_list));
+        for sbj_i=1:numel(sbj_id_list)
+            
+            startIdx = (sbj_id_list(sbj_i)-1)*32 + 1;
+            endIdx = min(sbj_id_list(sbj_i)*32, height(tbl));
+            obj_num{sbj_i} = tbl.Object(startIdx:endIdx)';
+            for cont=1:32
+                if tbl.Association(cont) ==1
+                    ctxt{cont} = tbl.Context(cont);
+                elseif tbl.Association(cont) ==0 && tbl.Context(cont) ==1
+                    ctxt{cont} = 2;
+                elseif tbl.Association(cont) ==0 && tbl.Context(cont) ==2
+                    ctxt{cont} = 1;
+                end
+                context{sbj_i}=ctxt;
+            end
+            
+            reg_0922{1, sbj_i}.trial_detail.context=cell2mat(context{sbj_i});
+            reg_0922{1, sbj_i}.trial_detail.object=obj_num{sbj_i};
+        end
+        save('regressors_GLM_0922.mat',"reg_0922","sbj_id_list_41",'roi_ctx_name','roi_hpc_name')
+        
+    end
+    
+    
+    %% pattern structure
+    disp('pattern structure')
+    % load('roi_name.mat')
     
     OC_pattern=struct;
 
@@ -223,13 +223,13 @@
         save(string(fullfile(root_path,'spm_prep_glm_0922',m_o,'OC_pattern.mat')),"OC_pattern");
     
 end
-% roi_ctx_name=strrep(roi_ctx_name,'.','_');
-% roi_hpc_name=strrep(roi_hpc_name,'.','_');
-% save('roi_name.mat','roi_ctx_name','roi_hpc_name')
-% 
-% %% rewarding
-% 
-% % %%%%%%%%%%%%%%%%%%% 이 아래 OC pattern에 맞춰서 다시 수정하기!!!
+roi_ctx_name=strrep(roi_ctx_name,'.','_');
+roi_hpc_name=strrep(roi_hpc_name,'.','_');
+save('roi_name.mat','roi_ctx_name','roi_hpc_name')
+
+%% rewarding
+
+% %%%%%%%%%%%%%%%%%%% 이 아래 OC pattern에 맞춰서 다시 수정하기!!!
 % %% rewarding!!!!
 % main_or_ODT = {'main'};
 % load('roi_name.mat')
@@ -280,12 +280,12 @@ for hpc_or_ctx={'hpc','ctx'}
             
             % 2. half 1,2
             % half1
-                            corr_rej_idx = corr_rej_idx(corr_rej_idx<17);
-                            hit_idx = hit_idx(hit_idx<17);
+            %                 corr_rej_idx = corr_rej_idx(corr_rej_idx<17);
+            %                 hit_idx = hit_idx(hit_idx<17);
             
             %half2
-%             corr_rej_idx = corr_rej_idx(corr_rej_idx>16);
-%             hit_idx = hit_idx(hit_idx>16);
+            corr_rej_idx = corr_rej_idx(corr_rej_idx>16);
+            hit_idx = hit_idx(hit_idx>16);
             
             
             % 3. block 1,2,3,4
@@ -337,8 +337,8 @@ for hpc_or_ctx={'hpc','ctx'}
         % ROC로 나눠서 넣기
         for l=1:3
             lateral={'L_','R_','Bi_'};
-            %                rewarding.contrast.EARLY.(hpc_or_ctx{:})=[curr_names, bi_names];
-            %                rewarding.contrast.LATE.(hpc_or_ctx{:})=[curr_names, bi_names];
+            %                rewarding.contrast.GOOD.(hpc_or_ctx{:})=[curr_names, bi_names];
+            %                rewarding.contrast.BAD.(hpc_or_ctx{:})=[curr_names, bi_names];
             
             pat={pat_L,pat_R,pat_Bi};
             rewarding.ROC_pattern.hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(:,1);
@@ -346,69 +346,51 @@ for hpc_or_ctx={'hpc','ctx'}
             rewarding.ROC_pattern.subtract_corr_hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(:,3);
             
             
-            % performer group
+            % good/bad
             
-            rewarding.ROC_pattern.EARLY.hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_early,1);
-            rewarding.ROC_pattern.EARLY.corr_rej.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_early,2);
-            rewarding.ROC_pattern.EARLY.subtract_corr_hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_early,3);
+            rewarding.ROC_pattern.GOOD.hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(sbj_good_idx,1);
+            rewarding.ROC_pattern.GOOD.corr_rej.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(sbj_good_idx,2);
+            rewarding.ROC_pattern.GOOD.subtract_corr_hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(sbj_good_idx,3);
             
-            rewarding.ROC_pattern.LATE.hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_late,1);
-            rewarding.ROC_pattern.LATE.corr_rej.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_late,2);
-            rewarding.ROC_pattern.LATE.subtract_corr_hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_late,3);
+            rewarding.ROC_pattern.BAD.hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(sbj_bad_idx,1);
+            rewarding.ROC_pattern.BAD.corr_rej.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(sbj_bad_idx,2);
+            rewarding.ROC_pattern.BAD.subtract_corr_hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(sbj_bad_idx,3);
             
-            rewarding.ROC_pattern.FAIL.hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_fail,1);
-            rewarding.ROC_pattern.FAIL.corr_rej.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_fail,2);
-            rewarding.ROC_pattern.FAIL.subtract_corr_hit.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_fail,3);
-
-
-            rewarding.EARLY.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_early,1:2); %col 1: hit, col 2: corr_rej
-            rewarding.LATE.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_late,1:2); %col 1: hit, col 2: corr_rej
-            rewarding.FAIL.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(idx_fail,1:2); %col 1: hit, col 2: corr_rej
-
-            rewarding.contrast.EARLY.(hpc_or_ctx{:})=[{strcat(lateral{l},ori_name{r})};num2cell(pat{l}(idx_early,3))];
-            rewarding.contrast.LATE.(hpc_or_ctx{:})=[{strcat(lateral{l},ori_name{r})};num2cell(pat{l}(idx_late,3))];
-            rewarding.contrast.FAIL.(hpc_or_ctx{:})=[{strcat(lateral{l},ori_name{r})};num2cell(pat{l}(idx_fail,3))];
-
+            rewarding.GOOD.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(sbj_good_idx,1:2); %col 1: hit, col 2: corr_rej
+            rewarding.BAD.(hpc_or_ctx{:}).(strcat(lateral{l},ori_name{r}))=pat{l}(sbj_bad_idx,1:2);%col 1: hit, col 2: corr_rej
+            
+            rewarding.contrast.GOOD.(hpc_or_ctx{:})=[{strcat(lateral{l},ori_name{r})};num2cell(pat{l}(sbj_good_idx,3))];
+            rewarding.contrast.BAD.(hpc_or_ctx{:})=[{strcat(lateral{l},ori_name{r})};num2cell(pat{l}(sbj_bad_idx,3))];
+            
         end
     end
     %%
-    fn = fieldnames(rewarding.LATE.(hpc_or_ctx{:}));
+    fn = fieldnames(rewarding.BAD.(hpc_or_ctx{:}));
     for fn_i = 1:length(fn)
-        % EARLY contrast
-        rewarding.contrast.EARLY.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
-        rewarding.contrast.EARLY.(hpc_or_ctx{:})(2:length(idx_early)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.EARLY.subtract_corr_hit.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
+        % GOOD contrast
+        rewarding.contrast.GOOD.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
+        rewarding.contrast.GOOD.(hpc_or_ctx{:})(2:length(sbj_good_idx)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.GOOD.subtract_corr_hit.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
         
-        % LATE contrast
-        rewarding.contrast.LATE.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
-        rewarding.contrast.LATE.(hpc_or_ctx{:})(2:length(idx_late)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.LATE.subtract_corr_hit.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
+        % BAD contrast
+        rewarding.contrast.BAD.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
+        rewarding.contrast.BAD.(hpc_or_ctx{:})(2:length(sbj_bad_idx)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.BAD.subtract_corr_hit.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
         
-        % FAIL contrast
-        rewarding.contrast.FAIL.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
-        rewarding.contrast.FAIL.(hpc_or_ctx{:})(2:length(idx_fail)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.FAIL.subtract_corr_hit.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
         
-        % EARLY HIT
-        rewarding.HIT.EARLY.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
-        rewarding.HIT.EARLY.(hpc_or_ctx{:})(2:length(idx_early)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.EARLY.hit.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
+        % GOOD HIT
+        rewarding.HIT.GOOD.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
+        rewarding.HIT.GOOD.(hpc_or_ctx{:})(2:length(sbj_good_idx)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.GOOD.hit.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
         
-        % LATE HIT
-        rewarding.HIT.LATE.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
-        rewarding.HIT.LATE.(hpc_or_ctx{:})(2:length(idx_late)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.LATE.hit.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
+        % BAD HIT
+        rewarding.HIT.BAD.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
+        rewarding.HIT.BAD.(hpc_or_ctx{:})(2:length(sbj_bad_idx)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.BAD.hit.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
         
-        % FAIL HIT
-        rewarding.HIT.FAIL.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
-        rewarding.HIT.FAIL.(hpc_or_ctx{:})(2:length(idx_fail)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.FAIL.hit.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
+        % GOOD CORR_REJ
+        rewarding.CORR_REJ.GOOD.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
+        rewarding.CORR_REJ.GOOD.(hpc_or_ctx{:})(2:length(sbj_good_idx)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.GOOD.corr_rej.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
         
-        % EARLY CORR_REJ
-        rewarding.CORR_REJ.EARLY.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
-        rewarding.CORR_REJ.EARLY.(hpc_or_ctx{:})(2:length(idx_early)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.EARLY.corr_rej.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
-        
-        % LATE CORR_REJ
-        rewarding.CORR_REJ.LATE.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
-        rewarding.CORR_REJ.LATE.(hpc_or_ctx{:})(2:length(idx_late)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.LATE.corr_rej.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
-        
-        % LATE CORR_REJ
-        rewarding.CORR_REJ.FAIL.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
-        rewarding.CORR_REJ.FAIL.(hpc_or_ctx{:})(2:length(idx_fail)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.FAIL.corr_rej.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
+        % BAD CORR_REJ
+        rewarding.CORR_REJ.BAD.(hpc_or_ctx{:}){1, fn_i} = fn{fn_i};
+        rewarding.CORR_REJ.BAD.(hpc_or_ctx{:})(2:length(sbj_bad_idx)+1, fn_i) = cellfun(@(x) x, num2cell(rewarding.ROC_pattern.BAD.corr_rej.(hpc_or_ctx{:}).(fn{fn_i})), 'UniformOutput', false);
         
     end
     
@@ -418,9 +400,9 @@ save('half_2_corr+incorr_rewarding_patterns.mat',"rewarding")
 % end
 
 %% excel
-for perf={'EARLY','LATE','FAIL'}
+for perf={'GOOD','BAD'}
     for reg={'hpc','ctx'}
-        fn = fieldnames(rewarding.LATE.(reg{:}));
+        fn = fieldnames(rewarding.BAD.(reg{:}));
         for hcc={'HIT','CORR_REJ','contrast'}
             T = cell2table(rewarding.(hcc{:}).(perf{:}).(reg{:})(2:end,:),'VariableNames', fn');
             
@@ -434,9 +416,9 @@ end
 half_1=load('half_1_rewarding_patterns.mat');
 half_2=load('half_2_rewarding_patterns.mat');
 
-for perf={'EARLY','LATE','FAIL'}
+for perf={'GOOD','BAD'}
     for reg={'hpc','ctx'}
-        fn = fieldnames(rewarding.FAIL.(reg{:}));
+        fn = fieldnames(rewarding.BAD.(reg{:}));
         
         for hcc={'HIT','CORR_REJ','contrast'}
             hf1=cell2mat(half_1.rewarding.(hcc{:}).(perf{:}).(reg{:})(2:end,:));
@@ -465,9 +447,11 @@ for m_o = main_or_ODT
     disp(m_o)
     
     same_ctxt=struct;diff_ctxt=struct;
-
+    if strcmp(m_o{:},'main')
+        load(string(fullfile(root_path,'spm_prep_glm_0922',m_o,ver,'OC_pattern.mat')));
+    else
         load(string(fullfile(root_path,'spm_prep_glm_0922',m_o,'OC_pattern.mat')));
-
+    end
     
     % load('PS_basic_info.mat');
     % sbj_id_list=sbj_id_list(1:28)
@@ -656,9 +640,12 @@ for m_o = main_or_ODT
         end
         
         % save
-     
+        if strcmp(m_o{:}, 'main')
+            save(string(strcat(m_o{:},ver,'_patterns_0922')),"same_ctxt","diff_ctxt","sbj_id_list_41")
+            
+        else
             save(string(strcat(m_o{:},'_patterns_0922')),"same_ctxt","diff_ctxt","sbj_id_list_41")
-
+        end
         
     end
     
@@ -715,7 +702,7 @@ end
     for m_o = main_or_ODT
         
         if strcmp(m_o{:}, 'main')
-            load(string(strcat(m_o,'_patterns_0922')));
+            load(string(strcat(m_o,ver,'_patterns_0922')));
             p={'lap','half','block','all_mean'};
         else
             load(string(strcat(m_o,'_patterns_0922')));
@@ -766,7 +753,7 @@ end
                             
                             if strcmp(m_o{:}, 'main')
                                 T = cell2table(data, 'VariableNames', curr_pp);
-                                writetable(T, string(strcat(m_o,'_',(wi_ac{:}),'_',(diff_same{:}),'_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet',curr_names{r});
+                                writetable(T, string(strcat(m_o,'_',ver,'_',(wi_ac{:}),'_',(diff_same{:}),'_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet',curr_names{r});
                                 
                             else
                                 T = cell2table(data, 'VariableNames', curr_names);
@@ -802,8 +789,8 @@ end
                             
                             for r=1:numel(bi_names)
                                 
-                                T_L=readtable(string(strcat(m_o,'_',(wi_ac{:}),'_',(diff_same{:}),'_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet', curr_names{r});
-                                T_R=readtable(string(strcat(m_o,'_',(wi_ac{:}),'_',(diff_same{:}),'_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet', curr_names{r+(numel(curr_names)/2)});
+                                T_L=readtable(string(strcat(m_o,'_',ver,'_',(wi_ac{:}),'_',(diff_same{:}),'_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet', curr_names{r});
+                                T_R=readtable(string(strcat(m_o,'_',ver,'_',(wi_ac{:}),'_',(diff_same{:}),'_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet', curr_names{r+(numel(curr_names)/2)});
                                 
                                 
                                 for col=1:numel(T_L(1,:))
@@ -813,7 +800,7 @@ end
                                 now.(wi_ac{:}).(hpc_or_ctx{:}).(pp{:}).(diff_same{:}).(bi_names{r})=T_Bi;
                                 
                                 T = array2table(T_Bi, 'VariableNames',T_L.Properties.VariableNames);
-                                writetable(T, string(strcat(m_o,'_',(wi_ac{:}),'_',(diff_same{:}),'_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet',bi_names{r});
+                                writetable(T, string(strcat(m_o,'_',ver,'_',(wi_ac{:}),'_',(diff_same{:}),'_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet',bi_names{r});
                                 
                             end
                         end
@@ -869,16 +856,16 @@ end
                 p={'lap','half','block','all_mean'};
                 for pp=p
                     
-                    temp_tbl=string(strcat(m_o,'_',(wi_ac{:}),'_',(diff_same{:}),'_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx'));
+                    temp_tbl=string(strcat(m_o,'_',ver,'_',(wi_ac{:}),'_',(diff_same{:}),'_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx'));
                     sheets=sheetnames(temp_tbl);
                     for shts=1:numel(sheets)
-                        same_ptn=readtable(string(strcat(m_o,'_',(wi_ac{:}),'_same_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet',sheets(shts));
-                        diff_ptn=readtable(string(strcat(m_o,'_',(wi_ac{:}),'_diff_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet',sheets(shts));
+                        same_ptn=readtable(string(strcat(m_o,'_',ver,'_',(wi_ac{:}),'_same_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet',sheets(shts));
+                        diff_ptn=readtable(string(strcat(m_o,'_',ver,'_',(wi_ac{:}),'_diff_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet',sheets(shts));
                         
                         s_d_ptn=table2array(same_ptn)-table2array(diff_ptn);
                         
                         T = array2table(s_d_ptn, 'VariableNames', same_ptn.Properties.VariableNames);
-                        writetable(T,string(strcat(m_o,'_',(wi_ac{:}),'_same-diff_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet',sheets(shts));
+                        writetable(T,string(strcat(m_o,'_',ver,'_',(wi_ac{:}),'_same-diff_',(hpc_or_ctx{:}),'_',(pp{:}), '_final_pattern_0922.xlsx')),'Sheet',sheets(shts));
                     end
                 end
             end
